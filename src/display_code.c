@@ -1,6 +1,7 @@
 #include "classfile.h"
 #include "display.h"
 #include "bytecode.h"
+#include "reader.h"
 
 
 static void print_cp_operands(const ClassFile* cf, u1 operands, 
@@ -100,15 +101,25 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
 
   if (opi->type == OP_SPECIAL) {
     switch (opc) {
-      // tableswitch
+      // tableswitch 
       case opc_tableswitch: 
         print_tableswitch_operands(code_reader, indent, out);
         break;
       
+      // lookupswitch
       case opc_lookupswitch:
         print_lookupswitch_operands(code_reader, indent, out);
         break;
         
+      // iinc
+      case opc_iinc: {
+        uint8_t index = read_u1(code_reader);
+        int8_t increment = (int8_t)read_u1(code_reader);
+
+        fprintf(out, "%d, %+d", index, increment);
+        break;
+      }
+
       default:
         break;
 
