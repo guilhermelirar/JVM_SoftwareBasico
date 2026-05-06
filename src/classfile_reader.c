@@ -169,7 +169,7 @@ void read_attribute_info(Reader* r, ClassFile* cf,
   } 
 
   for (u4 i = 0; i < attr->attribute_length; i++) {
-    read_u1(r);
+    attr->info.raw[i] = read_u1(r);
   }
   
 }
