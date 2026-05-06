@@ -46,6 +46,7 @@ typedef uint64_t u8;
 // Forward declarations necessárias
 typedef struct attribute_info attribute_info;
 typedef struct Code_attribute Code_attribute;
+typedef struct Exceptions_attribute Exceptions_attribute;
 
 // Access_flags permitidas para cada contexto
 typedef enum {
@@ -116,6 +117,7 @@ struct attribute_info {
   union {
     u2 constantvalue_index;
     Code_attribute* code_attribute;
+    Exceptions_attribute* exceptions_attribute;
     u1 *raw;
   } info;
 };
@@ -138,6 +140,11 @@ struct Code_attribute {
   exception_info* exception_table;
   u2 attributes_count;
   attribute_info* attributes;
+};
+
+struct Exceptions_attribute {
+  u2 number_of_exceptions;
+  u2 *exception_index_table;
 };
 
 typedef struct {
