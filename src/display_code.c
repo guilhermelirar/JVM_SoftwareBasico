@@ -15,7 +15,15 @@ static void print_cp_operands(const ClassFile* cf, u1 operands,
   print_cp_value(idx, cf, out); 
 }
 
-static void print_local_literal_operands(u1 operands, Reader* code, FILE* out) {
+static void print_local_operands(u1 operands, Reader* code, FILE* out) {
+  if (operands == 2) {
+    fprintf(out, "%d", read_u2(code));
+  } else {
+    fprintf(out, "%d", read_u1(code));
+  }
+}
+
+static void print_literal_operands(u1 operands, Reader* code, FILE* out) {
   if (operands == 2) {
     fprintf(out, "%d", (int16_t)read_u2(code));
   } else {
@@ -96,6 +104,7 @@ static void print_invokeinterface_operands(Reader* code,
 }
 
 
+
 void print_operands(const ClassFile* cf, Reader *code_reader,
     u1 opc, FILE* out, int indent) {
   const opcode_info* opi = &opcode_table[opc];
@@ -105,8 +114,12 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
     print_cp_operands(cf, opi->operands, code_reader, out);
   }
 
-  if (opi->type == OP_LOCAL || opi->type == OP_LITERAL) {
-    print_local_literal_operands(opi->operands, code_reader, out);
+  if (opi->type == OP_LOCAL) {
+    print_local_operands(opi->operands, code_reader, out);
+  }
+
+  if (opi->type == OP_LITERAL) {
+    print_literal_operands(opi->operands, code_reader, out);
   }
 
   if (opi->type == OP_BRANCH) {
@@ -137,6 +150,7 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
       // invokeinterface 
       case opc_invokeinterface:
         print_invokeinterface_operands(code_reader, cf, out);
+
       default:
         break;
 
