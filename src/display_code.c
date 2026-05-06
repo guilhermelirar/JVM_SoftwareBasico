@@ -180,6 +180,15 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
         read_u2(code_reader);
         break;
 
+      case opc_multianewarray: {
+        // indexbyte{1,2} dimensions
+        u2 index = read_u2(code_reader);
+        u1 dimensions = read_u1(code_reader);
+        fprintf(out, "%u [%u]\t  //", index, dimensions);
+        print_cp_value(index, cf, out);
+      }
+
+
       default:
         break;
 
