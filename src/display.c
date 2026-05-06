@@ -291,13 +291,19 @@ void print_attributes(const ClassFile *cf, u2 count,
     // identificando atributo
     if (strcmp(name, "ConstantValue") == 0) {
       print_indent(indent+4, file);
-      fprintf(file, "Constant Value index: #%d\n", attributes[i].info.constantvalue_index);
+      fprintf(file, "Constant Value index: #%d\n", 
+          attributes[i].info.constantvalue_index);
     } 
-    else if (strcmp(name, "Code") == 0) {
+    
+    if (strcmp(name, "Code") == 0) {
       print_indent(indent+4, file);
       fprintf(file, "Bytecode length: %u\n", 
           attributes[i].info.code_attribute->code_length);
       print_code(cf, attributes[i].info.code_attribute, file, indent+6);    
+    }
+
+    if (strcmp(name, "Exceptions") == 0) {
+      // TODO
     }
   }
 }

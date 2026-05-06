@@ -204,7 +204,6 @@ void print_code(const ClassFile *cf,
 
   Reader code_reader = { code->code, code->code_length, 0 };
   
-  // TODO operandos
   while (code_reader.pos < code_reader.size) {
     print_indent(indent, out);
     u4 pc = code_reader.pos;
@@ -215,6 +214,28 @@ void print_code(const ClassFile *cf,
     fputc('\n', out);
   }
 
+  // Exceptions
+  if (code->exception_table_length) {
+    print_indent(indent-2, out);
+    fputs("Exception table:\n", out);
+    print_indent(indent, out);
+    fputs("from    to   target type\n", out);
+  }
+
+  for (u2 i = 0; i < code->exception_table_length; i++) {
+    print_indent(indent, out);
+
+    // from to target
+    fprintf(out, "%4u %5u %8u ", 
+        code->exception_table[i].start_pc,
+        code->exception_table[i].end_pc,
+        code->exception_table[i].handler_pc);
+   
+    // type
+    print_cp_value(code->exception_table[i].catch_type, 
+        cf, out);
+    fputc('\n', out);
+  }
 
   return;
 }
