@@ -180,6 +180,7 @@ void read_attribute_info(Reader* r, ClassFile* cf,
     // malloc exceptions_attribute
     attr->info.exceptions_attribute = malloc(sizeof(Exceptions_attribute));
     read_exceptions(r, attr->info.exceptions_attribute);
+    return;
   }
 
   for (u4 i = 0; i < attr->attribute_length; i++) {
