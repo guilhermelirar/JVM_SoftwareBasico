@@ -12,7 +12,7 @@
 ATRIBUTOS
 [x] code
 [x] constantvalue
-[] exception
+[x] exceptions
 (op?)
   [] sourcefile
   [] linenumbertable
