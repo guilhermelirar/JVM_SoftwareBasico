@@ -174,6 +174,12 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
         print_wide_operands(code_reader, out);
         break;
 
+      case opc_invokedynamic:
+        // indexbyte{1, 2}, 0, 0
+        print_cp_operands(cf, 2, code_reader, out);
+        read_u2(code_reader);
+        break;
+
       default:
         break;
 
