@@ -104,6 +104,23 @@ static void print_invokeinterface_operands(Reader* code,
 }
 
 
+static void print_wide_operands(Reader* code, FILE* out) {
+  u1 opc = read_u1(code);
+
+  // format 2 (iinc)
+  if (opc == opc_iinc) {
+      u2 index = read_u2(code);                   // indexbyte{1,2}
+      int16_t increment = (int16_t)read_u2(code); // constbyte{1,2}
+
+      fprintf(out, "iinc %u, %+d", index, increment);
+      return;
+  }
+
+  // format 1 (iload, fload, aload, lload, dload, istore, 
+  //           fstore, astore, lstore, dstore, ret)
+  fprintf(out, "%s ", opcode_table[opc].name);
+  print_local_operands(2, code, out);
+}
 
 void print_operands(const ClassFile* cf, Reader *code_reader,
     u1 opc, FILE* out, int indent) {
@@ -140,7 +157,7 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
         
       // iinc
       case opc_iinc: {
-        uint8_t index = read_u1(code_reader);
+        u1 index = read_u1(code_reader);
         int8_t increment = (int8_t)read_u1(code_reader);
 
         fprintf(out, "%d, %+d", index, increment);
@@ -150,6 +167,12 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
       // invokeinterface 
       case opc_invokeinterface:
         print_invokeinterface_operands(code_reader, cf, out);
+        break;
+
+      // wide
+      case opc_wide:
+        print_wide_operands(code_reader, out);
+        break;
 
       default:
         break;
