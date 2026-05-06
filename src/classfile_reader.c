@@ -152,6 +152,14 @@ void read_code_attribute(
       code_attr->attributes_count, code_attr->attributes);
 }
 
+static void read_exceptions(Reader *r, Exceptions_attribute* e) {
+  e->number_of_exceptions = read_u2(r);
+  e->exception_index_table = calloc(e->number_of_exceptions, sizeof(u2));
+  for (u2 i = 0; i < e->number_of_exceptions; i++) {
+    e->exception_index_table[i] = read_u2(r);
+  }
+}
+
 void read_attribute_info(Reader* r, ClassFile* cf, 
     attribute_info* attr) {
   const char* attr_name = cp_get_utf8(cf, attr->attribute_name_index);
@@ -168,8 +176,14 @@ void read_attribute_info(Reader* r, ClassFile* cf,
     return;
   } 
 
+  if (strcmp(attr_name, "Exceptions") == 0) {
+    // malloc exceptions_attribute
+    attr->info.exceptions_attribute = malloc(sizeof(Exceptions_attribute));
+    read_exceptions(r, attr->info.exceptions_attribute);
+  }
+
   for (u4 i = 0; i < attr->attribute_length; i++) {
-    attr->info.raw[i] = read_u1(r);
+    read_u1(r);
   }
   
 }
@@ -309,6 +323,14 @@ void free_attributes(ClassFile* cf, attribute_info* attributes, u2 attributes_co
         }
 
         free(attributes[i].info.code_attribute);
+      }
+    }
+
+    if (strcmp(name, "Exceptions") == 0) {
+      Exceptions_attribute* exc = attributes[i].info.exceptions_attribute;
+      if (exc) {
+        free(exc->exception_index_table);
+        free(exc);
       }
     }
   }
