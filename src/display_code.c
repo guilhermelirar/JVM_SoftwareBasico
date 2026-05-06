@@ -11,15 +11,15 @@ static void print_cp_operands(const ClassFile* cf, u1 operands,
   u2 idx = operands == 2 ? read_u2(code) :
   read_u1(code);
 
-  fprintf(out, "#%-10d // ", idx);
+  fprintf(out, "#%-10u // ", idx);
   print_cp_value(idx, cf, out); 
 }
 
 static void print_local_operands(u1 operands, Reader* code, FILE* out) {
   if (operands == 2) {
-    fprintf(out, "%d", read_u2(code));
+    fprintf(out, "%u", read_u2(code));
   } else {
-    fprintf(out, "%d", read_u1(code));
+    fprintf(out, "%u", read_u1(code));
   }
 }
 
@@ -59,10 +59,10 @@ static void print_tableswitch_operands(Reader* code, int indent, FILE* out) {
   fputc('\n', out);
   print_indent(indent, out);
   
-  fprintf(out, "(%d to %d)\n", low_byte, high_byte);
+  fprintf(out, "(%u to %u)\n", low_byte, high_byte);
   for (u4 i = 0; i <= high_byte - low_byte; i++) {
     print_indent(indent, out);
-    fprintf(out, "%3d: %-3d\n", low_byte + i, base_pc + read_u4(code));
+    fprintf(out, "%3u: %-3d\n", low_byte + i, base_pc + read_u4(code));
   }
 
   print_indent(indent, out);
@@ -98,7 +98,7 @@ static void print_invokeinterface_operands(Reader* code,
   u1 count = read_u1(code);
   read_u1(code); // byte 0
 
-  fprintf(out, "#%d, %-3d     //", idx, count);
+  fprintf(out, "#%u, %-3u     //", idx, count);
 
   print_cp_value(idx, cf, out); 
 }
@@ -160,7 +160,7 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
         u1 index = read_u1(code_reader);
         int8_t increment = (int8_t)read_u1(code_reader);
 
-        fprintf(out, "%d, %+d", index, increment);
+        fprintf(out, "%u, %+d", index, increment);
         break;
       }
 
@@ -184,7 +184,7 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
 void print_code(const ClassFile *cf, 
     const Code_attribute* code, FILE* out, int indent) {
   print_indent(indent, out);
-  fprintf(out, "max_stack: %d, max_locals: %d\n", code->max_stack,
+  fprintf(out, "max_stack: %u, max_locals: %u\n", code->max_stack,
       code->max_locals);
 
   Reader code_reader = { code->code, code->code_length, 0 };
@@ -194,7 +194,7 @@ void print_code(const ClassFile *cf,
     print_indent(indent, out);
     u4 pc = code_reader.pos;
     u1 opc = read_u1(&code_reader);
-    fprintf(out, "%3d: %-15s ", pc, opcode_table[opc].name);
+    fprintf(out, "%3u: %-15s ", pc, opcode_table[opc].name);
 
     print_operands(cf, &code_reader, opc, out, indent+5);
     fputc('\n', out);
