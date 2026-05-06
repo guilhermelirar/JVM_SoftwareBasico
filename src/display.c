@@ -303,7 +303,14 @@ void print_attributes(const ClassFile *cf, u2 count,
     }
 
     if (strcmp(name, "Exceptions") == 0) {
-      // TODO
+      print_indent(indent+4, file);
+      fputs("throws: ", file);
+      Exceptions_attribute *e = attributes[i].info.exceptions_attribute;
+      for (u2 i = 0; i < e->number_of_exceptions; i++) {
+        print_cp_value(e->exception_index_table[i], cf, file);
+        if (i < e->number_of_exceptions-1) fputs(", ", file);
+      }
+      fputs("\n", file);
     }
   }
 }
