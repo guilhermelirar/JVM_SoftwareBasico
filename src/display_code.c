@@ -11,7 +11,7 @@ static void print_cp_operands(const ClassFile* cf, u1 operands,
   u2 idx = operands == 2 ? read_u2(code) :
   read_u1(code);
 
-  fprintf(out, "#%d // ", idx);
+  fprintf(out, "#%-10d // ", idx);
   print_cp_value(idx, cf, out); 
 }
 
@@ -90,7 +90,7 @@ static void print_invokeinterface_operands(Reader* code,
   u1 count = read_u1(code);
   read_u1(code); // byte 0
 
-  fprintf(out, "#%d, %-3d  //", idx, count);
+  fprintf(out, "#%d, %-3d     //", idx, count);
 
   print_cp_value(idx, cf, out); 
 }

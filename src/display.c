@@ -115,22 +115,22 @@ void print_cp_value(u2 idx, const ClassFile *cf, FILE *file) {
       break;
 
     case CONSTANT_Fieldref:
-      fprintf(file, "%s.%s", 
-        cp_class_name(cf, entry->info.fieldref_info.class_index),
-        cp_nameandtype_name(cf, entry->info.fieldref_info.name_and_type_index));
+      fprintf(file, "%s.", 
+        cp_class_name(cf, entry->info.fieldref_info.class_index));
+      print_cp_value(entry->info.fieldref_info.name_and_type_index, cf, file);
       break;
 
     case CONSTANT_Methodref:
-      fprintf(file, "%s.%s", 
-        cp_class_name(cf, entry->info.methodref_info.class_index),
-        cp_nameandtype_name(cf, entry->info.methodref_info.name_and_type_index));
+      fprintf(file, "%s.", 
+        cp_class_name(cf, entry->info.methodref_info.class_index));
+      print_cp_value(entry->info.methodref_info.name_and_type_index, cf, file);
       break;
 
     case CONSTANT_InterfaceMethodref:
-      fprintf(file, "%s.%s", 
-        cp_class_name(cf, entry->info.interface_methodref_info.class_index),
-        cp_nameandtype_name(cf, 
-          entry->info.interface_methodref_info.name_and_type_index));
+      fprintf(file, "%s.", 
+        cp_class_name(cf, entry->info.interface_methodref_info.class_index));  
+      print_cp_value(entry->info.interface_methodref_info
+          .name_and_type_index, cf, file);
       break;
 
     case CONSTANT_NameAndType: 
