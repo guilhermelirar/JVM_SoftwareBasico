@@ -2,6 +2,8 @@
 #include "display.h"
 #include "bytecode.h"
 #include "reader.h"
+#include <stdio.h>
+#include <strings.h>
 
 
 static void print_cp_operands(const ClassFile* cf, u1 operands, 
@@ -82,6 +84,18 @@ static void print_lookupswitch_operands(Reader* code, int indent, FILE* out) {
   fprintf(out, "default: %d", default_offset + base_pc);
 }
 
+static void print_invokeinterface_operands(Reader* code, 
+    const ClassFile* cf, FILE* out) {
+  u2 idx = read_u2(code);
+  u1 count = read_u1(code);
+  read_u1(code); // byte 0
+
+  fprintf(out, "#%d, %-3d  //", idx, count);
+
+  print_cp_value(idx, cf, out); 
+}
+
+
 void print_operands(const ClassFile* cf, Reader *code_reader,
     u1 opc, FILE* out, int indent) {
   const opcode_info* opi = &opcode_table[opc];
@@ -120,6 +134,9 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
         break;
       }
 
+      // invokeinterface 
+      case opc_invokeinterface:
+        print_invokeinterface_operands(code_reader, cf, out);
       default:
         break;
 
