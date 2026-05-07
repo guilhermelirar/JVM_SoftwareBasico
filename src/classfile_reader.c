@@ -288,6 +288,13 @@ ClassFile *read_class(Reader *reader) {
       ); // malloc #7
   read_methods(reader, cf);
 
+
+  // Attributes
+  cf->attributes_count = read_u2(reader);
+  cf->attributes = (attribute_info*)calloc(cf->attributes_count, 
+      sizeof(attribute_info)); // calloc attributes
+  read_attributes(reader, cf, cf->attributes_count, cf->attributes);
+
   return cf;
 
 cleanup:
@@ -312,7 +319,8 @@ void free_constant_pool(ClassFile *cf) {
   cf->constant_pool = NULL;
 }
 
-void free_attributes(ClassFile* cf, attribute_info* attributes, u2 attributes_count) {
+void free_attributes(ClassFile* cf, attribute_info* attributes, 
+    u2 attributes_count) {
   if (!attributes) return;
 
   for (int i = 0; i < attributes_count; i++) {
@@ -373,10 +381,12 @@ void free_classfile(ClassFile* cf) {
   if (cf->interfaces) free(cf->interfaces);      // free #4
   if (cf->fields) free_fields(cf);               // ->free #5,6,7
   if (cf->methods) free_methods(cf);             // ->free #9,8,7
-  if (cf->constant_pool) free_constant_pool(cf); // ->free #3,2
+
   if (cf->attributes) {
-        free_attributes(cf, cf->attributes, cf->attributes_count);
+    free_attributes(cf, cf->attributes, cf->attributes_count);
   }
+
+  if (cf->constant_pool) free_constant_pool(cf); // ->free #3,2
   free(cf); // free #1
 }
 
