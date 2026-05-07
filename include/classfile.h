@@ -118,7 +118,7 @@ struct attribute_info {
     u2 constantvalue_index;
     Code_attribute* code_attribute;
     Exceptions_attribute* exceptions_attribute;
-    u1 *raw;
+    u2 sourcefile_index;
   } info;
 };
 
