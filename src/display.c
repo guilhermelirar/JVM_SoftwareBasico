@@ -281,9 +281,10 @@ void print_interfaces(const ClassFile* cf, FILE* file) {
  
 void print_attributes(const ClassFile *cf, u2 count, 
     attribute_info *attributes, FILE *file, int indent) {
+  
   for (int i = 0; i < count; i++) {
     const char *name = cp_get_utf8(cf, attributes[i].attribute_name_index);
-        
+
     // identação
     print_indent(indent, file);
     fprintf(file, "[%d] %s: \n", i, name);
@@ -311,6 +312,11 @@ void print_attributes(const ClassFile *cf, u2 count,
         if (i < e->number_of_exceptions-1) fputs(", ", file);
       }
       fputs("\n", file);
+    }
+
+    if (strcmp(name, "SourceFile") == 0) {
+      fprintf(file, "SourceFile: \"%s\"", 
+          cp_get_utf8(cf, attributes[i].info.sourcefile_index));
     }
   }
 }
@@ -377,15 +383,15 @@ void printclass(const ClassFile *cf, FILE *file) {
   fprintf(file, "Version: %d.%d\n", 
       cf->major_version, cf->minor_version);
   
-  putc('\n', file);
+  fputc('\n', file);
   print_class_constant_pool(cf, file);
  
-  putc('\n', file);
+  fputc('\n', file);
   fputs("Access Flags: ", file); 
   print_access_flags(cf->access_flags, ACCESS_CLASS, 
       ACCESS_FMT_DEBUG, file);
 
-  putc('\n', file);
+  fputc('\n', file);
   // this_class e super class
   fprintf(file, "This class: %s\n", cp_class_name(cf, cf->this_class));
   fprintf(file, "Super class: %s\n", cp_class_name(cf, cf->super_class));
@@ -394,11 +400,14 @@ void printclass(const ClassFile *cf, FILE *file) {
   fprintf(file, "Interfaces count: %d\n", cf->interfaces_count);
   if (cf->interfaces_count) print_interfaces(cf, file);
 
-  putc('\n', file);
+  fputc('\n', file);
   print_fields(cf, file);
 
   putc('\n', file);
   print_methods(cf, file);
+
+  fputc('\n', file);
+  print_attributes(cf, cf->attributes_count, cf->attributes, file, 0);
 }
 
 
