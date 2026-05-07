@@ -183,6 +183,11 @@ void read_attribute_info(Reader* r, ClassFile* cf,
     return;
   }
 
+  if (strcmp(attr_name, "SourceFile") == 0) {
+    attr->info.sourcefile_index = read_u2(r);
+  }
+
+  // Ignorando silenciosamente atributos não reconhecidos
   for (u4 i = 0; i < attr->attribute_length; i++) {
     read_u1(r);
   }
