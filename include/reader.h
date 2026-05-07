@@ -10,7 +10,7 @@ typedef uint32_t u4;
 typedef uint64_t u8;
 
 typedef struct {
-  const u1 *buf;
+  u1 *buf;
   u4 size;
   u4 pos;
 } Reader;
