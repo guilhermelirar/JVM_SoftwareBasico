@@ -9,8 +9,8 @@
 int main(int argc, const char **argv) {
   ClassFile* class;
 
-  if (argc != 2) {
-    printf("Usage:\n  %s <.class>\n", argv[0]);
+  if (argc < 2 || argc > 3) {
+    printf("Usage:\n  %s <.class> [output_file]\n", argv[0]);
     return 1;
   }
 
@@ -24,13 +24,12 @@ int main(int argc, const char **argv) {
   free(reader.buf);
   if (!class) return 1;
 
-  //FILE* out = fopen("output.txt", "w");
-  //printclass(class, out);
+  FILE* output_file = argc == 3 ? fopen(argv[2], "w") : stdout;
 
-  printclass(class, stdout);
+  printclass(class, output_file);
   free_classfile(class);
 
   fclose(file);
-  //fclose(out);
+  if (argc == 3) fclose(output_file);
   return 0;
 }
