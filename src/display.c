@@ -315,7 +315,8 @@ void print_attributes(const ClassFile *cf, u2 count,
     }
 
     if (strcmp(name, "SourceFile") == 0) {
-      fprintf(file, "SourceFile: \"%s\"", 
+      print_indent(indent+4, file);
+      fprintf(file, "\"%s\"", 
           cp_get_utf8(cf, attributes[i].info.sourcefile_index));
     }
   }
@@ -407,7 +408,10 @@ void printclass(const ClassFile *cf, FILE *file) {
   print_methods(cf, file);
 
   fputc('\n', file);
-  print_attributes(cf, cf->attributes_count, cf->attributes, file, 0);
+  fprintf(file, "Class attributes (%u): \n", cf->attributes_count);
+  print_attributes(cf, cf->attributes_count, cf->attributes, file, 4);
+
+  fputc('\n', file);
 }
 
 
