@@ -43,11 +43,6 @@ typedef uint16_t u2;
 typedef uint32_t u4;
 typedef uint64_t u8;
 
-// Forward declarations necessárias
-typedef struct attribute_info attribute_info;
-typedef struct Code_attribute Code_attribute;
-typedef struct Exceptions_attribute Exceptions_attribute;
-
 // Access_flags permitidas para cada contexto
 typedef enum {
   ACCESS_CLASS,
@@ -111,6 +106,13 @@ typedef struct {
   } info;
 } cp_info;
 
+// ATRIBUTOS
+// Forward declarations necessárias
+typedef struct attribute_info attribute_info;
+typedef struct Code_attribute Code_attribute;
+typedef struct Exceptions_attribute Exceptions_attribute;
+typedef struct LineNumberTable_attribute LineNumberTable_attribute;
+
 struct attribute_info {
   u2 attribute_name_index;
   u4 attribute_length;
@@ -119,6 +121,7 @@ struct attribute_info {
     Code_attribute* code_attribute;
     Exceptions_attribute* exceptions_attribute;
     u2 sourcefile_index;
+    LineNumberTable_attribute* line_number_table_attribute; 
   } info;
 };
 
@@ -129,7 +132,6 @@ typedef struct {
   u2 handler_pc;
   u2 catch_type; 
 } exception_info;
-
 
 struct Code_attribute {
   u2 max_stack;
@@ -145,6 +147,16 @@ struct Code_attribute {
 struct Exceptions_attribute {
   u2 number_of_exceptions;
   u2 *exception_index_table;
+};
+
+typedef struct {
+    u2 start_pc;
+    u2 line_number;
+} line_number_table_line;
+
+struct LineNumberTable_attribute {
+  u2 line_number_table_length;
+  line_number_table_line *line_number_table;
 };
 
 typedef struct {
