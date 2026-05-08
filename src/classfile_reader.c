@@ -188,6 +188,31 @@ void read_attribute_info(Reader* r, ClassFile* cf,
     return;
   }
 
+  if (strcmp(attr_name, "LineNumberTable") == 0) {
+    // malloc LineNumberTable_attribute
+    attr->info.line_number_table_attribute = 
+      (LineNumberTable_attribute*)
+      malloc(sizeof(LineNumberTable_attribute));
+   
+    u2 line_number_table_len = read_u2(r);
+    attr->info.line_number_table_attribute->line_number_table_length =
+      line_number_table_len;
+
+    // malloc das linhas
+    attr->info.line_number_table_attribute->line_number_table = 
+      (line_number_table_line*)calloc(line_number_table_len, 
+          sizeof(line_number_table_line));
+
+    for (u2 j = 0; j < line_number_table_len; j++) {
+      line_number_table_line *entry = &attr->info.
+        line_number_table_attribute->line_number_table[j];
+    
+      entry->start_pc = read_u2(r);
+      entry->line_number = read_u2(r);
+    }
+    return;
+  }
+
   // Ignorando silenciosamente atributos não reconhecidos
   for (u4 i = 0; i < attr->attribute_length; i++) {
     read_u1(r);
@@ -347,6 +372,12 @@ void free_attributes(ClassFile* cf, attribute_info* attributes,
         free(exc->exception_index_table);
         free(exc);
       }
+    }
+
+    if (strcmp(name, "LineNumberTable") == 0) {
+      free(attributes[i].info.
+          line_number_table_attribute->line_number_table);
+      free(attributes[i].info.line_number_table_attribute);
     }
   }
 
