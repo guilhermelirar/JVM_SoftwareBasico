@@ -237,5 +237,11 @@ void print_code(const ClassFile *cf,
     fputc('\n', out);
   }
 
+  // Exibindo atributos internos
+  if (code->attributes_count > 0) {
+    print_attributes(cf, code->attributes_count, 
+        code->attributes, out, indent + 2);
+  }
+
   return;
 }

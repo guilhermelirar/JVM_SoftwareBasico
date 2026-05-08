@@ -307,9 +307,9 @@ void print_attributes(const ClassFile *cf, u2 count,
       print_indent(indent+4, file);
       fputs("throws: ", file);
       Exceptions_attribute *e = attributes[i].info.exceptions_attribute;
-      for (u2 i = 0; i < e->number_of_exceptions; i++) {
-        print_cp_value(e->exception_index_table[i], cf, file);
-        if (i < e->number_of_exceptions-1) fputs(", ", file);
+      for (u2 j = 0; j < e->number_of_exceptions; j++) {
+        print_cp_value(e->exception_index_table[j], cf, file);
+        if (j < e->number_of_exceptions-1) fputs(", ", file);
       }
       fputs("\n", file);
     }
@@ -318,6 +318,17 @@ void print_attributes(const ClassFile *cf, u2 count,
       print_indent(indent+4, file);
       fprintf(file, "\"%s\"", 
           cp_get_utf8(cf, attributes[i].info.sourcefile_index));
+    }
+
+    if (strcmp(name, "LineNumberTable") == 0) {
+      LineNumberTable_attribute* attr_info = attributes[i].
+        info.line_number_table_attribute; 
+      for (u2 j = 0; j < attr_info->line_number_table_length; j++) {
+        print_indent(indent+4, file);
+        fprintf(file, "line %3u: %-3u\n", 
+            attr_info->line_number_table[j].line_number,
+            attr_info->line_number_table[j].start_pc);
+      }
     }
   }
 }
