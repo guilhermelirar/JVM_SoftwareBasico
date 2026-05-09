@@ -1,5 +1,9 @@
+#include "classfile.h"
 #include "classfile_reader.h"
+#include "reader.h"
 #include "string.h"
+#include <stdlib.h>
+#include <strings.h>
 
 void read_code_attribute(
   Reader *r,
@@ -50,6 +54,48 @@ static void read_exceptions(Reader *r, Exceptions_attribute* e) {
   e->exception_index_table = calloc(e->number_of_exceptions, sizeof(u2));
   for (u2 i = 0; i < e->number_of_exceptions; i++) {
     e->exception_index_table[i] = read_u2(r);
+  }
+}
+
+static void read_LocalVariableTable(Reader *r, attribute_info* attr) 
+{
+  // Alocar tabela
+  LocalVariableTable_attribute* local_var_table_attr = 
+    (LocalVariableTable_attribute*)
+    malloc(sizeof(LocalVariableTable_attribute));
+
+  if (local_var_table_attr == NULL) {
+    for (u4 i = 0; i < attr->attribute_length; i++)
+      read_u1(r);
+    return;
+  }
+
+  attr->info.local_variable_table_attribute = local_var_table_attr;
+
+  u2 length = read_u2(r);
+  local_var_table_attr->local_variable_table_length = length;
+
+  local_var_table_attr->local_variable_table = (LocalVariableTable_entry*)
+    calloc(length, sizeof(LocalVariableTable_entry));
+
+  if (local_var_table_attr->local_variable_table == NULL) {
+    while (local_var_table_attr->local_variable_table_length--) 
+    {
+      read_u4(r); read_u4(r); // 8 bytes cada entrada
+    }
+    return;
+  }
+
+  // Lendo cada uma das entradas
+  LocalVariableTable_entry* entry;
+  for (u2 i = 0; i < local_var_table_attr->local_variable_table_length; i++) 
+  {
+    entry = &local_var_table_attr->local_variable_table[i];
+    entry->start_pc = read_u2(r);
+    entry->length = read_u2(r);
+    entry->name_index = read_u2(r);
+    entry->descriptor_index = read_u2(r);
+    entry->index = read_u2(r);
   }
 }
 
@@ -106,11 +152,14 @@ void read_attribute_info(Reader* r, ClassFile* cf,
     return;
   }
 
+  if (strcmp(attr_name, "LocalVariableTable") == 0) {
+    return read_LocalVariableTable(r, attr);
+  }
+
   // Ignorando silenciosamente atributos não reconhecidos
   for (u4 i = 0; i < attr->attribute_length; i++) {
     read_u1(r);
   }
-  
 }
 
 void read_attributes(Reader* r, ClassFile* cf,
@@ -161,6 +210,12 @@ void free_attributes(ClassFile* cf, attribute_info* attributes,
       free(attributes[i].info.
           line_number_table_attribute->line_number_table);
       free(attributes[i].info.line_number_table_attribute);
+    }
+
+    if (strcmp(name, "LocalVariableTable") == 0) {
+      free(attributes[i].info.
+          local_variable_table_attribute->local_variable_table);
+      free(attributes[i].info.local_variable_table_attribute);
     }
   }
 
