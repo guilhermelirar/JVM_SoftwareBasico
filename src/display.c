@@ -330,6 +330,25 @@ void print_attributes(const ClassFile *cf, u2 count,
             attr_info->line_number_table[j].start_pc);
       }
     }
+
+    if (strcmp(name, "LocalVariableTable") == 0) {
+      LocalVariableTable_attribute* attr_info = attributes[i]
+        .info.local_variable_table_attribute;
+
+      LocalVariableTable_entry* entry;
+      for (u2 j = 0; j < attr_info->local_variable_table_length; j++)
+      {
+        entry = &attr_info->local_variable_table[j];
+        print_indent(indent+4, file);
+        fprintf(file, 
+            "start: %u; len: %u; slot: %u; name: %s; signature: %s\n", 
+            entry->start_pc, entry->length, entry->index, 
+            cp_get_utf8(cf, entry->name_index),
+            cp_get_utf8(cf, entry->descriptor_index)
+          );
+
+      }
+    }
   }
 }
 
