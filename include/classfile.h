@@ -112,6 +112,7 @@ typedef struct attribute_info attribute_info;
 typedef struct Code_attribute Code_attribute;
 typedef struct Exceptions_attribute Exceptions_attribute;
 typedef struct LineNumberTable_attribute LineNumberTable_attribute;
+typedef struct LocalVariableTable_attribute LocalVariableTable_attribute;
 
 struct attribute_info {
   u2 attribute_name_index;
@@ -121,7 +122,8 @@ struct attribute_info {
     Code_attribute* code_attribute;
     Exceptions_attribute* exceptions_attribute;
     u2 sourcefile_index;
-    LineNumberTable_attribute* line_number_table_attribute; 
+    LineNumberTable_attribute* line_number_table_attribute;
+    LocalVariableTable_attribute* local_variable_table_attribute;
   } info;
 };
 
@@ -157,6 +159,19 @@ typedef struct {
 struct LineNumberTable_attribute {
   u2 line_number_table_length;
   line_number_table_line *line_number_table;
+};
+
+typedef struct {
+  u2 start_pc;
+  u2 length;
+  u2 name_index;
+  u2 descriptor_index;
+  u2 index;
+} LocalVariableTable_entry;
+
+struct LocalVariableTable_attribute {
+  u2 local_variable_table_length;
+  LocalVariableTable_entry* local_variable_table;
 };
 
 typedef struct {
