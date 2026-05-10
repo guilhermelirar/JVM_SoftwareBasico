@@ -199,8 +199,8 @@ void print_operands(const ClassFile* cf, Reader *code_reader,
 void print_code(const ClassFile *cf, 
     const Code_attribute* code, FILE* out, int indent) {
   print_indent(indent, out);
-  fprintf(out, "max_stack: %u, max_locals: %u\n", code->max_stack,
-      code->max_locals);
+  fprintf(out, "length: %u, max_stack: %u, max_locals: %u\n", 
+      code->code_length, code->max_stack, code->max_locals);
 
   Reader code_reader = { code->code, code->code_length, 0 };
   
@@ -239,6 +239,9 @@ void print_code(const ClassFile *cf,
 
   // Exibindo atributos internos
   if (code->attributes_count > 0) {
+    fputc('\n', out);
+    print_indent(indent, out);
+    fprintf(out, "Code attributes (%u):\n", code->attributes_count);
     print_attributes(cf, code->attributes_count, 
         code->attributes, out, indent + 2);
   }
