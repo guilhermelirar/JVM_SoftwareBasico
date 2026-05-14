@@ -1,7 +1,7 @@
-#include "classfile.h"
-#include "display.h"
-#include "bytecode.h"
-#include "reader.h"
+#include "common/classfile.h"
+#include "display/display.h"
+#include "common/bytecode.h"
+#include "common/reader.h"
 #include <stdio.h>
 #include <strings.h>
 

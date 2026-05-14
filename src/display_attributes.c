@@ -1,6 +1,6 @@
-#include "classfile.h"
-#include "display.h"
-#include "string.h"
+#include "common/classfile.h"
+#include "display/display.h"
+#include <string.h>
 #include <stdio.h>
 
 static inline void print_SourceFile_attr(const ClassFile* cf, 

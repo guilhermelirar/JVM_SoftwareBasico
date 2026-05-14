@@ -1,8 +1,8 @@
 #ifndef DISPLAY
 #define DISPLAY
 
-#include "classfile.h"
-#include "reader.h"
+#include "common/classfile.h"
+#include "common/reader.h"
 #include <stdio.h>
 
 typedef struct {

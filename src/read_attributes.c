@@ -1,9 +1,8 @@
-#include "classfile.h"
-#include "classfile_reader.h"
-#include "reader.h"
-#include "string.h"
+#include "common/classfile.h"
+#include "common/classfile_reader.h"
+#include "common/reader.h"
+#include <string.h>
 #include <stdlib.h>
-#include <strings.h>
 
 void read_code_attribute(
   Reader *r,

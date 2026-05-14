@@ -1,4 +1,4 @@
-#include "classfile.h"
+#include "common/classfile.h"
 
 const char* cp_get_utf8(const ClassFile* cf, u2 utf8_index) {
   cp_info *utf8_entry = &cf->constant_pool[utf8_index];

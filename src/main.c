@@ -1,9 +1,9 @@
-#include "reader.h"
-#include "stdio.h"
-#include "classfile.h"
-#include "display.h"
-#include "classfile_reader.h"
+#include <stdio.h>
 #include <stdlib.h>
+#include "common/reader.h"
+#include "common/classfile.h"
+#include "display/display.h"
+#include "common/classfile_reader.h"
 
 
 int main(int argc, const char **argv) {

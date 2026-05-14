@@ -1,4 +1,4 @@
-#include "reader.h"
+#include "common/reader.h"
 #include <stdlib.h>
 
 u1 *load_file(FILE *f, u4 *size) {

@@ -1,6 +1,6 @@
-#include "classfile_reader.h"
-#include "reader.h"
-#include "classfile.h"
+#include "common/classfile_reader.h"
+#include "common/reader.h"
+#include "common/classfile.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

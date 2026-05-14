@@ -1,7 +1,7 @@
 // TODO printar significado de identificadores de field
-#include "display.h"
-#include "classfile.h"
-#include "reader.h"
+#include "display/display.h"
+#include "common/classfile.h"
+#include "common/reader.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
