@@ -11,7 +11,6 @@
 #define ERR_CONSTANT_POOL_READ -2
 
 // Função principal
-ClassFile* load_class(const char* fpath);
 ClassFile* read_class(Reader *r);
 
 // Liberação de memória
