@@ -4,6 +4,8 @@
 #include "common/classfile.h"
 
 #define JVM_STACK_SIZE 1000
+#define JVM_HEAP_CAPACITY 100
+#define JVM_MAX_CLASSES 100
 
 /**
  * @brief Estrutura que representa um Frame da JVM
@@ -15,6 +17,7 @@ typedef struct {
   u4 *operand_stack;       /**< pilha de operandos */
   int stack_ptr;           /**< índice para topo da pilha */
 
+  u1* code;                /**< array do bytecide */
   cp_info* constant_pool;  /**< ponteiro para pool de constantes */
 } Frame;
 
@@ -22,7 +25,7 @@ typedef struct {
  @brief Estrutura que representa uma Thread da JVM 
  */
 typedef struct {
-  Frame frames[JVM_STACK_SIZE]; /**< Pilha de frames */ 
+  Frame* frames[JVM_STACK_SIZE]; /**< Pilha de frames */ 
   int frame_ptr;  /**<Índice para topo da pilha de frames */
 } JVM_Thread;
 
@@ -47,16 +50,23 @@ typedef struct {
  * @brief Estrutura onde instâncias são armazenadas nesta JVM
  */
 typedef struct {
-  void** entries; /**< Array de referências para os objetos ou array */
+  void* entries[JVM_HEAP_CAPACITY]; /**< Array de referências para 
+                                      os objetos ou array */
   u4 count;  /**< Número de itens armazenados */
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } Heap;
+
+typedef struct {
+  ClassFile* cf;
+  u4* static_fields;
+} LoadedClass;
 
 /**
  * @brief Estrutura que representa contexto de execução da JVM 
  */
 typedef struct {
-  ClassFile** method_area; /**< Informação das classes e métodos */
+  LoadedClass method_area[JVM_MAX_CLASSES]; 
+  /**< Informação das classes e métodos */
   int classes_count; /**< Número de .class carregados */
 
   Heap heap;    /**< Área de memória */

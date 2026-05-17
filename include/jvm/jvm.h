@@ -23,4 +23,24 @@ method_info* find_method(ClassFile *cf, const char* name,
  */
 JVM_Context* jvm_init(ClassFile* main_class);
 
+/**
+ * @brief aloca memória e inicializa um novo Frame
+ * @param cf ClassFile onde o método está declarado
+ * @param method informação do método a ser carregado
+ * @return ponteiro para o novo Frame
+ */
+Frame* new_frame(ClassFile* cf, method_info* method);
+
+/**
+ @brief Termina execução da JVM liberando toda memória alocada
+ @param ctx contexto de execução a ser desalocado
+ */
+void terminateJVM(JVM_Context* ctx);
+
+/**
+ * @brief Libera memória de um frame 
+ * @param f Frame a ser liberado  
+ */
+void free_frame(Frame* f);
+
 #endif

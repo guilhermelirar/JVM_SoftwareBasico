@@ -2,11 +2,10 @@
 #include "common/classfile.h"
 #include "common/classfile_reader.h"
 #include "jvm/jvm.h"
+#include "jvm/jvmtypes.h"
 
 int main(int argc, char** argv) 
 {
-  printf("Hello world\n");
- 
   if (argc < 2) return 1;
   
   FILE* file = fopen(argv[1], "rb");
@@ -16,9 +15,10 @@ int main(int argc, char** argv)
   ClassFile* main_class = read_class(&reader);
   free(reader.buf);
 
-  jvm_init(main_class);
+  JVM_Context* ctx = jvm_init(main_class);
 
   free_classfile(main_class);
+  terminateJVM(ctx);
   fclose(file);
   return 0;
 }
