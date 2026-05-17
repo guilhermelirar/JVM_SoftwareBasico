@@ -5,44 +5,62 @@
 
 #define JVM_STACK_SIZE 1000
 
+/**
+ * @brief Estrutura que representa um Frame da JVM
+ */
 typedef struct {
-  u4 pc; 
-  u4 *locals;
+  u4 pc;                   /**< Índice da instrução atual */
+  u4 *locals;              /**< Vetor de variáveis locais */
   
-  u4 *operand_stack;
-  int stack_ptr;
+  u4 *operand_stack;       /**< pilha de operandos */
+  int stack_ptr;           /**< índice para topo da pilha */
 
-  cp_info* constant_pool;
+  cp_info* constant_pool;  /**< ponteiro para pool de constantes */
 } Frame;
 
+/**
+ @brief Estrutura que representa uma Thread da JVM 
+ */
 typedef struct {
-  Frame frames[JVM_STACK_SIZE];
-  int frame_ptr;
+  Frame frames[JVM_STACK_SIZE]; /**< Pilha de frames */ 
+  int frame_ptr;  /**<Índice para topo da pilha de frames */
 } JVM_Thread;
 
+/**
+ * @brief representação de um Objeto nesta JVM 
+ */
 typedef struct {
-  u2 class_index;
-  u4 *fields;
+  u2 class_index; /**< Índice para classe desta instância */
+  u4 *fields;     /**< Conteúdo dos campos da instância */
 } Object;
 
+/**
+ * @brief Representação de um array de tipos primitivos.
+ */
 typedef struct {
-  u1 type;            
-  u4 length; 
-  u4 *data;
+  u1 type;   /**< Código do tipo primitivo (T-Type)  */
+  u4 length; /**< Quantidade de elementos no array. */
+  u4 *data;   /**< Ponteiro para os dados brutos */
 } JVM_Array;
 
+/**
+ * @brief Estrutura onde instâncias são armazenadas nesta JVM
+ */
 typedef struct {
-  void** entries; // array de ponteiros genericos
-  u4 count;
-  u4 capacity;
+  void** entries; /**< Array de referências para os objetos ou array */
+  u4 count;  /**< Número de itens armazenados */
+  u4 capacity; /**< Capacidade máxima de referências suportada */
 } Heap;
 
+/**
+ * @brief Estrutura que representa contexto de execução da JVM 
+ */
 typedef struct {
-  ClassFile** method_area;
-  int classes_count;
+  ClassFile** method_area; /**< Informação das classes e métodos */
+  int classes_count; /**< Número de .class carregados */
 
-  Heap heap;
-  JVM_Thread t;
+  Heap heap;    /**< Área de memória */
+  JVM_Thread t; /**< Thread a ser executada (multithread não suportada) */
 } JVM_Context;
 
 #endif
