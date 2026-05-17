@@ -16,8 +16,10 @@ method_info* find_method(ClassFile *cf, const char* name,
   {
     m = &cf->methods[method_idx];
     if (
-        strcmp(name, cp_get_utf8(cf, m->name_index)) == 0 && 
-        strcmp(descriptor, cp_get_utf8(cf, m->descriptor_index)) == 0
+        strcmp(name, 
+          cp_get_utf8(cf->constant_pool, m->name_index)) == 0 && 
+        strcmp(descriptor, 
+          cp_get_utf8(cf->constant_pool, m->descriptor_index)) == 0
         ) 
     {
       return m; 
@@ -36,7 +38,7 @@ Frame* new_frame(ClassFile* cf, method_info* method)
   Code_attribute* code = NULL;
   for (u4 i = 0; i < method->attributes_count; i++)
   {
-    if (strcmp("Code", cp_get_utf8(cf, 
+    if (strcmp("Code", cp_get_utf8(cf->constant_pool, 
             method->attributes[i].attribute_name_index)) == 0)
     {
       code = method->attributes[i].info.code_attribute;
@@ -63,7 +65,7 @@ JVM_Context* jvm_init(ClassFile* main_class)
   {
     printf("ERROR: method main (public void main(String[] args))" 
         "not found in class \"%s\"\n", 
-        cp_class_name(main_class, main_class->this_class));
+        cp_class_name(main_class->constant_pool, main_class->this_class));
     return NULL;
   }
 

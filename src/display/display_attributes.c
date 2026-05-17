@@ -8,7 +8,7 @@ static inline void print_SourceFile_attr(const ClassFile* cf,
 {
   print_indent(indent, file);
   fprintf(file, "\"%s\"", 
-  cp_get_utf8(cf, sourcefile_index));
+  cp_get_utf8(cf->constant_pool, sourcefile_index));
 }
 
 static void print_ConstantValue_attr(const ClassFile *cf, attribute_info* attr,
@@ -53,8 +53,8 @@ static void print_LocalVariableTable_attr(const ClassFile* cf,
     fprintf(file, 
             "start: %u; len: %u; slot: %u; name: %s; signature: %s\n", 
             entry->start_pc, entry->length, entry->index, 
-            cp_get_utf8(cf, entry->name_index),
-            cp_get_utf8(cf, entry->descriptor_index)
+            cp_get_utf8(cf->constant_pool, entry->name_index),
+            cp_get_utf8(cf->constant_pool, entry->descriptor_index)
     );
   }
 }
@@ -63,7 +63,8 @@ void print_attributes(const ClassFile *cf, u2 count,
     attribute_info *attributes, FILE *file, int indent) {
   
   for (int i = 0; i < count; i++) {
-    const char *name = cp_get_utf8(cf, attributes[i].attribute_name_index);
+    const char *name = cp_get_utf8(cf->constant_pool, 
+        attributes[i].attribute_name_index);
 
     // identação
     print_indent(indent, file);

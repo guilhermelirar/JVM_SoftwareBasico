@@ -100,7 +100,8 @@ static void read_LocalVariableTable(Reader *r, attribute_info* attr)
 
 void read_attribute_info(Reader* r, ClassFile* cf, 
     attribute_info* attr) {
-  const char* attr_name = cp_get_utf8(cf, attr->attribute_name_index);
+  const char* attr_name = cp_get_utf8(cf->constant_pool, 
+      attr->attribute_name_index);
   
   // Caso constan value, indice para constant_pool
   if (strcmp(attr_name, "ConstantValue") == 0) {
@@ -177,7 +178,8 @@ void free_attributes(ClassFile* cf, attribute_info* attributes,
   if (!attributes) return;
 
   for (int i = 0; i < attributes_count; i++) {
-    const char* name = cp_get_utf8(cf, attributes[i].attribute_name_index);
+    const char* name = cp_get_utf8(cf->constant_pool, 
+        attributes[i].attribute_name_index);
 
     if (strcmp(name, "Code") == 0) {
       if (attributes[i].info.code_attribute) {

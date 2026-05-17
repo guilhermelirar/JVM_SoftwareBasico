@@ -278,7 +278,8 @@ typedef struct {
   u2 this_class; /**< Índice para CONSTANT_Class representando classe atual */
   u2 super_class;/**< Índice para CONSTANT_Class representando classe mãe */
   u2 interfaces_count;/**< Número de interfaces implementadas pela classe */
-  u2 *interfaces;/**< Array de índices de CONSTANT_Class representando interfaces*/
+  u2 *interfaces;/**< Array de índices de CONSTANT_Class representando 
+                   interfaces*/
   u2 fields_count;/**< Número de varíáveis de classe ou instância*/
   field_info *fields;/**< Tabela com descrição de campo de classe e interface */
   u2 methods_count;/**< Número de métodos (não herdados) da classe*/
@@ -292,32 +293,32 @@ typedef struct {
 /**
  * @brief Resolve e retorna uma utf_8 a partir do índice 
  * para uma CONSTANT_Class na constant_pool.
- * @param cf Ponteiro para a classe do constant_pool a ser usado na busca.
+ * @param cp Ponteiro constant_pool a ser usado na busca.
  * @param class_index índice válido para CONSTANT_Class na constant_pool.
  * @return Ponteiro para string C representando utf-8 de nome da classe. 
  *  Ou string "<invalid class>" se índice não aponta para CONSTANT_Class
  */
-const char* cp_class_name(const ClassFile *cf, u2 class_index);
+const char* cp_class_name(cp_info* cp, u2 class_index);
 
 /**
  * @brief Resolve e retorna uma utf_8 a partir do índice 
  * para uma CONSTANT_NameAndType na constant_pool.
- * @param cf Ponteiro para a classe do constant_pool a ser usado na busca.
+ * @param cp Ponteiro constant_pool a ser usado na busca.
  * @param nt_index índice válido para CONSTANT_NameAndType na constant_pool.
  * @return Ponteiro para string C representando utf-8 do name_index 
  * do name_and_type_info. Ou string "<invalid nt>" se índice fornecido não 
  * aponta para CONSTANT_NameAndType
  */
-const char* cp_nameandtype_name(const ClassFile *cf, u2 nt_index);
+const char* cp_nameandtype_name(cp_info* cp, u2 nt_index);
 
 /**
  * @brief Resolve e retorna uma utf_8 a partir do índice 
  * para uma CONSTANT_Utf8 na constant_pool.
- * @param cf Ponteiro para a classe do constant_pool a ser usado na busca.
+ * @param cp Ponteiro constant_pool a ser usado na busca.
  * @param utf_index índice válido para CONSTANT_Utf8 na constant_pool.
  * @return Ponteiro para string C representando utf-8 em bytes. Ou
  * string "<invalid UTF-8>" caso índice não aponte para CONSTANT_Utf8
  */
-const char* cp_get_utf8(const ClassFile *cf, u2 utf8_index);
+const char* cp_get_utf8(cp_info* cp, u2 utf8_index);
 
 #endif

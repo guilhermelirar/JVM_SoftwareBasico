@@ -111,40 +111,45 @@ void print_cp_value(u2 idx, const ClassFile *cf, FILE *file) {
   cp_info* entry = &cf->constant_pool[idx];
   switch (entry->tag) {
     case CONSTANT_Class:
-      fputs(cp_class_name(cf, idx), file);
+      fputs(cp_class_name(cf->constant_pool, idx), file);
       break;
 
     case CONSTANT_Fieldref:
       fprintf(file, "%s.", 
-        cp_class_name(cf, entry->info.fieldref_info.class_index));
+        cp_class_name(cf->constant_pool, 
+          entry->info.fieldref_info.class_index));
       print_cp_value(entry->info.fieldref_info.name_and_type_index, cf, file);
       break;
 
     case CONSTANT_Methodref:
       fprintf(file, "%s.", 
-        cp_class_name(cf, entry->info.methodref_info.class_index));
+        cp_class_name(cf->constant_pool, 
+          entry->info.methodref_info.class_index));
       print_cp_value(entry->info.methodref_info.name_and_type_index, cf, file);
       break;
 
     case CONSTANT_InterfaceMethodref:
       fprintf(file, "%s.", 
-        cp_class_name(cf, entry->info.interface_methodref_info.class_index));  
+        cp_class_name(cf->constant_pool, 
+          entry->info.interface_methodref_info.class_index));  
       print_cp_value(entry->info.interface_methodref_info
           .name_and_type_index, cf, file);
       break;
 
     case CONSTANT_NameAndType: 
       fprintf(file, "%s:%s", 
-        cp_nameandtype_name(cf, idx),
-        cp_get_utf8(cf, entry->info.name_and_type_info.descriptor_index));
+        cp_nameandtype_name(cf->constant_pool, idx),
+        cp_get_utf8(cf->constant_pool, 
+          entry->info.name_and_type_info.descriptor_index));
       break;
 
     case CONSTANT_Utf8: 
-      print_utf8(file, cp_get_utf8(cf, idx));
+      print_utf8(file, cp_get_utf8(cf->constant_pool, idx));
       break;
       
     case CONSTANT_String: 
-      print_utf8(file, cp_get_utf8(cf, entry->info.string_info.string_index));
+      print_utf8(file, cp_get_utf8(cf->constant_pool, 
+            entry->info.string_info.string_index));
       break;
 
     case CONSTANT_Integer:
@@ -275,7 +280,7 @@ void print_interfaces(const ClassFile* cf, FILE* file) {
   for (int i = 0; i < cf->interfaces_count; i++) {
     u2 class_idx = cf->interfaces[i];
     fprintf(file, "  #%2d: (#%d) %s\n", i, class_idx,
-        cp_class_name(cf, class_idx));
+        cp_class_name(cf->constant_pool, class_idx));
   }
 }
  
@@ -286,8 +291,10 @@ void print_class_member(const ClassFile* cf,
   access_context_t access_ctx, u2 access_flags,
   FILE* file) {
   
-  fprintf(file, "  [%d] Name: %s\n", index, cp_get_utf8(cf, name_index));
-  fprintf(file, "      Descriptor: %s\n", cp_get_utf8(cf, descriptor_index));
+  fprintf(file, "  [%d] Name: %s\n", index, 
+      cp_get_utf8(cf->constant_pool, name_index));
+  fprintf(file, "      Descriptor: %s\n", 
+      cp_get_utf8(cf->constant_pool, descriptor_index));
   
 
   fputs("      Access Flags: ", file); 
@@ -351,8 +358,10 @@ void printclass(const ClassFile *cf, FILE *file) {
 
   fputc('\n', file);
   // this_class e super class
-  fprintf(file, "This class: %s\n", cp_class_name(cf, cf->this_class));
-  fprintf(file, "Super class: %s\n", cp_class_name(cf, cf->super_class));
+  fprintf(file, "This class: %s\n", 
+      cp_class_name(cf->constant_pool, cf->this_class));
+  fprintf(file, "Super class: %s\n", 
+      cp_class_name(cf->constant_pool, cf->super_class));
 
   // interfaces
   fprintf(file, "Interfaces count: %d\n", cf->interfaces_count);
@@ -445,7 +454,8 @@ void print_method_definition(const ClassFile* cf, method_info* m, FILE* out) {
         ACCESS_METHOD, ACCESS_FMT_JAVA, out);
   fputc(' ', out);
   
-  const char* nt_str = cp_get_utf8(cf, m->descriptor_index);
+  const char* nt_str = cp_get_utf8(cf->constant_pool,
+      m->descriptor_index);
   
   int i = 0; 
   while (nt_str[i] && nt_str[i] != ')') i++;
@@ -454,7 +464,7 @@ void print_method_definition(const ClassFile* cf, method_info* m, FILE* out) {
   print_field_descriptor(out, nt_str, &i, 0);
   fputc(' ', out);
   // TODO implementar
-  fputs(cp_get_utf8(cf, m->name_index), out);
+  fputs(cp_get_utf8(cf->constant_pool, m->name_index), out);
   
   i = 0; 
   while (nt_str[i] && nt_str[i] != '(') i++;
