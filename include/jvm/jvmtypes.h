@@ -16,6 +16,7 @@ typedef struct {
   u4 *operand_stack;       /**< pilha de operandos */
   int stack_ptr;           /**< índice para topo da pilha */
 
+  u1* code;                /**< array do bytecide */
   cp_info* constant_pool;  /**< ponteiro para pool de constantes */
 } Frame;
 

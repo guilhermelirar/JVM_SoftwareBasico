@@ -47,7 +47,9 @@ Frame* new_frame(ClassFile* cf, method_info* method)
   frame->constant_pool = cf->constant_pool;
   frame->locals = (u4*)calloc(code->max_locals, sizeof(u4));
   frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
-  
+  frame->pc = 0;
+  frame->code = code->code;
+
   return frame;
 }
 
