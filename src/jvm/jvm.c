@@ -75,6 +75,12 @@ JVM_Context* jvm_init(ClassFile* main_class)
 
   ctx->t.frame_ptr = 0;
   ctx->t.frames[0] = new_frame(main_class, main);
+ 
+  ctx->method_area[0].cf = main_class; 
+  ctx->method_area[0].static_fields = 
+    (u4*)calloc(main_class->fields_count, sizeof(u4));
+
+  ctx->classes_count = 1;
   // TODO resto
   return ctx;
 }
@@ -86,6 +92,9 @@ void terminateJVM(JVM_Context *ctx)
     free_frame(ctx->t.frames[ctx->t.frame_ptr]);
     ctx->t.frame_ptr--;
   }
+
+  while (ctx->classes_count--)
+    free(ctx->method_area[ctx->classes_count].static_fields);
   // TODO percorrer estrutura para liberar outros ponteiros
   free(ctx);
 }

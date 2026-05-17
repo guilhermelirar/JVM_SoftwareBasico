@@ -5,6 +5,7 @@
 
 #define JVM_STACK_SIZE 1000
 #define JVM_HEAP_CAPACITY 100
+#define JVM_MAX_CLASSES 100
 
 /**
  * @brief Estrutura que representa um Frame da JVM
@@ -55,11 +56,17 @@ typedef struct {
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } Heap;
 
+typedef struct {
+  ClassFile* cf;
+  u4* static_fields;
+} LoadedClass;
+
 /**
  * @brief Estrutura que representa contexto de execução da JVM 
  */
 typedef struct {
-  ClassFile** method_area; /**< Informação das classes e métodos */
+  LoadedClass method_area[JVM_MAX_CLASSES]; 
+  /**< Informação das classes e métodos */
   int classes_count; /**< Número de .class carregados */
 
   Heap heap;    /**< Área de memória */
