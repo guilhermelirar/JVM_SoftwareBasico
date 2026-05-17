@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include "common/classfile.h"
 #include "common/classfile_reader.h"
+#include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
 
@@ -16,6 +17,7 @@ int main(int argc, char** argv)
   free(reader.buf);
 
   JVM_Context* ctx = jvm_init(main_class);
+  jvm_run(ctx);
 
   free_classfile(main_class);
   terminateJVM(ctx);

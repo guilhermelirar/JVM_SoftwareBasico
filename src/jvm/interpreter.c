@@ -1,14 +1,21 @@
 #include "jvm/interpreter.h"
 #include "common/classfile.h"
+#include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
 #include "common/bytecode.h" // IWYU pragma: keep
 #include <stdio.h>
 #include <string.h>
 
+void handle_return(JVM_Context *ctx)
+{
+  free_frame(ctx->t.frames[ctx->t.frame_ptr]);
+  ctx->t.frame_ptr--;
+}
+
 // 0
 void handle_nop(JVM_Context* ctx) {
   // Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
-};
+}
 
 // 18, 19, 20 
 void handle_ldc(JVM_Context* ctx)
@@ -77,7 +84,7 @@ void handle_getstatic(JVM_Context *ctx)
   const char* nt = cp_nameandtype_name(frame->constant_pool, nt_index);
 
   // Ignorar classes java (ex: System)
-  if (strcmp("java/lang/System", class) == 0 && strcmp("out", nt))
+  if (strcmp("java/lang/System", class) == 0 && strcmp("out", nt) == 0)
   {
     frame->operand_stack[++frame->stack_ptr] = JVM_HANDLE_SYSOUT;
     return;
@@ -135,3 +142,21 @@ const instruction_handler DISPATCH_TABLE[256] = {
 #include "jvm/dispatch_table.def"
 };
 
+void jvm_run(JVM_Context* ctx)
+{
+  while (ctx->t.frame_ptr >= 0)
+  {
+    Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+    
+    // DEBUG:
+    /*
+    printf("[DEBUG] PC: %d | Opcode: 0x%02X | Stack Top: %d\n", 
+           frame->pc, frame->code[frame->pc], frame->stack_ptr);
+    */
+    
+    u1 opcode = fetch_u1(frame->code, &frame->pc);
+    
+    DISPATCH_TABLE[opcode](ctx);
+    if (ctx->t.frame_ptr < 0) break;
+  }
+}

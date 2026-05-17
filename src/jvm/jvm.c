@@ -51,6 +51,7 @@ Frame* new_frame(ClassFile* cf, method_info* method)
   frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
   frame->pc = 0;
   frame->code = code->code;
+  frame->stack_ptr = -1;
 
   return frame;
 }
