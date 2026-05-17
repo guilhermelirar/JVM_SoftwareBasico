@@ -23,7 +23,7 @@ typedef struct {
  @brief Estrutura que representa uma Thread da JVM 
  */
 typedef struct {
-  Frame frames[JVM_STACK_SIZE]; /**< Pilha de frames */ 
+  Frame* frames[JVM_STACK_SIZE]; /**< Pilha de frames */ 
   int frame_ptr;  /**<Índice para topo da pilha de frames */
 } JVM_Thread;
 

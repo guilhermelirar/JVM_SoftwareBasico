@@ -28,6 +28,29 @@ method_info* find_method(ClassFile *cf, const char* name,
   return NULL;
 }
 
+Frame* new_frame(ClassFile* cf, method_info* method)
+{
+  Frame* frame = (Frame*)malloc(sizeof(Frame));
+  if (frame == NULL) return NULL;
+
+  Code_attribute* code = NULL;
+  for (u4 i = 0; i < method->attributes_count; i++)
+  {
+    if (strcmp("Code", cp_get_utf8(cf, 
+            method->attributes[i].attribute_name_index)) == 0)
+    {
+      code = method->attributes[i].info.code_attribute;
+      break;
+    }
+  }
+
+  frame->constant_pool = cf->constant_pool;
+  frame->locals = (u4*)calloc(code->max_locals, sizeof(u4));
+  frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
+  
+  return frame;
+}
+
 JVM_Context* jvm_init(ClassFile* main_class)
 {
   // Busca por main (obrigatório)
@@ -47,6 +70,7 @@ JVM_Context* jvm_init(ClassFile* main_class)
 
   ctx->heap.capacity = JVM_HEAP_CAPACITY;
   ctx->heap.count = 0;
+  ctx->t.frame_ptr = -1;
 
   // TODO resto
   return ctx;
@@ -54,6 +78,19 @@ JVM_Context* jvm_init(ClassFile* main_class)
 
 void terminateJVM(JVM_Context *ctx)
 {
+  while (ctx->t.frame_ptr >= 0) 
+  {
+    free_frame(ctx->t.frames[ctx->t.frame_ptr]);
+    ctx->t.frame_ptr--;
+  }
   // TODO percorrer estrutura para liberar outros ponteiros
   free(ctx);
+}
+
+void free_frame(Frame *f)
+{
+  if (f == NULL) return;
+  free(f->operand_stack);
+  free(f->locals);
+  free(f);
 }
