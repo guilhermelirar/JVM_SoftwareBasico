@@ -42,8 +42,14 @@ JVM_Context* jvm_init(ClassFile* main_class)
     return NULL;
   }
 
+  JVM_Context* ctx = (JVM_Context*)malloc(sizeof(JVM_Context));
+  if (ctx == NULL) return NULL;
+
+  ctx->heap.capacity = JVM_HEAP_CAPACITY;
+  ctx->heap.count = 0;
+
   // TODO resto
-  return NULL;
+  return ctx;
 }
 
 void terminateJVM(JVM_Context *ctx)

@@ -4,6 +4,7 @@
 #include "common/classfile.h"
 
 #define JVM_STACK_SIZE 1000
+#define JVM_HEAP_CAPACITY 100
 
 /**
  * @brief Estrutura que representa um Frame da JVM
@@ -47,7 +48,8 @@ typedef struct {
  * @brief Estrutura onde instâncias são armazenadas nesta JVM
  */
 typedef struct {
-  void** entries; /**< Array de referências para os objetos ou array */
+  void* entries[JVM_HEAP_CAPACITY]; /**< Array de referências para 
+                                      os objetos ou array */
   u4 count;  /**< Número de itens armazenados */
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } Heap;
