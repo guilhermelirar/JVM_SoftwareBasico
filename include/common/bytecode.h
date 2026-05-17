@@ -209,16 +209,31 @@
 
 
 #include "classfile.h"
+/**
+ * @brief Enum para auxiliar no tratamento da exibição de operandos
+ * de opcodes
+ */
 typedef enum { 
-    OP_NONE, OP_CP, OP_LOCAL, OP_LITERAL, OP_BRANCH, OP_SPECIAL 
+  OP_NONE,    /**< Opcode não possui operandos */
+  OP_CP,      /**< Opcode possui como operando índice para constant pool */
+  OP_LOCAL,   /**< Opcode possui como operando índice para variável local */ 
+  OP_LITERAL, /**< Opcode possui como operando um literal */
+  OP_BRANCH,  /**< Opcode possui como operando um offset de salto */ 
+  OP_SPECIAL  /**< Casos anteriores não se aplicam */
 } OpType;
 
+/**
+ * @brief Estrutura para auxiliar na exibição de opcodes.
+ */
 typedef struct {
-  const char* name;
-  int operands;
-  OpType type;
+  const char* name; /**< Mnemônico do opcode */
+  int operands;     /**< Quantidade de operandos */
+  OpType type;      /**< Tipo do opcode em relação aos operandos */
 } opcode_info;
 
+/**
+ * @brief tabela com todos os opcodes para disassembler
+ */
 extern const opcode_info opcode_table[256];
 
 #endif
