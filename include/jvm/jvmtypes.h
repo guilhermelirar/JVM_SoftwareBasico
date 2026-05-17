@@ -6,7 +6,7 @@
 #define JVM_STACK_SIZE 1000
 #define JVM_HEAP_CAPACITY 100
 #define JVM_MAX_CLASSES 100
-
+#define JVM_STRING_TABLE_SIZE 64
 /**
  * @brief Estrutura que representa um Frame da JVM
  */
@@ -62,6 +62,16 @@ typedef struct {
 } LoadedClass;
 
 /**
+ * @brief Estrutura que representa uma tabela
+ * com as strings constantes do programa
+ */
+typedef struct {
+  char* strings[JVM_STRING_TABLE_SIZE]; /**< Array de ptr para string */
+  u4 count;
+  u4 capacity;
+} StringTable;
+
+/**
  * @brief Estrutura que representa contexto de execução da JVM 
  */
 typedef struct {
@@ -70,6 +80,7 @@ typedef struct {
   int classes_count; /**< Número de .class carregados */
 
   Heap heap;    /**< Área de memória */
+  StringTable strings; /**< Área de strings constantes */
   JVM_Thread t; /**< Thread a ser executada (multithread não suportada) */
 } JVM_Context;
 
