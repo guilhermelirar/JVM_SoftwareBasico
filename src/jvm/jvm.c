@@ -1,5 +1,7 @@
+#include "jvm/jvm.h"
 #include "common/classfile.h"
 #include "jvm/jvmtypes.h"
+#include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
 
@@ -8,6 +10,7 @@ method_info* find_method(ClassFile *cf, const char* name,
 {
   if (cf == NULL) return NULL;
 
+  // Tenta procurar o método
   method_info* m = NULL;
   for (u2 method_idx = 0; method_idx < cf->methods_count; method_idx++)
   {
@@ -21,11 +24,13 @@ method_info* find_method(ClassFile *cf, const char* name,
     }
   }
 
+  // Método não encontrado
   return NULL;
 }
 
 JVM_Context* jvm_init(ClassFile* main_class)
 {
+  // Busca por main (obrigatório)
   method_info* main = find_method(main_class, "main", "([Ljava/lang/String;)V");
   if (main == NULL || 
       !(main->access_flags & ACC_PUBLIC) || 
@@ -36,5 +41,13 @@ JVM_Context* jvm_init(ClassFile* main_class)
         cp_class_name(main_class, main_class->this_class));
     return NULL;
   }
+
+  // TODO resto
   return NULL;
+}
+
+void terminateJVM(JVM_Context *ctx)
+{
+  // TODO percorrer estrutura para liberar outros ponteiros
+  free(ctx);
 }

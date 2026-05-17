@@ -23,4 +23,10 @@ method_info* find_method(ClassFile *cf, const char* name,
  */
 JVM_Context* jvm_init(ClassFile* main_class);
 
+/**
+ @brief Termina execução da JVM liberando toda memória alocada
+ @param ctx contexto de execução a ser desalocado
+ */
+void terminateJVM(JVM_Context* ctx);
+
 #endif
