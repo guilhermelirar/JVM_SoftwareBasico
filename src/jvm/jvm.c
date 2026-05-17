@@ -72,8 +72,9 @@ JVM_Context* jvm_init(ClassFile* main_class)
 
   ctx->heap.capacity = JVM_HEAP_CAPACITY;
   ctx->heap.count = 0;
-  ctx->t.frame_ptr = -1;
 
+  ctx->t.frame_ptr = 0;
+  ctx->t.frames[0] = new_frame(main_class, main);
   // TODO resto
   return ctx;
 }
