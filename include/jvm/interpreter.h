@@ -29,8 +29,11 @@ static inline u4 fetch_u4(u1* code, u4 *pc) {
   return v;
 }
 
+void main_loop(JVM_Context* ctx);
+
 void handle_nop(JVM_Context* ctx);  // 0 
 void handle_ldc(JVM_Context* ctx); // 18, 19, 20
 void handle_getstatic(JVM_Context* ctx); // 178
+void handle_invokevirtual(JVM_Context* ctx); // 182
 
 #endif

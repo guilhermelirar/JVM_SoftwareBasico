@@ -2,6 +2,7 @@
 #include "common/classfile.h"
 #include "jvm/jvmtypes.h"
 #include "common/bytecode.h" // IWYU pragma: keep
+#include <stdio.h>
 #include <string.h>
 
 // 0
@@ -84,6 +85,50 @@ void handle_getstatic(JVM_Context *ctx)
 
   // TODO busca na área de métodos
   // ... busca na área de métodos
+}
+
+
+static void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor) 
+{
+  u4 val = frame->operand_stack[frame->stack_ptr--];
+  u4 object_ref = frame->operand_stack[frame->stack_ptr--];
+
+  if (object_ref == JVM_HANDLE_SYSOUT)
+  {
+    switch (descriptor) {
+      case 'L':
+        printf("%s\n", ctx->strings.strings[val]);
+        break;
+      
+      case 'I':
+        printf("%d\n", (int)val);
+        break;
+    }
+  }
+}
+
+void handle_invokevirtual(JVM_Context *ctx) {
+  Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+  u2 cp_idx = fetch_u2(frame->code, &frame->pc);
+  cp_info* entry = &frame->constant_pool[cp_idx];
+
+  // classe do método
+  u2 class_idx = entry->info.methodref_info.class_index;
+  const char* class_name = cp_class_name(frame->constant_pool, class_idx);
+
+  // name_and_type
+  u2 nt_idx = entry->info.methodref_info.name_and_type_index;
+  cp_info* nt_entry = &frame->constant_pool[nt_idx];
+
+  // descritor
+  const char* method_name = 
+    cp_get_utf8(frame->constant_pool, nt_entry->info.name_and_type_info.name_index);
+  const char* descriptor = 
+    cp_get_utf8(frame->constant_pool, nt_entry->info.name_and_type_info.descriptor_index);
+
+  if (strcmp(class_name, "java/io/PrintStream") == 0 && 
+      strcmp(method_name, "println") == 0)
+    handle_sysout(frame, ctx, descriptor[1]);
 }
 
 const instruction_handler DISPATCH_TABLE[256] = {
