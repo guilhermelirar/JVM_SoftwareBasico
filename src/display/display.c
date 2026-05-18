@@ -381,7 +381,8 @@ void printclass(const ClassFile *cf, FILE *file) {
 }
 
 
-void print_field_descriptor(FILE *out, const char *str, int* pos, int dimensions) {
+void print_field_descriptor(FILE *out, const char *str, 
+    int* pos, int dimensions) {
   char base_char = str[*pos];
 
   switch (base_char) {
