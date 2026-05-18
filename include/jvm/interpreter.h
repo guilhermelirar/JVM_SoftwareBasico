@@ -29,13 +29,45 @@ static inline u4 fetch_u4(u1* code, u4 *pc) {
   return v;
 }
 
+/**
+ * @brief Função para o loop de execução da JVM (fetch decode e execute)
+ *
+ * @param ctx contexto de execução da JVM
+ */
 void jvm_run(JVM_Context* ctx);
 
+
+
+/**
+ * @brief Função que implementa NOP 
+ *
+ * @param ctx contexto de execução da JVM
+ */
+void handle_nop(JVM_Context* ctx);  // 0 
+
+/**
+ * @brief Função que implementa ldc (18), ldc_w (19) e ldc2_w (20) 
+ * @param ctx contexto de execução da JVM
+ */
+void handle_ldc(JVM_Context* ctx); // 18, 19, 20
+ 
+/**
+ * @brief Função que implementa execução dos opcodes de retorno (169, 172-177)
+ *
+ * @param ctx contexto de execução da JVM
+ */
 void handle_return(JVM_Context* ctx);
 
-void handle_nop(JVM_Context* ctx);  // 0 
-void handle_ldc(JVM_Context* ctx); // 18, 19, 20
+/**
+ * @brief Função que implementa getstatic (178)
+ * @param ctx contexto de execução da JVM
+ */                                  
 void handle_getstatic(JVM_Context* ctx); // 178
+
+/**
+ * @brief Função que implementa invokevirtual (182)
+ * @param ctx contexto de execução da JVM
+ */    
 void handle_invokevirtual(JVM_Context* ctx); // 182
 
 #endif

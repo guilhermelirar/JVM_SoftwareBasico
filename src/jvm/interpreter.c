@@ -148,12 +148,6 @@ void jvm_run(JVM_Context* ctx)
   {
     Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
     
-    // DEBUG:
-    /*
-    printf("[DEBUG] PC: %d | Opcode: 0x%02X | Stack Top: %d\n", 
-           frame->pc, frame->code[frame->pc], frame->stack_ptr);
-    */
-    
     u1 opcode = fetch_u1(frame->code, &frame->pc);
     
     DISPATCH_TABLE[opcode](ctx);
