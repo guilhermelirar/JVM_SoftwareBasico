@@ -56,6 +56,10 @@ typedef struct {
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } Heap;
 
+/**
+ * @brief Estrutura que representa uma tabela das classes carregadas
+ * e seus campos estáticos
+ */
 typedef struct {
   ClassFile* cf;
   u4* static_fields;
@@ -64,6 +68,8 @@ typedef struct {
 /**
  * @brief Estrutura que representa uma tabela
  * com as strings constantes do programa
+ * Contém array de ponteiros para strings que existem em 
+ * constant_pool de alguma ClassFile
  */
 typedef struct {
   char* strings[JVM_STRING_TABLE_SIZE]; /**< Array de ptr para string */
