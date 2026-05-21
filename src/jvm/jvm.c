@@ -91,6 +91,46 @@ JVM_Context* jvm_init(ClassFile* main_class)
   return ctx;
 }
 
+
+int count_args_size(const char* descriptor) 
+{
+  int count = 0;
+  int i = 1; // Pula '('
+  while (descriptor[i] != ')')
+  {
+    // Arrays sempre ocupam 1 slot
+    if (descriptor[i] == '[')
+    {
+      while (descriptor[i] == '[') i++; // Pula dimensões do array
+     
+      // Pula nome de classe
+      if (descriptor[i] == 'L') 
+      {
+        while(descriptor[i] != ';') i++;
+      }
+      
+      // Pula ';' em caso de classe, ou descritor simples
+      // que não precisa ser tratado
+      i++;
+      count++;
+      continue;
+    }
+
+    // Long e Double usam slot extra
+    if (descriptor[i] == 'D' || descriptor[i] == 'J')
+      count++;
+
+    // Pular nome de classe
+    if (descriptor[i] == 'L')
+      while(descriptor[i] != ';') i++;
+
+    count++;
+    i++;
+  }
+
+  return count;
+}
+
 void terminateJVM(JVM_Context *ctx)
 {
   while (ctx->t.frame_ptr >= 0) 

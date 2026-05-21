@@ -74,4 +74,23 @@ static inline int push_frame(JVM_Thread* t, Frame* f)
   return 0;
 }
 
+static inline Frame* current_frame(JVM_Context* ctx)
+{
+  return ctx->t.frames[ctx->t.frame_ptr];
+}
+
+static inline u4 current_pc(JVM_Context* ctx)
+{
+  return ctx->t.frames[ctx->t.frame_ptr]->pc;
+}
+
+/**
+ * @brief Conta número de slots de 32 bits para os argumentos de um método
+ * a partir de seu descritor
+ * @param descriptor string do descritor do método
+ * @return int número de slots de 32 bits ocupados pelos argumentos
+ * (número de operações push e pop)
+ */
+int count_args_size(const char* descriptor);
+
 #endif
