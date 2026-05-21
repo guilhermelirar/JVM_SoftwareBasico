@@ -19,7 +19,10 @@ void handle_nop(JVM_Context* ctx) {
   // Opcode não implementado, execução deve ser
   // encerrada
   if (opc != opc_nop) {
-    pop_frame(&ctx->t);
+    while (ctx->t.frame_ptr >= 0)
+    {
+      pop_frame(&ctx->t);
+    }
   }
 }
 
