@@ -13,7 +13,14 @@ void handle_return(JVM_Context *ctx)
 
 // 0
 void handle_nop(JVM_Context* ctx) {
-  // Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+  Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+  u1 opc = frame->code[frame->pc-1];
+  
+  // Opcode não implementado, execução deve ser
+  // encerrada
+  if (opc != opc_nop) {
+    pop_frame(&ctx->t);
+  }
 }
 
 // 18, 19, 20 
