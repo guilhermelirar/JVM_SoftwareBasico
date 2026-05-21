@@ -43,4 +43,35 @@ void terminateJVM(JVM_Context* ctx);
  */
 void free_frame(Frame* f);
 
+/**
+ * @brief Desempilha um frame da thread, liberando 
+ * sua memória 
+ * @param t Thread de execução
+ */
+static inline void pop_frame(JVM_Thread* t)
+{
+  if (t->frame_ptr < 0) return;
+  Frame* f = t->frames[t->frame_ptr--];
+  free_frame(f);
+}
+
+/**
+ * @brief Empilha um frame na thread ou retorna sem empilhar 
+ * em caso de Stack Overflow
+ * @param t Thread de execução para o frame ser empilhado
+ * @param f Frame inicializado a ser empilhado
+ */
+#define STACK_OVERFLOR_ERROR -1
+// TODO sistema de erros mais robusto
+static inline int push_frame(JVM_Thread* t, Frame* f)
+{
+  t->frame_ptr++;
+  if (t->frame_ptr >= JVM_STACK_SIZE) 
+    return STACK_OVERFLOR_ERROR; // TODO Stack Overflow Error
+  
+  t->frames[t->frame_ptr] = f;
+
+  return 0;
+}
+
 #endif

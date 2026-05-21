@@ -79,8 +79,8 @@ JVM_Context* jvm_init(ClassFile* main_class)
   ctx->strings.count = 0;
   ctx->strings.capacity = JVM_STRING_TABLE_SIZE;
 
-  ctx->t.frame_ptr = 0;
-  ctx->t.frames[0] = new_frame(main_class, main);
+  ctx->t.frame_ptr = -1;
+  push_frame(&ctx->t, new_frame(main_class, main));
  
   ctx->method_area[0].cf = main_class; 
   ctx->method_area[0].static_fields = 

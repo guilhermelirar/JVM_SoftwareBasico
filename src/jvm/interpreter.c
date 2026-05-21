@@ -8,8 +8,7 @@
 
 void handle_return(JVM_Context *ctx)
 {
-  free_frame(ctx->t.frames[ctx->t.frame_ptr]);
-  ctx->t.frame_ptr--;
+  pop_frame(&ctx->t);
 }
 
 // 0
