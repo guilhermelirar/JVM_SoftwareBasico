@@ -1,10 +1,10 @@
+#include <string.h>
 #include "jvm/interpreter.h"
-#include "common/classfile.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
+#include "jvm/utils.h"
+#include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
-#include <stdio.h>
-#include <string.h>
 
 void handle_return(JVM_Context *ctx)
 {
@@ -92,26 +92,6 @@ void handle_getstatic(JVM_Context *ctx)
 
   // TODO busca na área de métodos
   // ... busca na área de métodos
-}
-
-
-static void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor) 
-{
-  u4 val = frame->operand_stack[frame->stack_ptr--];
-  u4 object_ref = frame->operand_stack[frame->stack_ptr--];
-
-  if (object_ref == JVM_HANDLE_SYSOUT)
-  {
-    switch (descriptor) {
-      case 'L':
-        printf("%s\n", ctx->strings.strings[val]);
-        break;
-      
-      case 'I':
-        printf("%d\n", (int)val);
-        break;
-    }
-  }
 }
 
 void handle_invokevirtual(JVM_Context *ctx) {
