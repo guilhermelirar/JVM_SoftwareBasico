@@ -6,16 +6,13 @@
 #include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
 
-void handle_return(JVM_Context *ctx)
+void handle_return(JVM_Context *ctx, u1 opc)
 {
   pop_frame(&ctx->t);
 }
 
 // 0
-void handle_nop(JVM_Context* ctx) {
-  Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
-  u1 opc = frame->code[frame->pc-1];
-  
+void handle_nop(JVM_Context* ctx, u1 opc) {
   // Opcode não implementado, execução deve ser
   // encerrada
   if (opc != opc_nop) {
@@ -27,10 +24,9 @@ void handle_nop(JVM_Context* ctx) {
 }
 
 // 18, 19, 20 
-void handle_ldc(JVM_Context* ctx)
+void handle_ldc(JVM_Context* ctx, u1 opc)
 {
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
-  u1 opc = frame->code[frame->pc-1];
 
   u2 cp_idx;
   if (opc == opc_ldc) {
@@ -77,7 +73,7 @@ void handle_ldc(JVM_Context* ctx)
 }
 
 // 178
-void handle_getstatic(JVM_Context *ctx)
+void handle_getstatic(JVM_Context *ctx, u1 opc)
 {
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
   u2 cp_idx = fetch_u2(frame->code, &frame->pc);
@@ -103,7 +99,7 @@ void handle_getstatic(JVM_Context *ctx)
   // ... busca na área de métodos
 }
 
-void handle_invokevirtual(JVM_Context *ctx) {
+void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
   u2 cp_idx = fetch_u2(frame->code, &frame->pc);
   cp_info* entry = &frame->constant_pool[cp_idx];
@@ -127,6 +123,11 @@ void handle_invokevirtual(JVM_Context *ctx) {
     handle_sysout(frame, ctx, descriptor[1]);
 }
 
+void handle_invokestatic(JVM_Context *ctx, u1 opc)
+{
+  
+}
+
 const instruction_handler DISPATCH_TABLE[256] = {
 #include "jvm/dispatch_table.def"
 };
@@ -139,7 +140,7 @@ void jvm_run(JVM_Context* ctx)
     
     u1 opcode = fetch_u1(frame->code, &frame->pc);
     
-    DISPATCH_TABLE[opcode](ctx);
+    DISPATCH_TABLE[opcode](ctx, opcode);
     if (ctx->t.frame_ptr < 0) break;
   }
 }

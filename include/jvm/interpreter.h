@@ -5,7 +5,7 @@
 
 #define JVM_HANDLE_SYSOUT 0x01
 
-typedef void (*instruction_handler)(JVM_Context* ctx);
+typedef void (*instruction_handler)(JVM_Context* ctx, u1 opc);
 
 extern const instruction_handler DISPATCH_TABLE[256];
 
@@ -43,31 +43,37 @@ void jvm_run(JVM_Context* ctx);
  *
  * @param ctx contexto de execução da JVM
  */
-void handle_nop(JVM_Context* ctx);  // 0 
+void handle_nop(JVM_Context* ctx, u1 opc);  // 0 
 
 /**
  * @brief Função que implementa ldc (18), ldc_w (19) e ldc2_w (20) 
  * @param ctx contexto de execução da JVM
  */
-void handle_ldc(JVM_Context* ctx); // 18, 19, 20
+void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
  
 /**
  * @brief Função que implementa execução dos opcodes de retorno (169, 172-177)
  *
  * @param ctx contexto de execução da JVM
  */
-void handle_return(JVM_Context* ctx);
+void handle_return(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa getstatic (178)
  * @param ctx contexto de execução da JVM
  */                                  
-void handle_getstatic(JVM_Context* ctx); // 178
+void handle_getstatic(JVM_Context* ctx, u1 opc); // 178
 
 /**
  * @brief Função que implementa invokevirtual (182)
  * @param ctx contexto de execução da JVM
  */    
-void handle_invokevirtual(JVM_Context* ctx); // 182
+void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
+
+/**
+ * @brief Função que implementa invokestatic (184)
+ * @param ctx contexto de execução da JVM
+ */    
+void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
 
 #endif
