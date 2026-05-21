@@ -125,7 +125,49 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
 {
+  Frame* frame = current_frame(ctx);
+  u2 cp_idx = fetch_u2(frame->code, &frame->pc);
+  cp_info* entry = &frame->constant_pool[cp_idx];
+
+  u2 class_idx = entry->info.methodref_info.class_index;
+  const char* class_name = cp_class_name(frame->constant_pool, class_idx);
+
+  // name_and_type
+  u2 nt_idx = entry->info.methodref_info.name_and_type_index;
+  cp_info* nt_entry = &frame->constant_pool[nt_idx];
+
+  // descritor
+  const char* method_name = 
+    cp_get_utf8(frame->constant_pool, 
+        nt_entry->info.name_and_type_info.name_index);
+  const char* descriptor = 
+    cp_get_utf8(frame->constant_pool, 
+        nt_entry->info.name_and_type_info.descriptor_index);
+
+
+  // TODO mover para find_class/get_class ou outra coisa
+  ClassFile *cf = NULL;
+  for (int i = 0; i < ctx->classes_count; i++)
+  {
+    cf = ctx->method_area[i].cf;
+    if (strcmp(class_name, 
+          cp_get_utf8(cf->constant_pool, cf->this_class)) == 0)
+        break;
+    cf = NULL;
+  }
   
+  if (cf == NULL) return; // TODO carregamento de classe
+
+  method_info* m = find_method(cf, method_name, descriptor);
+  if (m == NULL) return;
+
+  int args = count_args_size(descriptor);
+
+  push_frame(&ctx->t, new_frame(cf, m));
+  Frame* new_f = current_frame(ctx);
+  for (int i = args-1; i >= 0; i--) {
+    new_f->locals[i] = frame->operand_stack[frame->stack_ptr--];
+  }
 }
 
 const instruction_handler DISPATCH_TABLE[256] = {
