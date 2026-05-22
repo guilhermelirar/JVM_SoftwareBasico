@@ -1,18 +1,4 @@
-[X] TRATAR OPTYPE SPECIAL NO DISASEMBLER
- - [x] tableswitch, [X]lookupswitch, [X] outros
-[X] ADICIONAR DEFINES DOS OPCODES
-[X] TRATAR CARACTERES ESPECIAIS NAS STRINGS (COLOCAR ESCAPE NA HORA DE IMPRIMIR)
-[X] TERMINAR IMPRESSÃO DE PROTÓTIPO DE MÉTODOS
-[X] USAR READER PARA LER O CODIGO E OPERANDOS NO DISASSEMBLER
-[X] DIVIDIR ARQUIVO DE DISPLAY 
-[X] EXIBIR ARGUMENTOS DAS INSTRUÇÕES
-[x] MELHORAR IDENTAÇÃO DE OPERANDOS AO IMPRIMIR AS INSTRUÇÕES
-
-ATRIBUTOS
-[x] code
-[x] constantvalue
-[x] exceptions
-(op?)
-  [x] sourcefile
-  [x] linenumbertable
-  [x] localvariabletable
+[] usar (void)opc para remover warnings de executores que nao usam opc
+[] criar inlines pop_stack, push_stack para pilhad e operando (ou nome melhor)
+[] criar função separada de get_class que retorna índice para área de métodos
+  apontando para uma classe (que deve ser carregada se não estiver lá)
