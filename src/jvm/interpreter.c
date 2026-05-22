@@ -151,24 +151,40 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
   {
     cf = ctx->method_area[i].cf;
     if (strcmp(class_name, 
-          cp_get_utf8(cf->constant_pool, cf->this_class)) == 0)
+          cp_class_name(cf->constant_pool, cf->this_class)) == 0)
         break;
     cf = NULL;
   }
-  
-  if (cf == NULL) return; // TODO carregamento de classe
+if (cf == NULL) {
+      return; 
+  }
 
   method_info* m = find_method(cf, method_name, descriptor);
-  if (m == NULL) return;
+  if (m == NULL) {
+      return;
+  }
 
   int args = count_args_size(descriptor);
-
   push_frame(&ctx->t, new_frame(cf, m));
   Frame* new_f = current_frame(ctx);
   for (int i = args-1; i >= 0; i--) {
     new_f->locals[i] = frame->operand_stack[frame->stack_ptr--];
   }
 }
+
+void handle_aload(JVM_Context* ctx, u1 opc) {
+  Frame* frame = current_frame(ctx);
+
+  switch (opc) {
+    case opc_aload_0:
+      frame->operand_stack[++(frame->stack_ptr)] = frame->locals[0];
+      break;
+
+    default:
+      break;
+  }
+}
+
 
 const instruction_handler DISPATCH_TABLE[256] = {
 #include "jvm/dispatch_table.def"
@@ -181,7 +197,7 @@ void jvm_run(JVM_Context* ctx)
     Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
     
     u1 opcode = fetch_u1(frame->code, &frame->pc);
-    
+
     DISPATCH_TABLE[opcode](ctx, opcode);
     if (ctx->t.frame_ptr < 0) break;
   }

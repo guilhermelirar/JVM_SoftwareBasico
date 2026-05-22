@@ -40,7 +40,7 @@
 [opc_dload_1] = handle_nop,
 [opc_dload_2] = handle_nop,
 [opc_dload_3] = handle_nop,
-[opc_aload_0] = handle_nop,
+[opc_aload_0] = handle_aload,
 [opc_aload_1] = handle_nop,
 [opc_aload_2] = handle_nop,
 [opc_aload_3] = handle_nop,

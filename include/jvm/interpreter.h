@@ -50,7 +50,12 @@ void handle_nop(JVM_Context* ctx, u1 opc);  // 0
  * @param ctx contexto de execução da JVM
  */
 void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
- 
+
+/**
+ * @brief Função que implementa opcodes aload 
+ */
+void handle_aload(JVM_Context* ctx, u1 opc);
+
 /**
  * @brief Função que implementa execução dos opcodes de retorno (169, 172-177)
  *

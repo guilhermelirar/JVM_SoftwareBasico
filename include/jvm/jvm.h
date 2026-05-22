@@ -3,6 +3,7 @@
 
 #include "common/classfile.h"
 #include "jvmtypes.h"
+#include <stdio.h>
 
 /**
  * @brief retorna method_info de um método de nome name e descritor fornecido
@@ -66,11 +67,10 @@ static inline void pop_frame(JVM_Thread* t)
 static inline int push_frame(JVM_Thread* t, Frame* f)
 {
   t->frame_ptr++;
-  if (t->frame_ptr >= JVM_STACK_SIZE) 
-    return STACK_OVERFLOR_ERROR; // TODO Stack Overflow Error
-  
+  if (t->frame_ptr >= JVM_STACK_SIZE) {
+    return STACK_OVERFLOR_ERROR;
+  }
   t->frames[t->frame_ptr] = f;
-
   return 0;
 }
 
