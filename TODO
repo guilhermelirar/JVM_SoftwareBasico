@@ -2,3 +2,4 @@
 [] criar inlines pop_stack, push_stack para pilhad e operando (ou nome melhor)
 [] criar função separada de get_class que retorna índice para área de métodos
   apontando para uma classe (que deve ser carregada se não estiver lá)
+[] lidar melhor com caso de arquivo nao existe
