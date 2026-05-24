@@ -4,6 +4,7 @@
 #include "common/classfile.h"
 #include "jvmtypes.h"
 #include <stdio.h>
+#include <stdlib.h>
 
 /**
  * @brief retorna method_info de um método de nome name e descritor fornecido
@@ -92,5 +93,33 @@ static inline u4 current_pc(JVM_Context* ctx)
  * (número de operações push e pop)
  */
 int count_args_size(const char* descriptor);
+
+
+/** 
+ * @brief Coloca um valor de 32 bits (int, float, ou referência) 
+ * na Operand Stack. 
+ * @param f Frame com a operand_stack
+ * @param value valor de 32 bits a ser empilhado 
+ */
+static inline void push_operand(Frame* f, u4 value) 
+{
+  f->operand_stack[++f->stack_ptr] = value;
+}
+
+/** 
+ * @brief Desempilha um valor de 32 bits (int, float, ou referência) 
+ * da Operand Stack. 
+ * @param f Frame com a operand_stack
+ */
+static inline u4 pop_operand(Frame* f) 
+{
+  if (f->stack_ptr < 0) {
+    // Proteção contra esvaziamento da pilha (Underflow)
+    fprintf(stderr, "ERROR: Operand stack underflow!\n");
+    exit(1); 
+  }
+  
+  return f->operand_stack[f->stack_ptr--];
+}
 
 #endif
