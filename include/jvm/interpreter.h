@@ -71,6 +71,16 @@ void jvm_run(JVM_Context* ctx);
  */
 void handle_nop(JVM_Context* ctx, u1 opc);  // 0 
 
+
+/**
+ * @brief Função que implementa instruções tconst_<i> (1-15)
+ * (aconst_null, iconst_<i>, lconst_<i>, fconst_<i>, dconst_<i>)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode
+ */
+void handle_tconst(JVM_Context* ctx, u1 opc);  // 0 
+
+
 /**
  * @brief Função que implementa bipush (16) e sipush (17) 
  * @param ctx contexto de execução da JVM

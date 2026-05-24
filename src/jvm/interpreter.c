@@ -23,16 +23,77 @@ void handle_nop(JVM_Context* ctx, u1 opc)
   }
 }
 
+void handle_tconst(JVM_Context *ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+  float f;
+  switch (opc)
+  {
+    // 1
+    case opc_aconst_null:
+      push_operand(frame, 0);
+      break;
+
+    // 2-8
+    case opc_iconst_m1:
+    case opc_iconst_0:
+    case opc_iconst_1:
+    case opc_iconst_2:
+    case opc_iconst_3:
+    case opc_iconst_4:
+    case opc_iconst_5:
+      push_operand(frame, (int32_t)(-1 + opc-opc_iconst_m1));
+      break;
+
+    // 9, 10
+    case opc_lconst_0:
+    case opc_lconst_1:
+      push_operand(frame, (int32_t)0);
+      push_operand(frame, (int32_t)(opc - opc_lconst_0));
+      break;
+
+    // 11, 12, 13
+    case opc_fconst_0:
+    case opc_fconst_1:
+    case opc_fconst_2:
+    {
+      if (opc == opc_fconst_0) f = 0.0f;
+      else if (opc == opc_fconst_1) f = 1.0f;
+      else f = 2.0f;
+
+      u4 value;
+      memcpy(&value, &f, sizeof(float));
+      push_operand(frame, value);
+      break;
+    }
+
+    // 14, 15
+    case opc_dconst_0:
+    case opc_dconst_1:
+    {
+      double d = opc == opc_dconst_0 ? 0.0 : 0.1;
+      u8 value;
+      memcpy(&value, &d, sizeof(double));
+      push_operand(frame, (u4)(value >> 8));
+      push_operand(frame, (u4)(value & 0xFFFF));
+      break;
+    }
+
+    default:
+    break;
+  }
+}
+
 // 16, 17
 void handle_push(JVM_Context *ctx, u1 opc) 
 {
   Frame* frame = current_frame(ctx);
 
   if (opc == opc_bipush)
-    push_operand(frame, (int32_t)fetch_u2(frame->code, &frame->pc));
+    push_operand(frame, (int32_t)((int8_t)fetch_u1(frame->code, &frame->pc)));
   else if (opc == opc_sipush)
   {
-    push_operand(frame, (int32_t)fetch_u4(frame->code, &frame->pc));
+    push_operand(frame, (int32_t)((int8_t)fetch_u2(frame->code, &frame->pc)));
   }
 }
 
@@ -213,7 +274,11 @@ void jvm_run(JVM_Context* ctx)
     Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
     
     u1 opcode = fetch_u1(frame->code, &frame->pc);
-
+    
+    // DEBUG
+    // printf("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X (%s))\n", 
+    //    ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
+    
     DISPATCH_TABLE[opcode](ctx, opcode);
     if (ctx->t.frame_ptr < 0) break;
   }

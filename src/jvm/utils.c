@@ -28,7 +28,7 @@ void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor)
 void jvm_error_uninmplemented_opc(JVM_Context *ctx, u1 opc) 
 {
   terminateJVM(ctx);
-  fprintf(stderr, "ERROR: unimplemented opcode \"0x%u\" (%s)." 
+  fprintf(stderr, "ERROR: unimplemented opcode \"0x%X\" (%s)." 
       "\nAborting...\n", opc, opcode_table[opc].name);
   exit(1);
 }
