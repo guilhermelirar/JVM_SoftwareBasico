@@ -1,6 +1,8 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "jvm/utils.h"
 #include "jvm/interpreter.h"
+#include "jvm/jvm.h"
 
 
 void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor) 
@@ -20,4 +22,11 @@ void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor)
         break;
     }
   }
+}
+
+void jvm_error_uninmplemented_opc(JVM_Context *ctx, u1 opc) 
+{
+  terminateJVM(ctx);
+  fprintf(stderr, "ERROR: unimplemented opcode \"0x%u\". Aborting...\n", opc);
+  exit(1);
 }

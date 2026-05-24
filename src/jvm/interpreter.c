@@ -12,14 +12,12 @@ void handle_return(JVM_Context *ctx, u1 opc)
 }
 
 // 0
-void handle_nop(JVM_Context* ctx, u1 opc) {
+void handle_nop(JVM_Context* ctx, u1 opc) 
+{
   // Opcode não implementado, execução deve ser
   // encerrada
   if (opc != opc_nop) {
-    while (ctx->t.frame_ptr >= 0)
-    {
-      pop_frame(&ctx->t);
-    }
+    jvm_error_uninmplemented_opc(ctx, opc);
   }
 }
 
