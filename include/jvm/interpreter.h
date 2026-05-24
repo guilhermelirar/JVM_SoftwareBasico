@@ -72,6 +72,13 @@ void jvm_run(JVM_Context* ctx);
 void handle_nop(JVM_Context* ctx, u1 opc);  // 0 
 
 /**
+ * @brief Função que implementa bipush (16) e sipush (17) 
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode
+ */
+void handle_push(JVM_Context* ctx, u1 opc); // 16, 17
+
+/**
  * @brief Função que implementa ldc (18), ldc_w (19) e ldc2_w (20) 
  * @param ctx contexto de execução da JVM
  * @param opc opcode

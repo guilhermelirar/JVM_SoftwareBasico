@@ -1,3 +1,4 @@
+#include <stdint.h>
 #include <string.h>
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
@@ -22,10 +23,23 @@ void handle_nop(JVM_Context* ctx, u1 opc)
   }
 }
 
+// 16, 17
+void handle_push(JVM_Context *ctx, u1 opc) 
+{
+  Frame* frame = current_frame(ctx);
+
+  if (opc == opc_bipush)
+    push_operand(frame, (int32_t)fetch_u2(frame->code, &frame->pc));
+  else if (opc == opc_sipush)
+  {
+    push_operand(frame, (int32_t)fetch_u4(frame->code, &frame->pc));
+  }
+}
+
 // 18, 19, 20 
 void handle_ldc(JVM_Context* ctx, u1 opc)
 {
-  Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+  Frame* frame = current_frame(ctx);
 
   u2 cp_idx;
   if (opc == opc_ldc) {
