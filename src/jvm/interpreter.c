@@ -8,6 +8,7 @@
 
 void handle_return(JVM_Context *ctx, u1 opc)
 {
+  (void)opc;
   pop_frame(&ctx->t);
 }
 
@@ -73,6 +74,7 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
 // 178
 void handle_getstatic(JVM_Context *ctx, u1 opc)
 {
+  (void)opc;
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
   u2 cp_idx = fetch_u2(frame->code, &frame->pc);
 
@@ -98,6 +100,7 @@ void handle_getstatic(JVM_Context *ctx, u1 opc)
 }
 
 void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
+  (void)opc;
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
   u2 cp_idx = fetch_u2(frame->code, &frame->pc);
   cp_info* entry = &frame->constant_pool[cp_idx];
@@ -123,6 +126,7 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
 {
+  (void)opc;
   Frame* frame = current_frame(ctx);
   u2 cp_idx = fetch_u2(frame->code, &frame->pc);
   cp_info* entry = &frame->constant_pool[cp_idx];
