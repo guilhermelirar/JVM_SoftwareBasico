@@ -4,7 +4,7 @@ public class Hello
 {
   public static void say(String string)
   {
-    System.out.println(string);
+    System.out.println(string); 
   }
 
   public static void hello()
@@ -17,5 +17,6 @@ public class Hello
     System.out.println("Hello World!");
     hello();
     System.out.println(42);
+    System.out.println(-10);
   }
 }
