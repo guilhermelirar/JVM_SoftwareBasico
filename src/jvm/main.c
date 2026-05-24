@@ -8,8 +8,19 @@
 int main(int argc, char** argv) 
 {
   if (argc < 2) return 1;
+
   
   FILE* file = fopen(argv[1], "rb");
+  
+  if (file == NULL)
+  {
+    fprintf(stderr, 
+        "ERROR: classfile \"%s\" does not exist or could not be opened\n", 
+        argv[1]);
+    exit(1);
+  }
+  
+
   Reader reader = { NULL, 0 , 0};
   reader.buf = load_file(file, &reader.size);
 
