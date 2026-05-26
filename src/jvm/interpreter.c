@@ -6,7 +6,7 @@
 #include "jvm/utils.h"
 #include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
-
+#define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
 void handle_return(JVM_Context *ctx, u1 opc)
 {
   (void)opc;
@@ -146,6 +146,47 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
   }
 }
 
+
+// 54-86
+void handle_store(JVM_Context *ctx, u1 opc)
+{
+  Frame *f = current_frame(ctx);
+
+  // Carrega o índice
+  u1 idx = 0;
+  if (opc < opc_istore_0)
+  {
+    idx = fetch_u1(f->code, &f->pc);
+  }
+  else if (opc < opc_iastore) 
+  {
+    // índice 0, 1, 2, 3, para istore, lstore, fstore, dstore, astore
+    idx = ((opc - opc_istore_0) % 4);
+  }
+
+  // se double ou long
+  if (opc == opc_dstore || opc == opc_lstore || 
+    (IN_RANGE(opc, opc_dstore_0, opc_lstore_3)) ||
+    (IN_RANGE(opc, opc_lstore_0, opc_lstore_3)))
+  {
+      u4 high = pop_operand(f);
+      u4 low = pop_operand(f);
+      f->locals[idx] = low;
+      f->locals[idx+1] = high;
+      return;
+  }
+ 
+  // tipos primitivos de 32 bits
+  if (opc < opc_iastore)
+  {
+    f->locals[idx] = pop_operand(f);
+    return;
+  }
+
+  // TODO
+  // iastore, lastore, fastore, dastore, aastore, bastore, castore, sastore
+}
+
 // 178
 void handle_getstatic(JVM_Context *ctx, u1 opc)
 {
@@ -276,8 +317,8 @@ void jvm_run(JVM_Context* ctx)
     u1 opcode = fetch_u1(frame->code, &frame->pc);
     
     // DEBUG
-    // printf("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X (%s))\n", 
-    //    ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
+    printf("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X (%s))\n", 
+        ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
     
     DISPATCH_TABLE[opcode](ctx, opcode);
     if (ctx->t.frame_ptr < 0) break;

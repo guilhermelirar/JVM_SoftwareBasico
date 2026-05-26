@@ -102,6 +102,14 @@ void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
 void handle_aload(JVM_Context* ctx, u1 opc);
 
 /**
+ * @brief Função que implementa opcodes store (54-86)
+ * @param opc opcode
+ */
+void handle_store(JVM_Context* ctx, u1 opc);
+
+
+
+/**
  * @brief Função que implementa execução dos opcodes de retorno (169, 172-177)
  *
  * @param ctx contexto de execução da JVM
