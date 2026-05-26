@@ -4,7 +4,7 @@ if not exist obj\display mkdir obj\display
 if not exist bin mkdir bin
 
 echo Compilando Common...
-gcc -std=c11 -Wall -Wextra -g -Iinclude -c src/common/*.c
+gcc -std=c99 -Wall -Wextra -g -Iinclude -c src/common/*.c
 move *.o obj\common\
 
 echo Compilando Display...
