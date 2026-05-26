@@ -2,6 +2,10 @@ CC      = gcc
 CFLAGS  = -std=c11 -Wall -Wextra -g
 INCLUDE = -Iinclude
 
+ifeq ($(DEBUG), 1)
+    CFLAGS += -DDEBUG_MODE
+endif
+
 OBJ_DIR = obj
 BIN_DIR = bin
 
@@ -11,6 +15,7 @@ COMMON_SRC = $(wildcard src/common/*.c)
 
 DISPLAY_SRC = $(wildcard src/display/*.c)
 JVM_SRC     = $(wildcard src/jvm/*.c)
+
 
 # --- OBJ ---
 # patsubst garante que src/common/file.c vire obj/common/file.o
