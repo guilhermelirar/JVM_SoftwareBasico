@@ -130,13 +130,13 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
       return;
 
     case CONSTANT_Long:
-      push_operand(frame, entry->info.long_info.l_bytes);
       push_operand(frame, entry->info.long_info.h_bytes);
+      push_operand(frame, entry->info.long_info.l_bytes);
       return;
 
     case CONSTANT_Double:
-      push_operand(frame, entry->info.double_info.l_bytes);
       push_operand(frame, entry->info.double_info.h_bytes);
+      push_operand(frame, entry->info.double_info.l_bytes);
       return;
 
     case CONSTANT_String: 
@@ -187,8 +187,8 @@ void handle_store(JVM_Context *ctx, u1 opc)
     (IN_RANGE(opc, opc_dstore_0, opc_lstore_3)) ||
     (IN_RANGE(opc, opc_lstore_0, opc_lstore_3)))
   {
-      u4 high = pop_operand(f);
       u4 low = pop_operand(f);
+      u4 high = pop_operand(f);
       f->locals[idx] = low;
       f->locals[idx+1] = high;
       return;
@@ -334,8 +334,8 @@ void jvm_run(JVM_Context* ctx)
     
     u1 opcode = fetch_u1(frame->code, &frame->pc);
     
-     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X\n", 
-         ctx->t.frame_ptr, frame->pc - 1, opcode);
+     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X (%s)\n", 
+         ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
     
     DISPATCH_TABLE[opcode](ctx, opcode);
     if (ctx->t.frame_ptr < 0) break;
