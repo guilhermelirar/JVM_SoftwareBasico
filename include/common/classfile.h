@@ -269,23 +269,24 @@ typedef struct {
  * (armazenado na área de métodos)
  */
 typedef struct {
-  u4 magic;   /**< 0xCAFEBABE no início de um .class válido */
-  u2 minor_version; /**< Indicador da versão do formato M.(m) */
-  u2 major_version; /**< Indicador da versão do formato (M).m */
-  u2 constant_pool_count; /**< Número de entradas na constant_pool + 1 */
-  cp_info *constant_pool; /**< Tabela de estruturas, com índice 0 vazio */
-  u2 access_flags; /**< Máscara de bits para permissão de acesso da classe */
-  u2 this_class; /**< Índice para CONSTANT_Class representando classe atual */
-  u2 super_class;/**< Índice para CONSTANT_Class representando classe mãe */
-  u2 interfaces_count;/**< Número de interfaces implementadas pela classe */
-  u2 *interfaces;/**< Array de índices de CONSTANT_Class representando 
-                   interfaces*/
-  u2 fields_count;/**< Número de varíáveis de classe ou instância*/
-  field_info *fields;/**< Tabela com descrição de campo de classe e interface */
-  u2 methods_count;/**< Número de métodos (não herdados) da classe*/
-  method_info* methods;/**< Tabela com descrição completa de um método */
-  u2 attributes_count;/**< Número de atributos desta classe */
-  attribute_info* attributes;/**< Tabela de atributos desta classe*/
+  u4 magic;                   /**< 0xCAFEBABE no início de um .class válido */
+  u2 minor_version;           /**< Indicador da versão do formato M.(m) */
+  u2 major_version;           /**< Indicador da versão do formato (M).m */
+  u2 constant_pool_count;     /**< Número de entradas na constant_pool + 1 */
+  cp_info *constant_pool;     /**< Tabela de estruturas, com índice 0 vazio */
+  u2 access_flags;            /**< Máscara de bits de política de acesso */
+  u2 this_class;              /**< Índice para CONSTANT_Class da classe atual */
+  u2 super_class;             /**< Índice para CONSTANT_Class da superclasse */
+  u2 interfaces_count;        /**< Número de interfaces implementadas */
+  u2 *interfaces;             /**< Array de índices de CONSTANT_Class 
+                                    das interfaces desta classe */
+  u2 fields_count;            /**< Número de varíáveis de classe ou instância*/
+  field_info *fields;         /**< Tabela com descrição de campo de 
+                                   classe e interface */
+  u2 methods_count;           /**< Número de métodos (não herdados) da classe*/
+  method_info* methods;       /**< Tabela com descrição completa de um método */
+  u2 attributes_count;        /**< Número de atributos desta classe */
+  attribute_info* attributes; /**< Tabela de atributos desta classe*/
 } ClassFile;
 
 // Obter strings
