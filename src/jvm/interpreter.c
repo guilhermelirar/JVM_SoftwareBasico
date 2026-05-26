@@ -6,7 +6,15 @@
 #include "jvm/utils.h"
 #include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
+
 #define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
+
+#ifdef DEBUG_MODE
+    #define DEBUG_PRINT(...) printf(__VA_ARGS__)
+#else
+    #define DEBUG_PRINT(...) do {} while (0)
+#endif
+
 void handle_return(JVM_Context *ctx, u1 opc)
 {
   (void)opc;
@@ -114,11 +122,21 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
   switch (entry->tag) 
   {
     case CONSTANT_Integer:
-      frame->operand_stack[++frame->stack_ptr] = entry->info.int_info.bytes;
+      push_operand(frame, entry->info.int_info.bytes);
       return;
 
     case CONSTANT_Float:
-      frame->operand_stack[++frame->stack_ptr] = entry->info.int_info.bytes;
+      push_operand(frame, entry->info.float_info.bytes);
+      return;
+
+    case CONSTANT_Long:
+      push_operand(frame, entry->info.long_info.l_bytes);
+      push_operand(frame, entry->info.long_info.h_bytes);
+      return;
+
+    case CONSTANT_Double:
+      push_operand(frame, entry->info.double_info.l_bytes);
+      push_operand(frame, entry->info.double_info.h_bytes);
       return;
 
     case CONSTANT_String: 
@@ -131,13 +149,13 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
       {
         if (str == ctx->strings.strings[i])
         {
-          frame->operand_stack[++frame->stack_ptr] = i;
+          push_operand(frame, i);
           return;
         }
       }
       
       ctx->strings.strings[ctx->strings.count] = (char*)str;
-      frame->operand_stack[++frame->stack_ptr] = ctx->strings.count;
+      push_operand(frame, ctx->strings.count);
       ctx->strings.count++;
       break;
     }
@@ -316,9 +334,8 @@ void jvm_run(JVM_Context* ctx)
     
     u1 opcode = fetch_u1(frame->code, &frame->pc);
     
-    // DEBUG
-    printf("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X (%s))\n", 
-        ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
+     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X\n", 
+         ctx->t.frame_ptr, frame->pc - 1, opcode);
     
     DISPATCH_TABLE[opcode](ctx, opcode);
     if (ctx->t.frame_ptr < 0) break;
