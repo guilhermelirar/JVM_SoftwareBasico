@@ -17,6 +17,12 @@ int main(int argc, const char **argv) {
   const char* filepath = argv[1];
   
   FILE* file = fopen(filepath, "rb");
+  if (file == NULL)
+  {
+    perror("Classfile could not be opened");
+    exit(1);
+  }
+
   Reader reader = { NULL, 0 , 0};
   reader.buf = load_file(file, &reader.size);
 
