@@ -311,14 +311,32 @@ if (cf == NULL) {
 void handle_load(JVM_Context* ctx, u1 opc) {
   Frame* frame = current_frame(ctx);
 
-  switch (opc) {
-    case opc_aload_0:
-      frame->operand_stack[++(frame->stack_ptr)] = frame->locals[0];
-      break;
+  u2 idx = 0;  // índice para a variável local
 
-    default:
-      break;
+  // Opcodes com operandos
+  if (IN_RANGE(opc, opc_iload, opc_aload))
+    idx = fetch_u2(frame->code, &frame->pc);
+
+  // Opcodes sem operandos
+  else if (IN_RANGE(opc, opc_iload_0, opc_aload_3)) 
+  {
+    // índice 0, 1, 2, 3, para iload, lload, fload, dload, aload
+    idx = ((opc - opc_iload_0) % 4);
   }
+
+  // cat2
+  if (opc == opc_lload || opc == opc_dload ||
+      IN_RANGE(opc, opc_lload_0, opc_lload_3) || 
+      IN_RANGE(opc, opc_dload_0, opc_dload_3)) {
+
+    push_operand(frame, frame->locals[idx+1]); // h
+    push_operand(frame, frame->locals[idx]);   // l
+    return;
+  }
+
+  push_operand(frame, frame->locals[idx]);
+
+  // TODO outros opcodes (array) 
 }
 
 
