@@ -1,5 +1,6 @@
 #include <stdint.h>
 #include <string.h>
+#include <strings.h>
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
@@ -311,7 +312,7 @@ if (cf == NULL) {
 void handle_load(JVM_Context* ctx, u1 opc) {
   Frame* frame = current_frame(ctx);
 
-  u2 idx = 0;  // índice para a variável local
+  u4 idx = 0;  // índice para a variável local
 
   // Opcodes com operandos
   if (IN_RANGE(opc, opc_iload, opc_aload))
@@ -327,16 +328,59 @@ void handle_load(JVM_Context* ctx, u1 opc) {
   // cat2
   if (opc == opc_lload || opc == opc_dload ||
       IN_RANGE(opc, opc_lload_0, opc_lload_3) || 
-      IN_RANGE(opc, opc_dload_0, opc_dload_3)) {
+      IN_RANGE(opc, opc_dload_0, opc_dload_3)) 
+  {
 
     push_operand(frame, frame->locals[idx+1]); // h
     push_operand(frame, frame->locals[idx]);   // l
     return;
   }
 
-  push_operand(frame, frame->locals[idx]);
+  if (IN_RANGE(opc, opc_iload, opc_aload_3))
+  {
+    push_operand(frame, frame->locals[idx]);
+    return;
+  } 
 
-  // TODO outros opcodes (array) 
+  // ARRAY TODO checagem de null pointer, e indices validos
+  if (IN_RANGE(opc, opc_iaload , opc_saload))
+  {
+    idx = pop_operand(frame);
+    u4 arrayref = pop_operand(frame);
+
+    if (opc == opc_baload) // byte
+    {
+      u1* bytearray = ((u1*)ctx->heap.entries[arrayref]);
+      push_operand(frame, (int32_t)((int8_t)bytearray[idx]));
+      return;
+    }
+
+    if (opc == opc_caload) // char 
+    {
+      u2* char_array = (u2*)ctx->heap.entries[arrayref];
+      push_operand(frame, (u4)char_array[idx]);
+      return;
+    }
+
+    if (opc == opc_saload) // short (signed)
+    {
+      u2* short_array = (u2*)ctx->heap.entries[arrayref];
+      push_operand(frame, (int32_t)((int16_t)short_array[idx]));
+      return;
+    }
+
+    if (opc == opc_laload || opc == opc_daload) // cat2 
+    {
+      u4 *cat2_array = (u4*)ctx->heap.entries[arrayref];
+      push_operand(frame, cat2_array[idx*2 + 1]); // high
+      push_operand(frame, cat2_array[idx*2]);     // low
+      return;
+    }
+
+    // if (float or int)
+    u4 *cat1_array = (u4*)ctx->heap.entries[arrayref];
+    push_operand(frame, cat1_array[idx]);
+  }
 }
 
 
