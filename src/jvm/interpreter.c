@@ -308,7 +308,7 @@ if (cf == NULL) {
   }
 }
 
-void handle_aload(JVM_Context* ctx, u1 opc) {
+void handle_load(JVM_Context* ctx, u1 opc) {
   Frame* frame = current_frame(ctx);
 
   switch (opc) {

@@ -96,10 +96,12 @@ void handle_push(JVM_Context* ctx, u1 opc); // 16, 17
 void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
 
 /**
- * @brief Função que implementa opcodes aload 
+ * @brief Função que implementa opcodes load (21-53)
+ * que carregam valores das variáveis locais na pilha 
+ * de operandos (iload-saload)
  * @param opc opcode
  */
-void handle_aload(JVM_Context* ctx, u1 opc);
+void handle_load(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcodes store (54-86)
