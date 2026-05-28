@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include "jvm/interpreter.h"
@@ -348,38 +349,41 @@ void handle_load(JVM_Context* ctx, u1 opc) {
     idx = pop_operand(frame);
     u4 arrayref = pop_operand(frame);
 
+    JVM_Array* array;
+    void* array_v = ctx->heap.entries[arrayref];
+    // TODO null check
+
+    array = (JVM_Array*)array_v;
+    // TODO index on range check
+
+    // TODO checagem de tipo
     if (opc == opc_baload) // byte
     {
-      u1* bytearray = ((u1*)ctx->heap.entries[arrayref]);
-      push_operand(frame, (int32_t)((int8_t)bytearray[idx]));
+      push_operand(frame, (int32_t)((int8_t)array->data[idx]));
       return;
     }
 
     if (opc == opc_caload) // char 
     {
-      u2* char_array = (u2*)ctx->heap.entries[arrayref];
-      push_operand(frame, (u4)char_array[idx]);
+      push_operand(frame, array->data[idx]);
       return;
     }
 
     if (opc == opc_saload) // short (signed)
     {
-      u2* short_array = (u2*)ctx->heap.entries[arrayref];
-      push_operand(frame, (int32_t)((int16_t)short_array[idx]));
+      push_operand(frame, (int32_t)((int16_t)array->data[idx]));
       return;
     }
 
     if (opc == opc_laload || opc == opc_daload) // cat2 
     {
-      u4 *cat2_array = (u4*)ctx->heap.entries[arrayref];
-      push_operand(frame, cat2_array[idx*2 + 1]); // high
-      push_operand(frame, cat2_array[idx*2]);     // low
+      push_operand(frame, array->data[idx*2 + 1]); // high
+      push_operand(frame, array->data[idx*2]);     // low
       return;
     }
 
     // if (float or int)
-    u4 *cat1_array = (u4*)ctx->heap.entries[arrayref];
-    push_operand(frame, cat1_array[idx]);
+    push_operand(frame, array->data[idx]);
   }
 }
 
