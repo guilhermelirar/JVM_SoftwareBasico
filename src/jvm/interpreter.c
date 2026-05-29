@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdlib.h>
 #include <string.h>
 #include <strings.h>
 #include "jvm/interpreter.h"
@@ -12,7 +11,8 @@
 #define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
 
 #ifdef DEBUG_MODE
-    #define DEBUG_PRINT(...) printf(__VA_ARGS__)
+  #include <stdio.h>
+  #define DEBUG_PRINT(...) printf(__VA_ARGS__)
 #else
     #define DEBUG_PRINT(...) do {} while (0)
 #endif
@@ -350,7 +350,7 @@ void handle_load(JVM_Context* ctx, u1 opc) {
     u4 arrayref = pop_operand(frame);
 
     JVM_Array* array;
-    void* array_v = ctx->heap.entries[arrayref];
+    void* array_v = ctx->objects.entries[arrayref];
     // TODO null check
 
     array = (JVM_Array*)array_v;

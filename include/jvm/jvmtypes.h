@@ -54,7 +54,7 @@ typedef struct {
                                       os objetos ou array */
   u4 count;  /**< Número de itens armazenados */
   u4 capacity; /**< Capacidade máxima de referências suportada */
-} Heap;
+} ObjectTable;
 
 /**
  * @brief Estrutura que representa uma tabela das classes carregadas
@@ -85,7 +85,7 @@ typedef struct {
   /**< Informação das classes e métodos */
   int classes_count; /**< Número de .class carregados */
 
-  Heap heap;    /**< Área de memória */
+  ObjectTable objects;    /**< Área de memória */
   StringTable strings; /**< Área de strings constantes */
   JVM_Thread t; /**< Thread a ser executada (multithread não suportada) */
 } JVM_Context;

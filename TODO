@@ -1,7 +1,8 @@
 [x] usar (void)opc para remover warnings de executores que nao usam opc
 [x] criar inlines pop_stack, push_stack para pilhad e operando (ou nome melhor)
 [x] lidar melhor com caso de arquivo nao existe
+[x] renomear heap para object table e melhorar controle em instruções (null, index out of range, etc)
 
+[] liberar object table
 [] criar função separada de get_class que retorna índice para área de métodos
-  apontando para uma classe (que deve ser carregada se não estiver lá)
-[] renomear heap para object table e melhorar controle em instruções (null, index out of range, etc)
+apontando para uma classe (que deve ser carregada se não estiver lá)

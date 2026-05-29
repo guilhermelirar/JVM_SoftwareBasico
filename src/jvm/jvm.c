@@ -73,8 +73,8 @@ JVM_Context* jvm_init(ClassFile* main_class)
   JVM_Context* ctx = (JVM_Context*)malloc(sizeof(JVM_Context));
   if (ctx == NULL) return NULL;
 
-  ctx->heap.capacity = JVM_HEAP_CAPACITY;
-  ctx->heap.count = 0;
+  ctx->objects.capacity = JVM_HEAP_CAPACITY;
+  ctx->objects.count = 0;
 
   ctx->strings.count = 0;
   ctx->strings.capacity = JVM_STRING_TABLE_SIZE;
