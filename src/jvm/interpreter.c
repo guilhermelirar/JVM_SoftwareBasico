@@ -124,13 +124,13 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
       return;
 
     case CONSTANT_Long:
-      push_operand(frame, entry->info.long_info.l_bytes);
       push_operand(frame, entry->info.long_info.h_bytes);
+      push_operand(frame, entry->info.long_info.l_bytes);
       return;
 
     case CONSTANT_Double:
-      push_operand(frame, entry->info.double_info.l_bytes);
       push_operand(frame, entry->info.double_info.h_bytes);
+      push_operand(frame, entry->info.double_info.l_bytes);
       return;
 
     case CONSTANT_String: 
@@ -178,13 +178,12 @@ void handle_store(JVM_Context *ctx, u1 opc)
 
   // se double ou long
   if (opc == opc_dstore || opc == opc_lstore || 
-    (IN_RANGE(opc, opc_dstore_0, opc_lstore_3)) ||
+    (IN_RANGE(opc, opc_dstore_0, opc_dstore_3)) ||
     (IN_RANGE(opc, opc_lstore_0, opc_lstore_3)))
   {
-      u4 high = pop_operand(f);
       u4 low = pop_operand(f);
-      printf("debug store AQUI, colocarei H(%u) em idx, e L(%u) em idx+1\n",
-          high, low);
+      u4 high = pop_operand(f);
+      
       f->locals[idx] = high;
       f->locals[idx+1] = low;
       return;
@@ -300,7 +299,7 @@ if (cf == NULL) {
   push_frame(&ctx->t, new_frame(cf, m));
   Frame* new_f = current_frame(ctx);
 
-  for (int i = 0; i < args; i++) {
+  for (int i = args-1; i >= 0; i--) {
     new_f->locals[i] = frame->operand_stack[frame->stack_ptr--];
   }
 }
@@ -327,9 +326,10 @@ void handle_load(JVM_Context* ctx, u1 opc) {
       IN_RANGE(opc, opc_dload_0, opc_dload_3)) 
   {
 
-    push_operand(frame, frame->locals[idx+1]);   // low
-    push_operand(frame, frame->locals[idx]);     // high
-
+    u8 bits = ((u8)frame->locals[idx] << 32) | // high 
+      (u8) frame->locals[idx+1]; // low
+    
+    push_operand2(frame, bits);
     return;
   }
 
@@ -373,8 +373,8 @@ void handle_load(JVM_Context* ctx, u1 opc) {
 
     if (opc == opc_laload || opc == opc_daload) // cat2 
     {
-      push_operand(frame, array->data[idx*2 + 1]); // high
-      push_operand(frame, array->data[idx*2]);     // low
+      push_operand(frame, array->data[idx*2]);   // high
+      push_operand(frame, array->data[idx*2+1]); // low
       return;
     }
 

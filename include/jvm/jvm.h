@@ -114,8 +114,8 @@ static inline void push_operand(Frame* f, u4 value)
  */
 static inline void push_operand2(Frame* f, u8 value) 
 {
-  f->operand_stack[++f->stack_ptr] = (u4)value;
   f->operand_stack[++f->stack_ptr] = (u4)(value >> 32);
+  f->operand_stack[++f->stack_ptr] = (u4)value;
 }
 
 /** 
@@ -147,8 +147,8 @@ static inline u8 pop_operand2(Frame *f)
     exit(1); 
   }
 
-  u8 h = (u8) f->operand_stack[f->stack_ptr--];
   u8 l = (u8) f->operand_stack[f->stack_ptr--];
+  u8 h = (u8) f->operand_stack[f->stack_ptr--];
   return (h << 32) | l;
 }
 
