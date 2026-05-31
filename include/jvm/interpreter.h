@@ -9,6 +9,7 @@ typedef void (*instruction_handler)(JVM_Context* ctx, u1 opc);
 
 extern const instruction_handler DISPATCH_TABLE[256];
 
+#define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
 /**
  * @brief Função que retorna um byte do bytecode Java,
  * apontado pela posição PC e avança o PC em 1.
@@ -99,17 +100,25 @@ void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
  * @brief Função que implementa opcodes load (21-53)
  * que carregam valores das variáveis locais na pilha 
  * de operandos (iload-saload)
+ * @param ctx contexto de execução Java
  * @param opc opcode
  */
 void handle_load(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcodes store (54-86)
+ * @param ctx contexto de execução Java
  * @param opc opcode
  */
 void handle_store(JVM_Context* ctx, u1 opc);
 
-
+/**
+ * @brief Função que implementa opcodes de operações aritméticas
+ * como add, sub, mul, div, rem, neg (95-119)
+ * @param ctx contexto de execução Java
+ * @param opc opcode
+ */
+void handle_arithmetic(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa execução dos opcodes de retorno (169, 172-177)
