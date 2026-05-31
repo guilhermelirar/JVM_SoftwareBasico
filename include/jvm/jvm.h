@@ -107,6 +107,18 @@ static inline void push_operand(Frame* f, u4 value)
 }
 
 /** 
+ * @brief Empilha um valor de 64 bits
+ * na Operand Stack. 
+ * @param f Frame com a operand_stack
+ * @param value valor de 32 bits a ser empilhado 
+ */
+static inline void push_operand2(Frame* f, u8 value) 
+{
+  f->operand_stack[++f->stack_ptr] = (u4)value;
+  f->operand_stack[++f->stack_ptr] = (u4)value >> 16;
+}
+
+/** 
  * @brief Desempilha um valor de 32 bits (int, float, ou referência) 
  * da Operand Stack. 
  * @param f Frame com a operand_stack
@@ -120,6 +132,24 @@ static inline u4 pop_operand(Frame* f)
   }
   
   return f->operand_stack[f->stack_ptr--];
+}
+
+/** 
+ * @brief Desempilha um valor de 64 bits 
+ * da Operand Stack. 
+ * @param f Frame com a operand_stack
+ */
+static inline u8 pop_operand2(Frame *f)
+{
+  if (f->stack_ptr < 1) {
+    // Proteção contra esvaziamento da pilha (Underflow)
+    fprintf(stderr, "ERROR: Operand stack underflow!\n");
+    exit(1); 
+  }
+
+  u8 h = (u8) f->operand_stack[f->stack_ptr--];
+  u8 l = (u8) f->operand_stack[f->stack_ptr--];
+  return h | l;
 }
 
 #endif
