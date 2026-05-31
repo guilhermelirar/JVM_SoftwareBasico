@@ -124,13 +124,13 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
       return;
 
     case CONSTANT_Long:
-      push_operand(frame, entry->info.long_info.h_bytes);
       push_operand(frame, entry->info.long_info.l_bytes);
+      push_operand(frame, entry->info.long_info.h_bytes);
       return;
 
     case CONSTANT_Double:
-      push_operand(frame, entry->info.double_info.h_bytes);
       push_operand(frame, entry->info.double_info.l_bytes);
+      push_operand(frame, entry->info.double_info.h_bytes);
       return;
 
     case CONSTANT_String: 

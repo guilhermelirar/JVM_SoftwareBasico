@@ -149,7 +149,7 @@ static inline u8 pop_operand2(Frame *f)
 
   u8 h = (u8) f->operand_stack[f->stack_ptr--];
   u8 l = (u8) f->operand_stack[f->stack_ptr--];
-  return (h << 0) | l;
+  return (h << 32) | l;
 }
 
 #endif
