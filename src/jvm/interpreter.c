@@ -181,10 +181,12 @@ void handle_store(JVM_Context *ctx, u1 opc)
     (IN_RANGE(opc, opc_dstore_0, opc_lstore_3)) ||
     (IN_RANGE(opc, opc_lstore_0, opc_lstore_3)))
   {
-      u4 low = pop_operand(f);
       u4 high = pop_operand(f);
-      f->locals[idx] = low;
-      f->locals[idx+1] = high;
+      u4 low = pop_operand(f);
+      printf("debug store AQUI, colocarei H(%u) em idx, e L(%u) em idx+1\n",
+          high, low);
+      f->locals[idx] = high;
+      f->locals[idx+1] = low;
       return;
   }
  
@@ -297,7 +299,8 @@ if (cf == NULL) {
   int args = count_args_size(descriptor);
   push_frame(&ctx->t, new_frame(cf, m));
   Frame* new_f = current_frame(ctx);
-  for (int i = args-1; i >= 0; i--) {
+
+  for (int i = 0; i < args; i++) {
     new_f->locals[i] = frame->operand_stack[frame->stack_ptr--];
   }
 }
@@ -309,7 +312,7 @@ void handle_load(JVM_Context* ctx, u1 opc) {
 
   // Opcodes com operandos
   if (IN_RANGE(opc, opc_iload, opc_aload))
-    idx = fetch_u2(frame->code, &frame->pc);
+    idx = fetch_u1(frame->code, &frame->pc);
 
   // Opcodes sem operandos
   else if (IN_RANGE(opc, opc_iload_0, opc_aload_3)) 
@@ -324,8 +327,9 @@ void handle_load(JVM_Context* ctx, u1 opc) {
       IN_RANGE(opc, opc_dload_0, opc_dload_3)) 
   {
 
-    push_operand(frame, frame->locals[idx+1]); // h
-    push_operand(frame, frame->locals[idx]);   // l
+    push_operand(frame, frame->locals[idx+1]);   // low
+    push_operand(frame, frame->locals[idx]);     // high
+
     return;
   }
 

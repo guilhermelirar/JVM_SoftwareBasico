@@ -19,7 +19,7 @@ void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor)
       break;
 
     case 'J':
-      printf("%ld\n", (long)pop_operand2(frame));
+      printf("%lld\n", (long long)(int64_t)pop_operand2(frame));
       break;
 
     case 'D':

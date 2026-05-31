@@ -158,7 +158,7 @@ static void handle_div(Frame *f, u1 opc)
     case opc_ddiv:
     {
       double d2 = u8_to_double(pop_operand2(f));
-      double d1 = u8_to_double(pop_operand2(f));
+      double d1 = u8_to_double(pop_operand2(f)); 
       push_operand2(f, double_to_u8(d1 / d2));
     }
 
