@@ -4,6 +4,7 @@
 #include "jvm/jvmtypes.h"
 #include "jvm/utils.h"
 #include <math.h>
+#include <stdint.h>
 
 
 static void handle_add(Frame *f, u1 opc)
@@ -12,7 +13,8 @@ static void handle_add(Frame *f, u1 opc)
   {
     case opc_iadd:
     {
-      push_operand(f, pop_operand(f) + pop_operand(f));
+      push_operand(f, 
+          (u4)((int32_t)pop_operand(f) + (int32_t)pop_operand(f)));
       return;
     } 
 
@@ -26,9 +28,9 @@ static void handle_add(Frame *f, u1 opc)
 
     case opc_ladd:
     {
-      u8 v2 = pop_operand2(f);
-      u8 v1 = pop_operand2(f);
-      push_operand2(f, v1 + v2);
+      int64_t v2 = (int64_t)pop_operand2(f);
+      int64_t v1 = (int64_t)pop_operand2(f);
+      push_operand2(f, (u8)(v1 + v2));
       return;
     }
 
@@ -50,9 +52,9 @@ static void handle_mul(Frame *f, u1 opc)
   {
     case opc_imul:
     {
-      u4 v2 = pop_operand(f); 
-      u4 v1 = pop_operand(f);
-      push_operand(f, v1 * v2);
+      int32_t v2 = (int32_t)pop_operand(f); 
+      int32_t v1 = (int32_t)pop_operand(f);
+      push_operand(f, (u4)(v1 * v2));
       return;
     } 
 
@@ -66,9 +68,9 @@ static void handle_mul(Frame *f, u1 opc)
 
     case opc_lmul:
     {
-      u8 v2 = pop_operand2(f);
-      u8 v1 = pop_operand2(f);
-      push_operand2(f, v1 * v2);
+      int64_t v2 = (int64_t)pop_operand2(f);
+      int64_t v1 = (int64_t)pop_operand2(f);
+      push_operand2(f, (u8)(v1 * v2));
       return;
     }
 
@@ -91,9 +93,9 @@ static void handle_sub(Frame *f, u1 opc)
   {
     case opc_isub:
     {
-      u4 v2 = pop_operand(f); 
-      u4 v1 = pop_operand(f);
-      push_operand(f, v1 - v2);
+      int32_t v2 = (int32_t)pop_operand(f); 
+      int32_t v1 = (int32_t)pop_operand(f);
+      push_operand(f, (u8)(v1 - v2));
       return;
     } 
 
@@ -107,9 +109,9 @@ static void handle_sub(Frame *f, u1 opc)
 
     case opc_lsub:
     {
-      u8 v2 = pop_operand2(f);
-      u8 v1 = pop_operand2(f);
-      push_operand2(f, v1 - v2);
+      int64_t v2 = (int64_t)pop_operand2(f);
+      int64_t v1 = (int64_t)pop_operand2(f);
+      push_operand2(f, (u8)(v1 - v2));
       return;
     }
 
@@ -131,9 +133,9 @@ static void handle_div(Frame *f, u1 opc)
   {
     case opc_idiv:
     {
-      u4 v2 = pop_operand(f); 
-      u4 v1 = pop_operand(f);
-      push_operand(f, v1 / v2);
+      int32_t v2 = (int32_t)pop_operand(f); 
+      int32_t v1 = (int32_t)pop_operand(f);
+      push_operand(f, (u4)(v1 / v2));
       return;
     } 
 
@@ -147,9 +149,9 @@ static void handle_div(Frame *f, u1 opc)
 
     case opc_ldiv:
     {
-      u8 v2 = pop_operand2(f);
-      u8 v1 = pop_operand2(f);
-      push_operand2(f, v1 / v2);
+      int64_t v2 = (int64_t)pop_operand2(f);
+      int64_t v1 = (int64_t)pop_operand2(f);
+      push_operand2(f, (u8)(v1 / v2));
       return;
     }
 
@@ -173,7 +175,7 @@ static void handle_rem(Frame *f, u1 opc)
     {
       u4 v2 = pop_operand(f); 
       u4 v1 = pop_operand(f);
-      push_operand(f, v1 % v2);
+      push_operand(f, (u4)((int32_t)v1 % (int32_t)v2));
       return;
     } 
 
@@ -189,7 +191,7 @@ static void handle_rem(Frame *f, u1 opc)
     {
       u8 v2 = pop_operand2(f);
       u8 v1 = pop_operand2(f);
-      push_operand2(f, v1 % v2);
+      push_operand2(f, (u8)((int64_t)v1 % (int64_t)v2));
       return;
     }
 
