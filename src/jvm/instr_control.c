@@ -10,14 +10,28 @@ void handle_return(JVM_Context *ctx, u1 opc)
     case opc_return:
       return pop_frame(&ctx->t);
 
+    // empilha um u4 no frame do método chamador
     case opc_ireturn:
+    case opc_freturn:
+    case opc_areturn:
     {
       u4 ret_val = pop_operand(current_frame(ctx));
       pop_frame(&ctx->t);
-      push_operand(current_frame(ctx), (u4)ret_val);
+      push_operand(current_frame(ctx), ret_val);
       
       return;
     }
 
+    // empilham u8 
+    case opc_lreturn:
+    case opc_dreturn:
+    {
+      u8 ret_val = pop_operand2(current_frame(ctx));
+      pop_frame(&ctx->t);
+      push_operand2(current_frame(ctx), ret_val);
+    }
+
+    default:
+    return;
   }
 }
