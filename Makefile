@@ -1,6 +1,7 @@
 CC      = gcc
 CFLAGS  = -std=c99 -Wall -Wextra -g
 INCLUDE = -Iinclude
+LDFLAGS = -lm
 
 ifeq ($(DEBUG), 1)
     CFLAGS += -DDEBUG_MODE
@@ -38,7 +39,7 @@ $(BIN_LEITOR): $(COMMON_OBJ) $(DISPLAY_OBJ)
 # Compila a JVM (Common + JVM)
 $(BIN_JVM): $(COMMON_OBJ) $(JVM_OBJ)
 	@mkdir -p $(BIN_DIR)
-	$(CC) $^ -o $@
+	$(CC) $^ $(LDFLAGS) -o $@
 
 # Regra genérica para compilar qualquer .c em .o mantendo a pasta
 # O @mkdir garante que se src/common existe, obj/common será criada
