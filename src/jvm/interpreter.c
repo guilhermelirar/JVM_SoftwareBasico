@@ -15,12 +15,6 @@
     #define DEBUG_PRINT(...) do {} while (0)
 #endif
 
-void handle_return(JVM_Context *ctx, u1 opc)
-{
-  (void)opc;
-  pop_frame(&ctx->t);
-}
-
 // 0
 void handle_nop(JVM_Context* ctx, u1 opc) 
 {
