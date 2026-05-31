@@ -8,8 +8,6 @@
 #include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
 
-#define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
-
 #ifdef DEBUG_MODE
   #include <stdio.h>
   #define DEBUG_PRINT(...) printf(__VA_ARGS__)
