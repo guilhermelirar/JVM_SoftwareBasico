@@ -2,27 +2,36 @@
 #include <stdlib.h>
 #include "jvm/utils.h"
 #include "common/bytecode.h"
-#include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 
 
 void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor) 
 {
-  u4 val = frame->operand_stack[frame->stack_ptr--];
-  u4 object_ref = frame->operand_stack[frame->stack_ptr--];
-
-  if (object_ref == JVM_HANDLE_SYSOUT)
-  {
-    switch (descriptor) {
-      case 'L':
-        printf("%s\n", ctx->strings.strings[val]);
-        break;
+  switch (descriptor) {
+    case 'L':
+        printf("%s\n", ctx->strings.strings[pop_operand(frame)]);
+      break;
       
-      case 'I':
-        printf("%d\n", (int)val);
-        break;
-    }
-  }
+    case 'S':
+    case 'B':
+    case 'I':
+      printf("%d\n", (int)pop_operand(frame));
+      break;
+
+    case 'J':
+      printf("%ld\n", (long)pop_operand2(frame));
+      break;
+
+    case 'D':
+      printf("%f\n", u8_to_double(pop_operand2(frame)));
+      break;
+
+    case 'F':
+      printf("%f\n", u4_to_float(pop_operand(frame)));
+      break;
+  } 
+
+  pop_operand(frame); // consumindo object_ref
 }
 
 void jvm_error_uninmplemented_opc(JVM_Context *ctx, u1 opc) 
