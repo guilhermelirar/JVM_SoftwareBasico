@@ -223,4 +223,15 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
 
   if (IN_RANGE(opc, opc_irem, opc_drem))
     return handle_rem(current_frame(ctx), opc);
+
+  if (opc == opc_iinc)
+  {
+    u1 idx = fetch_u1(current_frame(ctx)->code, &current_frame(ctx)->pc);
+    int8_t constant = (int8_t)fetch_u1(current_frame(ctx)->code, 
+        &current_frame(ctx)->pc);
+
+    int local = (int)current_frame(ctx)->locals[idx];
+    local += constant;
+    current_frame(ctx)->locals[idx] = (u4)local;
+  }
 }

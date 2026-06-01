@@ -130,7 +130,7 @@
 [opc_lor] = handle_nop,
 [opc_ixor] = handle_nop,
 [opc_lxor] = handle_nop,
-[opc_iinc] = handle_nop,
+[opc_iinc] = handle_arithmetic,
 [opc_i2l] = handle_nop,
 [opc_i2f] = handle_nop,
 [opc_i2d] = handle_nop,
