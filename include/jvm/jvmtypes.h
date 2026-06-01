@@ -42,6 +42,7 @@ typedef struct {
  */
 typedef struct {
   u1 type;   /**< Código do tipo primitivo (T-Type)  */
+  u1 dimensions; /**< Dimensões do array */
   u4 length; /**< Quantidade de elementos no array. */
   u4 *data;   /**< Ponteiro para os dados brutos */
 } JVM_Array;
