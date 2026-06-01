@@ -396,7 +396,7 @@ void jvm_run(JVM_Context* ctx)
     
     u1 opcode = fetch_u1(frame->code, &frame->pc);
     
-     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%d | pc=%u | opc=0x%02X (%s)\n", 
+     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
          ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
     
     DISPATCH_TABLE[opcode](ctx, opcode);
