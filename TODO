@@ -3,6 +3,7 @@
 [x] lidar melhor com caso de arquivo nao existe
 [x] renomear heap para object table e melhorar controle em instruções (null, index out of range, etc)
 
+[] executar clinit antes do main!
 [] liberar object table
 [] criar função separada de get_class que retorna índice para área de métodos
 apontando para uma classe (que deve ser carregada se não estiver lá)
