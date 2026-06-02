@@ -1,5 +1,6 @@
 // src/jvm/class_loader.h
 #include <stdio.h>
+#include <string.h>
 #include "common/classfile.h"
 #include "common/classfile_reader.h"
 #include "common/reader.h"
@@ -40,8 +41,11 @@ void load_main_class(JVM_Context *ctx, const char *path)
 {
   // carregando classfile
   ClassFile* main_class = ClassFile_from_path(path);
+  const char* super_name = cp_class_name(main_class->constant_pool, 
+      main_class->super_class);
 
-  if (main_class->super_class) // super classe não é java/lang/Object
+  // Ignorar Object
+  if (strcmp(super_name, "java/lang/Object"))
   {
     load_class(ctx, cp_class_name(main_class->constant_pool, 
           main_class->super_class));
@@ -55,7 +59,9 @@ void load_main_class(JVM_Context *ctx, const char *path)
     run_method(ctx, ctx->t.frame_ptr);
   }
 
-  method_info* main = find_method(main_class, "main", "([Ljava/lang/String;)V");
+  method_info* main = find_method(main_class, 
+      "main", "([Ljava/lang/String;)V");
+  
   if (main == NULL || 
       !(main->access_flags & ACC_PUBLIC) || 
       !(main->access_flags & ACC_STATIC)) 
