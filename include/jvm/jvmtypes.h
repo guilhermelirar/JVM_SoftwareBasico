@@ -82,6 +82,8 @@ typedef struct {
  * @brief Estrutura que representa contexto de execução da JVM 
  */
 typedef struct {
+  char base_dir[512]; 
+
   LoadedClass method_area[JVM_MAX_CLASSES]; 
   /**< Informação das classes e métodos */
   int classes_count; /**< Número de .class carregados */
