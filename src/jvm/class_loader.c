@@ -55,32 +55,53 @@ static void alloc_static_fields(LoadedClass* class)
   class->static_fields = (u4*)calloc(needed_slots, sizeof(u4));
 }
 
+static inline void load_super(JVM_Context* ctx, ClassFile* cf)
+{
+  const char* super_name = cp_class_name(cf->constant_pool, 
+      cf->super_class);
+  
+  if (strcmp(super_name, "java/lang/Object"))
+  {
+    load_class(ctx, cp_class_name(cf->constant_pool, 
+          cf->super_class));
+  }
+}
+
 void load_class(JVM_Context* ctx, const char* name) 
 {
-  char result[512];
-  snprintf(result, sizeof(result), "%s%s%s", ctx->base_dir, name, ".class");
+  char path[512];
+  snprintf(path, sizeof(path), "%s%s%s", ctx->base_dir, name, ".class");
+  ClassFile* cf = ClassFile_from_path(path);
+  
+  load_super(ctx, cf);
+
+  // Colocando na área de métodos
+  ctx->method_area[ctx->classes_count].cf = cf;
+  alloc_static_fields(&ctx->method_area[ctx->classes_count]);
+  ctx->classes_count++;
+
+  method_info* clinit = find_method(cf, "<clinit>", "()V");
+  if (clinit != NULL)
+  {
+    Frame* clinit_frame = new_frame(cf, clinit);
+    push_frame(&ctx->t, clinit_frame);
+    run_method(ctx, ctx->t.frame_ptr);
+  }
 }
 
 void load_main_class(JVM_Context *ctx, const char *path)
 {
   // carregando classfile
   ClassFile* main_class = ClassFile_from_path(path);
-  const char* super_name = cp_class_name(main_class->constant_pool, 
-      main_class->super_class);
 
-  // Ignorar Object
-  if (strcmp(super_name, "java/lang/Object"))
-  {
-    load_class(ctx, cp_class_name(main_class->constant_pool, 
-          main_class->super_class));
-  }
+  load_super(ctx, main_class); // inicialização das superclasses
 
   ctx->method_area[ctx->classes_count].cf = main_class;
   alloc_static_fields(&ctx->method_area[ctx->classes_count]);
   ctx->classes_count++;
 
   method_info* clinit = find_method(main_class, "<clinit>", "()V");
-  if (clinit)
+  if (clinit != NULL)
   {
     Frame* clinit_frame = new_frame(main_class, clinit);
     push_frame(&ctx->t, clinit_frame);
