@@ -1,9 +1,17 @@
 #include "jvm/jvm.h"
 #include "common/classfile.h"
 #include "jvm/jvmtypes.h"
+#include "jvm/interpreter.h"
+#include "common/bytecode.h"
 #include <stdlib.h>
-#include <stdio.h>
 #include <string.h>
+
+#ifdef DEBUG_MODE
+  #include <stdio.h>
+  #define DEBUG_PRINT(...) printf(__VA_ARGS__)
+#else
+    #define DEBUG_PRINT(...) do {} while (0)
+#endif
 
 method_info* find_method(ClassFile *cf, const char* name, 
     const char* descriptor) 
@@ -56,41 +64,36 @@ Frame* new_frame(ClassFile* cf, method_info* method)
   return frame;
 }
 
-JVM_Context* jvm_init(ClassFile* main_class)
+JVM_Context* jvm_init()
 {
-  // Busca por main (obrigatório)
-  method_info* main = find_method(main_class, "main", "([Ljava/lang/String;)V");
-  if (main == NULL || 
-      !(main->access_flags & ACC_PUBLIC) || 
-      !(main->access_flags & ACC_STATIC)) 
-  {
-    printf("ERROR: method main (public void main(String[] args))" 
-        "not found in class \"%s\"\n", 
-        cp_class_name(main_class->constant_pool, main_class->this_class));
-    return NULL;
-  }
-
   JVM_Context* ctx = (JVM_Context*)malloc(sizeof(JVM_Context));
   if (ctx == NULL) return NULL;
 
   ctx->objects.capacity = JVM_HEAP_CAPACITY;
   ctx->objects.count = 0;
 
+  ctx->classes_count = 0;
   ctx->strings.count = 0;
   ctx->strings.capacity = JVM_STRING_TABLE_SIZE;
 
   ctx->t.frame_ptr = -1;
-  push_frame(&ctx->t, new_frame(main_class, main));
  
-  ctx->method_area[0].cf = main_class; 
-  ctx->method_area[0].static_fields = 
-    (u4*)calloc(main_class->fields_count, sizeof(u4));
-
-  ctx->classes_count = 1;
-  // TODO resto
   return ctx;
 }
 
+void run_method(JVM_Context *ctx, int frame_ptr)
+{
+  while (ctx->t.frame_ptr >= frame_ptr)
+  {
+    Frame* frame = current_frame(ctx);
+    u1 opcode = fetch_u1(frame->code, &frame->pc);
+    
+    DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
+      ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
+    
+    DISPATCH_TABLE[opcode](ctx, opcode);
+  }
+}
 
 int count_args_size(const char* descriptor) 
 {
@@ -151,4 +154,13 @@ void free_frame(Frame *f)
   free(f->operand_stack);
   free(f->locals);
   free(f);
+}
+
+const instruction_handler DISPATCH_TABLE[256] = {
+#include "jvm/dispatch_table.def"
+};
+
+void jvm_run(JVM_Context* ctx)
+{
+  run_method(ctx, 0);
 }
