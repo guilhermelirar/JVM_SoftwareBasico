@@ -1,5 +1,6 @@
 #include "jvm/jvm.h"
 #include "common/classfile.h"
+#include "common/classfile_reader.h"
 #include "jvm/jvmtypes.h"
 #include "jvm/interpreter.h"
 #include "common/bytecode.h"
@@ -143,8 +144,11 @@ void terminateJVM(JVM_Context *ctx)
   }
 
   while (ctx->classes_count--)
+  {
+    free_classfile(ctx->method_area[ctx->classes_count].cf);
     free(ctx->method_area[ctx->classes_count].static_fields);
-  // TODO percorrer estrutura para liberar outros ponteiros
+  }
+
   free(ctx);
 }
 
