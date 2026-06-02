@@ -1,5 +1,6 @@
 // src/jvm/class_loader.h
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 #include "common/classfile.h"
 #include "common/classfile_reader.h"
@@ -30,12 +31,35 @@ ClassFile* ClassFile_from_path(const char *path)
   return cf;
 }
 
-void load_class(JVM_Context* ctx, const char* name) {
+static void alloc_static_fields(LoadedClass* class)
+{
+  u2 needed_slots = 0;
+
+  for (int i = 0; i < class->cf->fields_count; i++)
+  {
+    field_info* f = &class->cf->fields[i];
+
+    if (f->access_flags & ACC_STATIC)
+    {
+      const char* descriptor = cp_get_utf8(class->cf->constant_pool, 
+          f->descriptor_index);
+      
+      // ocupam dois slots
+      if (descriptor[0] == 'J' || descriptor[0] == 'D')
+        needed_slots++;
+
+      needed_slots++;
+    }
+  }
+
+  class->static_fields = (u4*)calloc(needed_slots, sizeof(u4));
+}
+
+void load_class(JVM_Context* ctx, const char* name) 
+{
   char result[512];
   snprintf(result, sizeof(result), "%s%s%s", ctx->base_dir, name, ".class");
-
-  printf("%s\n", result);
-};
+}
 
 void load_main_class(JVM_Context *ctx, const char *path)
 {
@@ -50,6 +74,10 @@ void load_main_class(JVM_Context *ctx, const char *path)
     load_class(ctx, cp_class_name(main_class->constant_pool, 
           main_class->super_class));
   }
+
+  ctx->method_area[ctx->classes_count].cf = main_class;
+  alloc_static_fields(&ctx->method_area[ctx->classes_count]);
+  ctx->classes_count++;
 
   method_info* clinit = find_method(main_class, "<clinit>", "()V");
   if (clinit)
