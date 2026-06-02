@@ -54,15 +54,6 @@ static inline u4 fetch_u4(u1* code, u4 *pc) {
   return v;
 }
 
-/**
- * @brief Função para o loop de execução da JVM (fetch decode e execute)
- *
- * @param ctx contexto de execução da JVM
- * @param opc opcode
- */
-void jvm_run(JVM_Context* ctx);
-
-
 
 /**
  * @brief Função que implementa NOP 

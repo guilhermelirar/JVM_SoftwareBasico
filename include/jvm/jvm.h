@@ -121,13 +121,11 @@ method_info* find_method(ClassFile *cf, const char* name,
     const char* descriptor);
 
 /**
- * @brief inicializa JVM_Context ao receber classe de entrada
- * @param main_class ClassFile inicializada que deve ser ponto de entrada 
- * da execução
- * @return JVM_Context pronto para loop de execução caso main_class seja válida,
+ * @brief inicializa uma estrutura JVM_Context sem classes carregadas
+ * @return JVM_Context pronto para loop de execução
  * ou NULL caso main_class seja inválida (ex: sem método main correto)
  */
-JVM_Context* jvm_init(ClassFile* main_class);
+JVM_Context* jvm_init();
 
 /**
  * @brief aloca memória e inicializa um novo Frame
@@ -159,5 +157,32 @@ int count_args_size(const char* descriptor);
  * @return ClassFile ponteiro para ClassFile inicializado
  */
 ClassFile* ClassFile_from_path(const char* path);
+
+/**
+ * @brief carrega e inicializa uma classe (campos estáticos) a partir do nome 
+ * e do contexto de execução JVM 
+ * @param ctx contexto de execução jvm 
+ * @param name nome classe em relação ao base_dir
+ */
+void load_class(JVM_Context* ctx, const char* name);
+
+/**
+ * @brief carrega e inicializa a classe main, preparando o contexto JVM 
+ * para iniciar a execução (empilha main)
+ * @param ctx contexto JVM_Context a ter o main empilhado na thread principal
+ * @param path caminho da classe que contém o main, absoluto, ou relativo ao 
+ * diretório de execução da jvm 
+ */
+void load_main_class(JVM_Context* ctx, const char* path);
+
+void run_method(JVM_Context *ctx, int frame_ptr);
+
+/**
+ * @brief Função para o loop de execução da JVM (fetch decode e execute)
+ *
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode
+ */
+void jvm_run(JVM_Context* ctx);
 
 #endif
