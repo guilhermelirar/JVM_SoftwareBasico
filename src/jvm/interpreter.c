@@ -8,13 +8,6 @@
 #include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
 
-#ifdef DEBUG_MODE
-  #include <stdio.h>
-  #define DEBUG_PRINT(...) printf(__VA_ARGS__)
-#else
-    #define DEBUG_PRINT(...) do {} while (0)
-#endif
-
 // 0
 void handle_nop(JVM_Context* ctx, u1 opc) 
 {
@@ -383,23 +376,3 @@ void handle_load(JVM_Context* ctx, u1 opc) {
   }
 }
 
-
-const instruction_handler DISPATCH_TABLE[256] = {
-#include "jvm/dispatch_table.def"
-};
-
-void jvm_run(JVM_Context* ctx)
-{
-  while (ctx->t.frame_ptr >= 0)
-  {
-    Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
-    
-    u1 opcode = fetch_u1(frame->code, &frame->pc);
-    
-     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
-         ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
-    
-    DISPATCH_TABLE[opcode](ctx, opcode);
-    if (ctx->t.frame_ptr < 0) break;
-  }
-}

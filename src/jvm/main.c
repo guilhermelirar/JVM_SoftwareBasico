@@ -1,6 +1,5 @@
 #include "common/classfile.h"
 #include "common/classfile_reader.h"
-#include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
 #include "jvm/utils.h"
@@ -11,8 +10,9 @@ int main(int argc, char** argv)
 
   ClassFile* main_class = ClassFile_from_path(argv[1]);
 
-  JVM_Context* ctx = jvm_init(main_class);
+  JVM_Context* ctx = jvm_init();
   extract_class_dir(argv[1], ctx->base_dir, 256);
+  load_main_class(ctx, argv[1]);
 
   jvm_run(ctx);
 
