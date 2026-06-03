@@ -28,6 +28,12 @@ ClassFile* ClassFile_from_path(const char *path)
   free(r.buf);
   fclose(file);
 
+  if (cf == NULL)
+  {
+    fprintf(stderr, "Aborting...\n");
+    exit(1);
+  }
+
   return cf;
 }
 
@@ -93,6 +99,11 @@ void load_main_class(JVM_Context *ctx, const char *path)
 {
   // carregando classfile
   ClassFile* main_class = ClassFile_from_path(path);
+  if (main_class == NULL)
+  {
+    fprintf(stderr, "Aborting...\n");
+    exit(1);
+  }
 
   load_super(ctx, main_class); // inicialização das superclasses
 
