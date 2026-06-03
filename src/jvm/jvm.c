@@ -39,6 +39,48 @@ method_info* find_method(ClassFile *cf, const char* name,
   return NULL;
 }
 
+LoadedClass* find_superclass_with_method(JVM_Context* ctx, 
+    LoadedClass* base_class, const char* method_name, const char* descriptor)
+{
+  if (base_class->cf->super_class == 0) return NULL;
+
+  const char* super_name = cp_class_name(
+      base_class->cf->constant_pool,
+      base_class->cf->super_class
+  );
+
+  // acha super_classe, se não achar (for Object) retorna NULL
+  LoadedClass* super_class = find_class_by_name(ctx, super_name);
+  if (super_class == NULL) return NULL;
+
+  // se achar na super classe, a retorna
+  method_info* method = find_method(super_class->cf, method_name, descriptor);
+  if (method != NULL) return super_class; 
+
+  // procura na hierarquia
+  return find_superclass_with_method(ctx, super_class, 
+      method_name, descriptor);
+}
+
+
+LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name)
+{
+  LoadedClass* class = NULL;
+  for (int i = 0; i < ctx->classes_count; i++)
+  {
+    class = &ctx->method_area[i];
+
+    // achou classe
+    if (strcmp(name, cp_class_name(class->cf->constant_pool, 
+            class->cf->this_class)) == 0)
+    {
+      return class;
+    }
+  }
+  
+  return NULL;
+}
+
 Frame* new_frame(ClassFile* cf, method_info* method)
 {
   Frame* frame = (Frame*)malloc(sizeof(Frame));

@@ -177,6 +177,12 @@ void load_main_class(JVM_Context* ctx, const char* path);
 
 void run_method(JVM_Context *ctx, int frame_ptr);
 
+
+LoadedClass* find_superclass_with_method(JVM_Context* ctx, 
+    LoadedClass* base_class, const char* method_name, const char* descriptor);
+
+LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name);
+
 /**
  * @brief Função para o loop de execução da JVM (fetch decode e execute)
  *

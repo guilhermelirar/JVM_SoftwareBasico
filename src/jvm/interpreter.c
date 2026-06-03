@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include "jvm/interpreter.h"
@@ -237,9 +238,12 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
 
   // descritor
   const char* method_name = 
-    cp_get_utf8(frame->constant_pool, nt_entry->info.name_and_type_info.name_index);
+    cp_get_utf8(frame->constant_pool, 
+        nt_entry->info.name_and_type_info.name_index);
+  
   const char* descriptor = 
-    cp_get_utf8(frame->constant_pool, nt_entry->info.name_and_type_info.descriptor_index);
+    cp_get_utf8(frame->constant_pool, 
+        nt_entry->info.name_and_type_info.descriptor_index);
 
   if (strcmp(class_name, "java/io/PrintStream") == 0 && 
       strcmp(method_name, "println") == 0)
@@ -269,32 +273,39 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
         nt_entry->info.name_and_type_info.descriptor_index);
 
 
-  // TODO mover para find_class/get_class ou outra coisa
-  ClassFile *cf = NULL;
-  for (int i = 0; i < ctx->classes_count; i++)
+  // procura classe 
+  LoadedClass* class = find_class_by_name(ctx, class_name);
+  if (class == NULL) goto err_no_such_method;
+
+  // procura método na classe base, e nas superclasses
+  method_info* m = find_method(class->cf, method_name, descriptor);
+  if (m == NULL)
   {
-    cf = ctx->method_area[i].cf;
-    if (strcmp(class_name, 
-          cp_class_name(cf->constant_pool, cf->this_class)) == 0)
-        break;
-    cf = NULL;
-  }
-if (cf == NULL) {
-      return; 
+    class = find_superclass_with_method(ctx, class, method_name, descriptor);
+    if (class == NULL) goto err_no_such_method;
   }
 
-  method_info* m = find_method(cf, method_name, descriptor);
-  if (m == NULL) {
-      return;
-  }
+  // garantido que existe
+  m = find_method(class->cf, method_name, descriptor);
+
+  if (m->access_flags & ACC_PRIVATE)
+    goto err_no_such_method;
 
   int args = count_args_size(descriptor);
-  push_frame(&ctx->t, new_frame(cf, m));
+  push_frame(&ctx->t, new_frame(class->cf, m));
   Frame* new_f = current_frame(ctx);
 
   for (int i = args-1; i >= 0; i--) {
     new_f->locals[i] = frame->operand_stack[frame->stack_ptr--];
   }
+
+  return;
+err_no_such_method:
+  fprintf(stderr, 
+      "Fatal Error: NoSuchMethodError." 
+      "Could not find method '%s%s' in hierarchy.\n", 
+      method_name, descriptor);
+  exit(1); 
 }
 
 void handle_load(JVM_Context* ctx, u1 opc) {
