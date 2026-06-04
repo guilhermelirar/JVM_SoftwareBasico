@@ -219,3 +219,59 @@ void jvm_run(JVM_Context* ctx)
     DISPATCH_TABLE[opcode](ctx, opcode);
   }
 }
+
+method_info* lookup_method(LoadedClass** base_class_pp, 
+    const char* method_name, const char* method_descriptor)
+{
+  if (base_class_pp == NULL || *base_class_pp == NULL) return NULL;
+
+  method_info* m = NULL;
+  LoadedClass* curr = *base_class_pp;
+ 
+  // Procura na atual e nas superclasse até achar
+  do {
+     m = find_method(curr->cf, method_name, method_descriptor);
+     if (m != NULL)
+     {
+       *base_class_pp = curr;
+       return m;
+     }
+
+     curr = curr->super;
+  } while (curr != NULL); 
+
+  return NULL;
+}
+
+void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
+{
+  if (ctx == NULL) return;
+
+  LoadedClass* entry_class_loaded = get_class(ctx, entry_class_name);
+  LoadedClass** main_class_loaded_pp = &entry_class_loaded;
+
+  method_info* main_method = lookup_method(main_class_loaded_pp, 
+      "main", "([Ljava.lang.String)V;");
+
+  // Testando se flags de acesso estão corretas
+  u2 required = ACC_STATIC | ACC_PUBLIC;
+  if (main_method == NULL || 
+      (main_method->access_flags & required) != required)
+    goto err_main_not_found;
+
+  initialize_class(ctx, entry_class_loaded); // <clinit> e static fields
+
+  Frame* f = new_frame((*main_class_loaded_pp)->cf, main_method);
+  push_frame(&ctx->t, f);
+  
+  return;
+
+err_main_not_found:
+  fprintf(stderr, 
+      "Error: Main method not found"
+      " in class %s, please define the main method as:\n"
+      "public static void main(String[] args)\n",
+      entry_class_name);
+  terminateJVM(ctx);
+  exit(1);
+}

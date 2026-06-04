@@ -114,3 +114,4 @@ LoadedClass* get_class(JVM_Context* ctx, const char* name)
 
   return class;
 }
+

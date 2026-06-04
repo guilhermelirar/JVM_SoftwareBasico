@@ -217,6 +217,30 @@ LoadedClass* get_class(JVM_Context* ctx, const char* name);
 LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name);
 
 /**
+ * @brief Empilha frame com método main na thread do contexto 
+ * @param ctx contexto de execução Java
+ * @param entry_class_name Classe de entrada do interpretador 
+ * (deve implementar ou herdar public static void main(String[] args))
+ */
+void stack_main_frame(JVM_Context* ctx, const char* entry_class_name);
+
+/**
+ * @brief resolve um método a partir de um nome, descritor, 
+ * e uma classe carregada, procurando entre os métodos implementados
+ * ou herdados
+ * @param base_class_pp ponteiro para um ponteiro que armazena a classe base 
+ * será usado como retorno, conterá a classe que implementa o método 
+ * encontrado, que pode ser uma superclasse 
+ * @param method_name nome do método 
+ * @param method_descriptor descritor do método
+ * @return method_info* ponteiro para membro ClassFile 
+ * que contém metadados do método, pode ser NULL caso o método não 
+ * tenha sido encontrado em nenhuma classe a partir da classe base
+ */
+method_info* lookup_method(LoadedClass** base_class_pp, 
+    const char* method_name, const char* method_descriptor);
+
+/**
  * @brief Função para o loop de execução da JVM (fetch decode e execute)
  * chama run_method a partir do método inicial main (índice 0)
  *
