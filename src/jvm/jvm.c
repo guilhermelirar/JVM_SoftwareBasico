@@ -206,8 +206,10 @@ const instruction_handler DISPATCH_TABLE[256] = {
 #include "jvm/dispatch_table.def"
 };
 
-void jvm_run(JVM_Context* ctx)
+void jvm_run(JVM_Context* ctx, const char* entry_class_name)
 {
+  stack_main_frame(ctx, entry_class_name);
+
   while (ctx->t.frame_ptr >= 0)
   {
     Frame* frame = current_frame(ctx);
@@ -259,10 +261,10 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
       (main_method->access_flags & required) != required)
     goto err_main_not_found;
 
-  initialize_class(ctx, entry_class_loaded); // <clinit> e static fields
-
   Frame* f = new_frame((*main_class_loaded_pp)->cf, main_method);
   push_frame(&ctx->t, f);
+
+  initialize_class(ctx, entry_class_loaded); // <clinit> e static fields
   
   return;
 

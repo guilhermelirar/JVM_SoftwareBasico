@@ -246,6 +246,6 @@ method_info* lookup_method(LoadedClass** base_class_pp,
  *
  * @param ctx contexto de execução da JVM
  */
-void jvm_run(JVM_Context* ctx);
+void jvm_run(JVM_Context* ctx, const char *entry_class_name);
 
 #endif
