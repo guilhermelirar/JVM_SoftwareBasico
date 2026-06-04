@@ -11,11 +11,7 @@ int main(int argc, char** argv)
 
   extract_class_dir(argv[1], ctx->base_dir, 256);
 
-  char entry_class_name[256];
-  extract_class_name_from_path(argv[1], entry_class_name, 
-      sizeof(entry_class_name));
-
-  jvm_run(ctx, entry_class_name);
+  jvm_run(ctx, extract_class_name_from_path(argv[1]));
 
   terminateJVM(ctx);
   return 0;

@@ -331,7 +331,7 @@ const char* cp_get_utf8(cp_info* cp, u2 utf8_index);
  * superclasse da classe passada como parâmetro, pode ser NULL caso 
  * super_class seja 0 
  */
-inline const char* get_superclass_name(ClassFile* cf)
+static inline const char* get_superclass_name(ClassFile* cf)
 {
   if (cf->super_class == 0) return NULL;
 

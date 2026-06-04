@@ -65,8 +65,7 @@ void extract_class_dir(const char* path, char* dest, size_t dest_size)
   snprintf(dest, dest_size, ".%c", '/');
 }
 
-const char* extract_class_name_from_path(const char *path, 
-    char* dest, size_t dest_size)
+const char* extract_class_name_from_path(const char *path)
 {
   long long len = (long long)strlen(path);
 

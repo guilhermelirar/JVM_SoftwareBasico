@@ -253,7 +253,7 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
   LoadedClass** main_class_loaded_pp = &entry_class_loaded;
 
   method_info* main_method = lookup_method(main_class_loaded_pp, 
-      "main", "([Ljava.lang.String)V;");
+      "main", "([Ljava/lang/String;)V");
 
   // Testando se flags de acesso estão corretas
   u2 required = ACC_STATIC | ACC_PUBLIC;
