@@ -164,7 +164,7 @@ ClassFile* ClassFile_from_path(const char* path);
  * @param ctx contexto de execução jvm 
  * @param name nome classe em relação ao base_dir
  */
-void load_class(JVM_Context* ctx, const char* name);
+LoadedClass* load_class(JVM_Context* ctx, const char* name);
 
 /**
  * @brief carrega e inicializa a classe main, preparando o contexto JVM 
@@ -175,19 +175,45 @@ void load_class(JVM_Context* ctx, const char* name);
  */
 void load_main_class(JVM_Context* ctx, const char* path);
 
+/**
+ * @brief executa o bytecode de um método, e todos os métodos que forem 
+ * invocados em sua execução. Obtém o opcode por meio do código do frame 
+ * em questão e através dele busca a função handler na DISPATCH_TABLE. Retorna 
+ * se o topo da pilha for menor que o argumento frame_ptr 
+ * @param ctx Contexto de execução da jvm já inicializado 
+ * @param frame_ptr ponteiro para frame que quando for finalizado, a execução 
+ * termina (se for 0, executa o programa inteiro)
+ * */
 void run_method(JVM_Context *ctx, int frame_ptr);
 
-
+/**
+ * @brief Encontra uma LoadedClass da área de métodos que tenha o método 
+ * especificado pelos parâmetros, e seja uma superclasse imediata ou não 
+ * de base_class
+ * @param ctx Contexto de execução JVM inciado 
+ * @param base_class classe base que deve estar na área de métodos de ctx 
+ * @param method_name nome simples do método 
+ * @param descriptor descritor do método
+ * @return LoadedClass* ponteiro para classe carregada que possua o método, 
+ * ou NULL caso não tenha sido encontrada
+ * */
 LoadedClass* find_superclass_with_method(JVM_Context* ctx, 
     LoadedClass* base_class, const char* method_name, const char* descriptor);
 
+/**
+ * @brief procura uma classe na área de métodos 
+ * cujo nome (CONSTANT_Class apontado por this_class)
+ * seja igual ao argumento recebido, e a retorna caso encontrada
+ * @param ctx Contexto de execução JVM 
+ * @param name nome simples da classe
+ */
 LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name);
 
 /**
  * @brief Função para o loop de execução da JVM (fetch decode e execute)
+ * chama run_method a partir do método inicial main (índice 0)
  *
  * @param ctx contexto de execução da JVM
- * @param opc opcode
  */
 void jvm_run(JVM_Context* ctx);
 
