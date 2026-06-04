@@ -73,7 +73,7 @@ static inline void load_super(JVM_Context* ctx, ClassFile* cf)
   }
 }
 
-void load_class(JVM_Context* ctx, const char* name) 
+LoadedClass* load_class(JVM_Context* ctx, const char* name) 
 {
   char path[512];
   snprintf(path, sizeof(path), "%s%s%s", ctx->base_dir, name, ".class");
@@ -82,9 +82,11 @@ void load_class(JVM_Context* ctx, const char* name)
   load_super(ctx, cf);
 
   // Colocando na área de métodos
-  ctx->method_area[ctx->classes_count].cf = cf;
-  alloc_static_fields(&ctx->method_area[ctx->classes_count]);
+  LoadedClass* class = &ctx->method_area[ctx->classes_count];
+  class->cf = cf;
+  alloc_static_fields(class);
   ctx->classes_count++;
+
 
   method_info* clinit = find_method(cf, "<clinit>", "()V");
   if (clinit != NULL)
@@ -93,6 +95,8 @@ void load_class(JVM_Context* ctx, const char* name)
     push_frame(&ctx->t, clinit_frame);
     run_method(ctx, ctx->t.frame_ptr);
   }
+
+  return class;
 }
 
 void load_main_class(JVM_Context *ctx, const char *path)
