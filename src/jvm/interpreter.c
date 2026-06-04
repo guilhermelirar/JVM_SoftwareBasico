@@ -275,7 +275,10 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
 
   // procura classe 
   LoadedClass* class = find_class_by_name(ctx, class_name);
-  if (class == NULL) goto err_no_such_method;
+  if (class == NULL) // Carregar a classe
+  {
+    class = load_class(ctx, class_name); // Possivel encerramento da execução
+  }
 
   // procura método na classe base, e nas superclasses
   method_info* m = find_method(class->cf, method_name, descriptor);
