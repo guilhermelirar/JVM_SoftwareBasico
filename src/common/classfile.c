@@ -22,3 +22,4 @@ const char* cp_nameandtype_name(cp_info* constant_pool, u2 nt_index) {
   u2 name_index = nt->info.name_and_type_info.name_index;
   return cp_get_utf8(constant_pool, name_index);  
 }
+

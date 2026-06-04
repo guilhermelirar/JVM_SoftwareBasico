@@ -1,6 +1,7 @@
 #ifndef JVM_INCLUDED
 #define JVM_INCLUDED
 
+#include <stdbool.h>
 #include "common/classfile.h"
 
 #define JVM_STACK_SIZE 1000
@@ -57,14 +58,18 @@ typedef struct {
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } ObjectTable;
 
+typedef struct LoadedClass LoadedClass;
+
 /**
  * @brief Estrutura que representa uma tabela das classes carregadas
  * e seus campos estáticos
  */
-typedef struct {
+struct LoadedClass {
   ClassFile* cf;
   u4* static_fields;
-} LoadedClass;
+  bool is_initialized;
+  LoadedClass* super;
+};
 
 /**
  * @brief Estrutura que representa uma tabela

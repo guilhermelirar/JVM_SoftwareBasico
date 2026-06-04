@@ -2,6 +2,7 @@
 #define CLASSFILE
 
 #include "stdint.h"
+#include <stdio.h>
 #include <inttypes.h>
 
 #define MAGIC 0xCAFEBABE
@@ -321,5 +322,20 @@ const char* cp_nameandtype_name(cp_info* cp, u2 nt_index);
  * string "<invalid UTF-8>" caso índice não aponte para CONSTANT_Utf8
  */
 const char* cp_get_utf8(cp_info* cp, u2 utf8_index);
+
+/**
+ * @brief Resolve e retorna a string que representa o nome 
+ * da superclasse da ClassFile passda como parâmetro 
+ * @param cf ClassFile da qual se deseja saber a superclasse 
+ * @return const char * Ponteiro para string C que representa o nome da 
+ * superclasse da classe passada como parâmetro, pode ser NULL caso 
+ * super_class seja 0 
+ */
+inline const char* get_superclass_name(ClassFile* cf)
+{
+  if (cf->super_class == 0) return NULL;
+
+  return cp_class_name(cf->constant_pool, cf->super_class);
+}
 
 #endif

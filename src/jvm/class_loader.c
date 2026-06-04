@@ -73,30 +73,50 @@ static inline void load_super(JVM_Context* ctx, ClassFile* cf)
   }
 }
 
+
+void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
+{
+  if (loaded->is_initialized) return;
+
+  // Inicializando classe atual e superclasses
+  LoadedClass* curr = loaded;
+  do {
+    alloc_static_fields(curr); // inicializa campos estáticos
+
+    // Empilhando <clinit> se houver
+    method_info* clinit = find_method(curr->cf, "<clinit>", "()V");
+    if (clinit != NULL)
+    {
+      Frame* clinit_frame = new_frame(curr->cf, clinit);
+      push_frame(&ctx->t, clinit_frame);
+    }
+
+    curr->is_initialized = true; // <clinit> em progresso ou encerrado
+    curr = curr->super;  // Para inicializar a superclasse 
+  } while (curr != NULL);
+}
+
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 
 {
   char path[512];
   snprintf(path, sizeof(path), "%s%s%s", ctx->base_dir, name, ".class");
   ClassFile* cf = ClassFile_from_path(path);
-  
-  load_super(ctx, cf);
 
-  // Colocando na área de métodos
-  LoadedClass* class = &ctx->method_area[ctx->classes_count];
-  class->cf = cf;
-  alloc_static_fields(class);
-  ctx->classes_count++;
-
-
-  method_info* clinit = find_method(cf, "<clinit>", "()V");
-  if (clinit != NULL)
+  // Se há superclasse carregável por esta implementação da JVM
+  LoadedClass* super_loaded = NULL;
+  const char* super_name = get_superclass_name(cf);
+  if (super_name != NULL && strcmp(super_name, "java/lang/Object") != 0)
   {
-    Frame* clinit_frame = new_frame(cf, clinit);
-    push_frame(&ctx->t, clinit_frame);
-    run_method(ctx, ctx->t.frame_ptr);
+    super_loaded = load_class(ctx, get_superclass_name(cf)); 
   }
 
-  return class;
+  LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
+  loaded->cf = cf;
+  loaded->static_fields = NULL;
+  loaded->is_initialized = false;
+  loaded->super = super_loaded;
+
+  return loaded;
 }
 
 void load_main_class(JVM_Context *ctx, const char *path)

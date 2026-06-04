@@ -159,6 +159,13 @@ int count_args_size(const char* descriptor);
 ClassFile* ClassFile_from_path(const char* path);
 
 /**
+ * TODO 
+ */
+void initialize_class(JVM_Context* ctx, LoadedClass* loaded);
+
+
+
+/**
  * @brief carrega e inicializa uma classe (campos estáticos) a partir do nome 
  * e do contexto de execução JVM 
  * @param ctx contexto de execução jvm 
