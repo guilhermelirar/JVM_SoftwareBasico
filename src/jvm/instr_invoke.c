@@ -59,30 +59,40 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
     cp_get_utf8(frame->constant_pool, 
         nt_entry->info.name_and_type_info.descriptor_index);
 
+  LoadedClass* this = current_frame(ctx)->current_class;
+  LoadedClass* class = get_class(ctx, class_name);
+  LoadedClass** class_with_method_pp = &class;
 
-  // procura classe 
-  LoadedClass* class = find_class_by_name(ctx, class_name);
-  if (class == NULL) // Carregar a classe
+  method_info* m = lookup_method(class_with_method_pp, 
+     method_name, descriptor);
+
+  if (m == NULL) goto err_no_such_method;
+
+  if ((m->access_flags & ACC_PRIVATE) && this != class)
+    goto err_no_such_method; // TODO mensagem de erro
+
+  if (m->access_flags & ACC_PROTECTED)
   {
-    class = load_class(ctx, class_name); // Possivel encerramento da execução
+    LoadedClass* curr = this;
+    do {
+      // Faz parte da hierarquia
+      if (curr == class)
+      {
+        break;
+      }
+      curr = curr->super;
+    } while (curr != NULL);
+
+    goto err_no_such_method; // TODO mensagem de falha de acesso
   }
 
-  // procura método na classe base, e nas superclasses
-  method_info* m = find_method(class->cf, method_name, descriptor);
-  if (m == NULL)
+  if (!class->is_initialized)
   {
-    class = find_superclass_with_method(ctx, class, method_name, descriptor);
-    if (class == NULL) goto err_no_such_method;
+    initialize_class(ctx, class);
   }
-
-  // garantido que existe
-  m = find_method(class->cf, method_name, descriptor);
-
-  if (m->access_flags & ACC_PRIVATE)
-    goto err_no_such_method;
 
   int args = count_args_size(descriptor);
-  push_frame(&ctx->t, new_frame(class->cf, m));
+  push_frame(&ctx->t, new_frame(class, m));
   Frame* new_f = current_frame(ctx);
 
   for (int i = args-1; i >= 0; i--) {

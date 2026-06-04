@@ -81,7 +81,7 @@ LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name)
   return NULL;
 }
 
-Frame* new_frame(ClassFile* cf, method_info* method)
+Frame* new_frame(LoadedClass* clazz, method_info* method)
 {
   Frame* frame = (Frame*)malloc(sizeof(Frame));
   if (frame == NULL) return NULL;
@@ -89,7 +89,7 @@ Frame* new_frame(ClassFile* cf, method_info* method)
   Code_attribute* code = NULL;
   for (u4 i = 0; i < method->attributes_count; i++)
   {
-    if (strcmp("Code", cp_get_utf8(cf->constant_pool, 
+    if (strcmp("Code", cp_get_utf8(clazz->cf->constant_pool, 
             method->attributes[i].attribute_name_index)) == 0)
     {
       code = method->attributes[i].info.code_attribute;
@@ -97,12 +97,13 @@ Frame* new_frame(ClassFile* cf, method_info* method)
     }
   }
 
-  frame->constant_pool = cf->constant_pool;
+  frame->constant_pool = clazz->cf->constant_pool; 
   frame->locals = (u4*)calloc(code->max_locals, sizeof(u4));
   frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
   frame->pc = 0;
   frame->code = code->code;
   frame->stack_ptr = -1;
+  frame->current_class = clazz; 
 
   return frame;
 }
@@ -261,7 +262,7 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
       (main_method->access_flags & required) != required)
     goto err_main_not_found;
 
-  Frame* f = new_frame((*main_class_loaded_pp)->cf, main_method);
+  Frame* f = new_frame((*main_class_loaded_pp), main_method);
   push_frame(&ctx->t, f);
 
   initialize_class(ctx, entry_class_loaded); // <clinit> e static fields

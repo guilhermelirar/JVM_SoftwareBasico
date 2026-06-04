@@ -129,11 +129,11 @@ JVM_Context* jvm_init();
 
 /**
  * @brief aloca memória e inicializa um novo Frame
- * @param cf ClassFile onde o método está declarado
+ * @param cazz LoadedClass da classe atual
  * @param method informação do método a ser carregado
  * @return ponteiro para o novo Frame
  */
-Frame* new_frame(ClassFile* cf, method_info* method);
+Frame* new_frame(LoadedClass* clazz, method_info* method);
 
 /**
  @brief Termina execução da JVM liberando toda memória alocada

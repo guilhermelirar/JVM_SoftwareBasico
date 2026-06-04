@@ -8,6 +8,9 @@
 #define JVM_HEAP_CAPACITY 100
 #define JVM_MAX_CLASSES 100
 #define JVM_STRING_TABLE_SIZE 64
+
+typedef struct LoadedClass LoadedClass;
+
 /**
  * @brief Estrutura que representa um Frame da JVM
  */
@@ -18,8 +21,10 @@ typedef struct {
   u4 *operand_stack;       /**< pilha de operandos */
   int stack_ptr;           /**< índice para topo da pilha */
 
-  u1* code;                /**< array do bytecide */
+  u1* code;                /**< array do bytecode */
   cp_info* constant_pool;  /**< ponteiro para pool de constantes */
+  
+  LoadedClass* current_class; /**< classe com o método a ser executado **/
 } Frame;
 
 /**
@@ -57,8 +62,6 @@ typedef struct {
   u4 count;  /**< Número de itens armazenados */
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } ObjectTable;
-
-typedef struct LoadedClass LoadedClass;
 
 /**
  * @brief Estrutura que representa uma tabela das classes carregadas

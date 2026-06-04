@@ -74,7 +74,7 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
     method_info* clinit = find_method(curr->cf, "<clinit>", "()V");
     if (clinit != NULL)
     {
-      Frame* clinit_frame = new_frame(curr->cf, clinit);
+      Frame* clinit_frame = new_frame(curr, clinit);
       push_frame(&ctx->t, clinit_frame);
     }
 
