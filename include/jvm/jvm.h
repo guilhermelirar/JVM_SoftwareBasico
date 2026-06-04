@@ -163,8 +163,6 @@ ClassFile* ClassFile_from_path(const char* path);
  */
 void initialize_class(JVM_Context* ctx, LoadedClass* loaded);
 
-
-
 /**
  * @brief carrega e inicializa uma classe (campos estáticos) a partir do nome 
  * e do contexto de execução JVM 
@@ -172,14 +170,6 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded);
  * @param name nome classe em relação ao base_dir
  */
 LoadedClass* load_class(JVM_Context* ctx, const char* name);
-
-/**
- * @brief carrega e inicializa a classe main, preparando o contexto JVM 
- * para iniciar a execução (empilha main)
- * @param ctx contexto JVM_Context a ter o main empilhado na thread principal
- * @param name nome da classe que contém o main, relativo ao base_dir 
- */
-void load_main_class(JVM_Context* ctx, const char* name);
 
 /**
  * @brief executa o bytecode de um método, e todos os métodos que forem 
@@ -205,6 +195,17 @@ void run_method(JVM_Context *ctx, int frame_ptr);
  * */
 LoadedClass* find_superclass_with_method(JVM_Context* ctx, 
     LoadedClass* base_class, const char* method_name, const char* descriptor);
+
+
+/**
+ * @brief retorna a classe com nome desejado, se já estiver na área 
+ * de métodos, ou carrega e retorna depois de colcoar na área de métodos
+ * @param ctx contexto de execução JVM
+ * @param name nome da classe (chama find_class_by_name e load_class)
+ * @return LoadedClass* ponteiro para a classe carregada, ou NULL se não 
+ * encontrar
+ */
+LoadedClass* get_class(JVM_Context* ctx, const char* name);
 
 /**
  * @brief procura uma classe na área de métodos 
