@@ -208,5 +208,14 @@ const instruction_handler DISPATCH_TABLE[256] = {
 
 void jvm_run(JVM_Context* ctx)
 {
-  run_method(ctx, 0);
+  while (ctx->t.frame_ptr >= 0)
+  {
+    Frame* frame = current_frame(ctx);
+    u1 opcode = fetch_u1(frame->code, &frame->pc);
+    
+    DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
+      ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
+    
+    DISPATCH_TABLE[opcode](ctx, opcode);
+  }
 }

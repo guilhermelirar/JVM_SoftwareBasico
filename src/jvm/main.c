@@ -1,6 +1,7 @@
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
 #include "jvm/utils.h"
+#include <stddef.h>
 
 int main(int argc, char** argv) 
 {

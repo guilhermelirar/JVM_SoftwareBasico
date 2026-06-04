@@ -119,7 +119,7 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name)
   return loaded;
 }
 
-void load_main_class(JVM_Context *ctx, const char *path)
+void load_main_class(JVM_Context *ctx, const char *name)
 {
   // carregando classfile
   ClassFile* main_class = ClassFile_from_path(path);

@@ -64,3 +64,17 @@ void extract_class_dir(const char* path, char* dest, size_t dest_size)
 
   snprintf(dest, dest_size, ".%c", '/');
 }
+
+const char* extract_class_name_from_path(const char *path, 
+    char* dest, size_t dest_size)
+{
+  long long len = (long long)strlen(path);
+
+  for (long long i = len - 1; i >= 0; i--)
+  {
+    if (path[i] == '/' || path[i] == '\\')
+      return &path[i+1];
+  }
+
+  return path;
+}

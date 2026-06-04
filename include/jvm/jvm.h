@@ -177,10 +177,9 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name);
  * @brief carrega e inicializa a classe main, preparando o contexto JVM 
  * para iniciar a execução (empilha main)
  * @param ctx contexto JVM_Context a ter o main empilhado na thread principal
- * @param path caminho da classe que contém o main, absoluto, ou relativo ao 
- * diretório de execução da jvm 
+ * @param name nome da classe que contém o main, relativo ao base_dir 
  */
-void load_main_class(JVM_Context* ctx, const char* path);
+void load_main_class(JVM_Context* ctx, const char* name);
 
 /**
  * @brief executa o bytecode de um método, e todos os métodos que forem 
