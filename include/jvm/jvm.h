@@ -104,9 +104,14 @@ static inline Frame* current_frame(JVM_Context* ctx)
   return ctx->t.frames[ctx->t.frame_ptr];
 }
 
-static inline u4 current_pc(JVM_Context* ctx)
+static inline u1* current_pc(JVM_Context* ctx)
 {
   return ctx->t.frames[ctx->t.frame_ptr]->pc;
+}
+
+static inline cp_info* constant_pool(Frame* f)
+{
+  return f->method.holder_class->cf->constant_pool;
 }
 
 /**

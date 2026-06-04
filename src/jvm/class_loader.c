@@ -63,7 +63,7 @@ static void alloc_static_fields(LoadedClass* class)
 
 void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
 {
-  if (loaded->is_initialized) return;
+  if (loaded->is_initialized == true) return;
 
   // Inicializando classe atual e superclasses
   LoadedClass* curr = loaded;

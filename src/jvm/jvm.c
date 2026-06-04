@@ -97,13 +97,25 @@ Frame* new_frame(LoadedClass* clazz, method_info* method)
     }
   }
 
-  frame->constant_pool = clazz->cf->constant_pool; 
   frame->locals = (u4*)calloc(code->max_locals, sizeof(u4));
   frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
-  frame->pc = 0;
-  frame->code = code->code;
   frame->stack_ptr = -1;
-  frame->current_class = clazz; 
+  
+  frame->pc = code->code;
+  frame->method.holder_class = clazz; 
+  frame->method.code = code->code;
+  frame->method.max_stack = code->max_stack;
+  frame->method.max_locals = code->max_locals;
+  frame->method.access_flags = method->access_flags;
+  frame->method.code_length = code->code_length;
+
+  frame->method.name = cp_get_utf8(
+      frame->method.holder_class->cf->constant_pool,
+      method->name_index);
+
+  frame->method.descriptor = cp_get_utf8(
+      frame->method.holder_class->cf->constant_pool,
+      method->descriptor_index);
 
   return frame;
 }
@@ -130,7 +142,7 @@ void run_method(JVM_Context *ctx, int frame_ptr)
   while (ctx->t.frame_ptr >= frame_ptr)
   {
     Frame* frame = current_frame(ctx);
-    u1 opcode = fetch_u1(frame->code, &frame->pc);
+    u1 opcode = *frame->pc++;
     
     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
       ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
@@ -214,7 +226,7 @@ void jvm_run(JVM_Context* ctx, const char* entry_class_name)
   while (ctx->t.frame_ptr >= 0)
   {
     Frame* frame = current_frame(ctx);
-    u1 opcode = fetch_u1(frame->code, &frame->pc);
+    u1 opcode = *frame->pc++;
     
     DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
       ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);

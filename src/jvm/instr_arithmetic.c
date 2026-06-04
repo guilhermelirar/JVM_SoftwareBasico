@@ -226,9 +226,8 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
 
   if (opc == opc_iinc)
   {
-    u1 idx = fetch_u1(current_frame(ctx)->code, &current_frame(ctx)->pc);
-    int8_t constant = (int8_t)fetch_u1(current_frame(ctx)->code, 
-        &current_frame(ctx)->pc);
+    u1 idx = *current_frame(ctx)->pc++;
+    int8_t constant = (int8_t)*current_frame(ctx)->pc++;
 
     int local = (int)current_frame(ctx)->locals[idx];
     local += constant;

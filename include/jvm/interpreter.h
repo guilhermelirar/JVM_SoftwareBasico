@@ -10,17 +10,6 @@ typedef void (*instruction_handler)(JVM_Context* ctx, u1 opc);
 extern const instruction_handler DISPATCH_TABLE[256];
 
 #define IN_RANGE(x, min, max) ((x) >= (min) && (x) <= (max))
-/**
- * @brief Função que retorna um byte do bytecode Java,
- * apontado pela posição PC e avança o PC em 1.
- * @param code ponteiro para o array de bytecode Java
- * @param pc ponteiro para o u4 que representa o contador de programa,
- * será incrementado após a obtenção do byte
- * @return byte na posição do PC atual 
- */
-static inline u1 fetch_u1(u1 *code, u4 *pc) {
-  return code[(*pc)++];
-}
 
 /**
  * @brief Função que retorna 2 bytes do bytecode Java,
@@ -30,11 +19,12 @@ static inline u1 fetch_u1(u1 *code, u4 *pc) {
  * será incrementado após a obtenção da word
  * @return word na posição do PC atual 
  */
-static inline u2 fetch_u2(u1 *code, u4 *pc) {
-  u2 v = ((u2)code[*pc] << 8) |
-         ((u2)code[*pc+1]);
-  *pc += 2;
-  return v;
+static inline u2 fetch_u2(u1 **pc) {
+  u1 *current_pc = *pc; 
+  u2 high = (u2)(*current_pc++);
+  u2 low = (u2)(*current_pc++);
+  *pc = current_pc;
+  return (high << 8) | low;
 }
 
 /**
@@ -45,13 +35,10 @@ static inline u2 fetch_u2(u1 *code, u4 *pc) {
  * será incrementado após a obtenção das words
  * @return palavra de 16 bits na posição do PC atual 
  */
-static inline u4 fetch_u4(u1* code, u4 *pc) {
-  u4 v = ((u4)code[*pc]     << 24) |
-         ((u4)code[*pc + 1] << 16) |
-         ((u4)code[*pc + 2] << 8)  |
-          (u4)code[*pc + 3];
-  *pc += 4;
-  return v;
+static inline u4 fetch_u4(u1 **pc) {
+  u4 h = fetch_u2(pc);
+  u4 l = fetch_u2(pc);
+  return (h << 16) | l;
 }
 
 

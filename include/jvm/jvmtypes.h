@@ -11,20 +11,33 @@
 
 typedef struct LoadedClass LoadedClass;
 
+typedef struct {
+  LoadedClass* holder_class;
+  u2 access_flags;
+
+  const char* name;
+  const char* descriptor;
+
+  u2 max_stack;
+  u2 max_locals;
+  u4 code_length;
+  u1* code;
+
+  u2 exception_table_length;
+  exception_info* exception_info;
+} Method;
+
 /**
  * @brief Estrutura que representa um Frame da JVM
  */
 typedef struct {
-  u4 pc;                   /**< Índice da instrução atual */
+  u1* pc;                   /**< PC da instrução atual */
   u4 *locals;              /**< Vetor de variáveis locais */
   
   u4 *operand_stack;       /**< pilha de operandos */
   int stack_ptr;           /**< índice para topo da pilha */
 
-  u1* code;                /**< array do bytecode */
-  cp_info* constant_pool;  /**< ponteiro para pool de constantes */
-  
-  LoadedClass* current_class; /**< classe com o método a ser executado **/
+  Method method;           /**< Método atual */
 } Frame;
 
 /**

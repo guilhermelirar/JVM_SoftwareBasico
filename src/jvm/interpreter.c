@@ -85,10 +85,10 @@ void handle_push(JVM_Context *ctx, u1 opc)
   Frame* frame = current_frame(ctx);
 
   if (opc == opc_bipush)
-    push_operand(frame, (int32_t)((int8_t)fetch_u1(frame->code, &frame->pc)));
+    push_operand(frame, (int32_t)((int8_t)*frame->pc++));
   else if (opc == opc_sipush)
   {
-    push_operand(frame, (int32_t)((int8_t)fetch_u2(frame->code, &frame->pc)));
+    push_operand(frame, (int32_t)((int8_t)fetch_u2(&frame->pc)));
   }
 }
 
@@ -99,12 +99,12 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
 
   u2 cp_idx;
   if (opc == opc_ldc) {
-    cp_idx = fetch_u1(frame->code, &frame->pc); // lê 1 byte e avança
+    cp_idx = *frame->pc++; // lê 1 byte e avança
   } else { // ldc_w ou ldc2_w
-    cp_idx = fetch_u2(frame->code, &frame->pc); 
+    cp_idx = fetch_u2(&frame->pc); 
   }
 
-  cp_info* entry = &frame->constant_pool[cp_idx];
+  cp_info* entry = &constant_pool(frame)[cp_idx];
 
   switch (entry->tag) 
   {
@@ -128,7 +128,7 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
 
     case CONSTANT_String: 
     {
-      const char* str = cp_get_utf8(frame->constant_pool, 
+      const char* str = cp_get_utf8(constant_pool(frame), 
           entry->info.string_info.string_index);
       
       // ver se está na tabela de strings do ctx ou inserir
@@ -161,7 +161,7 @@ void handle_store(JVM_Context *ctx, u1 opc)
   u1 idx = 0;
   if (opc < opc_istore_0)
   {
-    idx = fetch_u1(f->code, &f->pc);
+    idx = *f->pc++;
   }
   else if (opc < opc_iastore) 
   {
@@ -198,17 +198,17 @@ void handle_getstatic(JVM_Context *ctx, u1 opc)
 {
   (void)opc;
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
-  u2 cp_idx = fetch_u2(frame->code, &frame->pc);
+  u2 cp_idx = fetch_u2(&frame->pc);
 
   // encontrando cpinfo
-  cp_info* cp_entry = &frame->constant_pool[cp_idx];
+  cp_info* cp_entry = &constant_pool(frame)[cp_idx];
   
   if (cp_entry->tag != CONSTANT_Fieldref) return;
 
   u2 class_index = cp_entry->info.fieldref_info.class_index;
   u2 nt_index = cp_entry->info.fieldref_info.name_and_type_index;
-  const char* class = cp_class_name(frame->constant_pool, class_index);
-  const char* nt = cp_nameandtype_name(frame->constant_pool, nt_index);
+  const char* class = cp_class_name(constant_pool(frame), class_index);
+  const char* nt = cp_nameandtype_name(constant_pool(frame), nt_index);
 
   // Ignorar classes java (ex: System)
   if (strcmp("java/lang/System", class) == 0 && strcmp("out", nt) == 0)
@@ -228,7 +228,7 @@ void handle_load(JVM_Context* ctx, u1 opc) {
 
   // Opcodes com operandos
   if (IN_RANGE(opc, opc_iload, opc_aload))
-    idx = fetch_u1(frame->code, &frame->pc);
+    idx = *frame->pc++;
 
   // Opcodes sem operandos
   else if (IN_RANGE(opc, opc_iload_0, opc_aload_3)) 
