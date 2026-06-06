@@ -11,6 +11,13 @@
 
 typedef struct LoadedClass LoadedClass;
 
+/**
+ * @brief estrutura que representa o método 
+ * em execução de um frame, que encapsula 
+ * a referência à classe a que pertence (constant-pool), 
+ * flags de acesso, tabela de exceção e ponteiro para o 
+ * bytecode, o que facilita a execução do frame 
+ */
 typedef struct {
   LoadedClass* holder_class;
   u2 access_flags;
@@ -81,10 +88,11 @@ typedef struct {
  * e seus campos estáticos
  */
 struct LoadedClass {
-  ClassFile* cf;
-  u4* static_fields;
-  bool is_initialized;
-  LoadedClass* super;
+  ClassFile* cf;        /*> ClassFile parseado */
+  u4* static_fields;    /*> Campos estáticos (fields com ACC_STATIC) */
+  bool is_initialized;  /*> Indica se classe foi inicializada 
+                          (campos estáticos inicializados )*/
+  LoadedClass* super;   /*> Ponteiro para superclasse na área de métodos */
 };
 
 /**
