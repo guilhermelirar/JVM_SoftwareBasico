@@ -164,15 +164,21 @@ int count_args_size(const char* descriptor);
 ClassFile* ClassFile_from_path(const char* path);
 
 /**
- * TODO 
+ * @brief inicializa os campos estáticos de uma classe carregada, 
+ * e empilha na pilha JVM os métodos de inicialização <clinit> da 
+ * hierarquia em ordem tal que as superclasses são inicializadas 
+ * primeiro que a classe base (loaded)
+ * @param ctx Contexto de execução JVM 
+ * @param loaded ponteiro para classe carregada na área de métodos
  */
 void initialize_class(JVM_Context* ctx, LoadedClass* loaded);
 
 /**
- * @brief carrega e inicializa uma classe (campos estáticos) a partir do nome 
- * e do contexto de execução JVM 
- * @param ctx contexto de execução jvm 
- * @param name nome classe em relação ao base_dir
+ * @brief carrega classe a partir do nome  e do contexto de execução JVM, 
+ * iniciando o campo cf do LoadedClass e colocando na área de métodos 
+ * @param ctx contexto de execução jvm
+ * @param name nome classe (sem .class) em relação ao base_dir
+ * @return LoadedClass* ponteiro para a classe carregada
  */
 LoadedClass* load_class(JVM_Context* ctx, const char* name);
 
