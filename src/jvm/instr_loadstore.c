@@ -113,8 +113,8 @@ void handle_load(JVM_Context* ctx, u1 opc) {
 
     if (opc == opc_laload || opc == opc_daload) // cat2 
     {
-      push_operand(frame, array->data[idx*2]);   // high
-      push_operand(frame, array->data[idx*2+1]); // low
+      u8 bits = ((u8)array->data[idx*2] << 32) | (u8)array->data[idx*2+1];
+      push_operand2(frame, bits);
       return;
     }
 
