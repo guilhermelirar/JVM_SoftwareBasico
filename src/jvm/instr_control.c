@@ -147,8 +147,8 @@ void handle_ifcmp(JVM_Context* ctx, u1 opc)
   u1* ifcond_pc = frame->pc - 1; // inicio do if
   int32_t offset = (int32_t)fetch_u2(&frame->pc);
 
-  int32_t v1 = (int32_t)pop_operand(frame);
   int32_t v2 = (int32_t)pop_operand(frame);
+  int32_t v1 = (int32_t)pop_operand(frame);
   int cond = 0;
 
   switch (opc)
