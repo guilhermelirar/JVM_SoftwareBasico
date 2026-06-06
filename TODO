@@ -1,6 +1,6 @@
-[x] usar (void)opc para remover warnings de executores que nao usam opc
-[x] criar inlines pop_stack, push_stack para pilhad e operando (ou nome melhor)
-[x] lidar melhor com caso de arquivo nao existe
-[x] renomear heap para object table e melhorar controle em instruções (null, index out of range, etc)
-[x] executar clinit antes do main!
-[] liberar object table
+[] Terminar resto dos store
+[] Implementar instruções lógicas e bitwise
+[] Implementar exceções 
+[] Implementar instancia de objetos
+[] Implementar arrays
+[] Liberar object table
