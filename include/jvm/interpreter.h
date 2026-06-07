@@ -99,6 +99,14 @@ void handle_store(JVM_Context* ctx, u1 opc);
 void handle_arithmetic(JVM_Context* ctx, u1 opc);
 
 /**
+ * @brief Função que implementa opcodes de comparação de valores 
+ * em ponto flutuantee e double (0x95-0x98 fcmp, dcmp) 
+ * @param ctx contexto de execução JVM
+ * @param opc opcode
+ */
+void handle_fdcmp(JVM_Context* ctx, u1 opc);
+
+/**
  * @brief Função que implementa opcodes de operações de saltos 
  * condicionais if<conc> 0x99-0x9E
  * @param ctx contexto de execução JVM
@@ -108,12 +116,14 @@ void handle_ifcond(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcodes de comparação de valores 
- * da pilha de operandos e salto condicional ao resultado da 
- * comparação (if_cmpeq - if_acmpne)
+ * da pilha de operandos e salto condicional ao resultado 
+ * (if_cmpeq - if_acmpne)
  * @param ctx contexto de execução JVM
  * @param opc opcode
  */
 void handle_ifcmp(JVM_Context* ctx, u1 opc);
+
+
 
 /**
  * @brief Função que implementa opcode goto, jsr e ret (167-169)

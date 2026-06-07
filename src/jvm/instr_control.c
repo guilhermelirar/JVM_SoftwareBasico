@@ -3,6 +3,7 @@
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
+#include "jvm/utils.h"
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
@@ -188,3 +189,32 @@ void handle_ifcmp(JVM_Context* ctx, u1 opc)
     frame->pc = ifcond_pc + offset;
   }
 }
+
+
+void handle_fdcmp(JVM_Context* ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+
+  double v1, v2;
+
+  if (opc == opc_fcmpl || opc == opc_fcmpg)
+  {
+    v2 = u4_to_float(pop_operand(frame));
+    v1 = u4_to_float(pop_operand(frame));
+  }
+  else // double
+  {
+    v2 = u8_to_double(pop_operand2(frame));
+    v1 = u8_to_double(pop_operand2(frame));
+  }
+
+  if (v1 > v2)
+    push_operand(frame, 1);
+
+  else if (v1 == v2)
+    push_operand(frame, 0);
+
+  else if (v1 < v2)
+    push_operand(frame, (u4)-1);
+}
+
