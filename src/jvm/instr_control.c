@@ -161,7 +161,7 @@ void handle_ifcmp(JVM_Context* ctx, u1 opc)
 
     case (opc_if_acmpne):
     case (opc_if_icmpne):
-      cond = v1 != 2;
+      cond = v1 != v2;
       break;
 
     case (opc_if_icmplt):
@@ -220,6 +220,7 @@ void handle_fdcmp(JVM_Context* ctx, u1 opc)
 
 void handle_lcmp(JVM_Context* ctx, u1 opc)
 {
+  (void)opc;
   Frame* frame = current_frame(ctx);
   int64_t v2 = (int64_t)pop_operand2(frame);
   int64_t v1 = (int64_t)pop_operand2(frame);
