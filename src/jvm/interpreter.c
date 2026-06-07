@@ -88,7 +88,7 @@ void handle_push(JVM_Context *ctx, u1 opc)
     push_operand(frame, (int32_t)((int8_t)*frame->pc++));
   else if (opc == opc_sipush)
   {
-    push_operand(frame, (int32_t)((int8_t)fetch_u2(&frame->pc)));
+    push_operand(frame, (int32_t)((int16_t)fetch_u2(&frame->pc)));
   }
 }
 

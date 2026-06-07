@@ -1,6 +1,11 @@
+[x] Terminar conversao
+[x] Implementar bitwise
+
+[] Implementar neg no aritmethic
 [] Terminar resto dos store
 [] Implementar instruções lógicas e bitwise
 [] Implementar exceções 
 [] Implementar instancia de objetos
 [] Implementar arrays
 [] Liberar object table
+
