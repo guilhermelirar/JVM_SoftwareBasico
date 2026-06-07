@@ -2,10 +2,16 @@
 [x] Implementar bitwise
 
 [] Implementar neg no aritmethic
-[] Terminar resto dos store
-[] Implementar instruções lógicas e bitwise
+[] (alloc_static_fields): iniciar constantes
+[] putfield e getfield
+
 [] Implementar exceções 
+[] Terminar resto dos store
 [] Implementar instancia de objetos
+  [] fields do objeto devem ter offset (fields do pai primeiro)
+     resolver isso no load_class e colocar informação em field_offsets* 
+     e instance_size, que devem estar dentro de LoadedClass
+
 [] Implementar arrays
 [] Liberar object table
 
