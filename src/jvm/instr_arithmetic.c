@@ -1,4 +1,5 @@
 #include "common/bytecode.h"
+#include "common/classfile.h"
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
@@ -233,4 +234,125 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
     local += constant;
     current_frame(ctx)->locals[idx] = (u4)local;
   }
+}
+
+void handle_conversion(JVM_Context *ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+  
+  u4 cat1_v;
+  u8 cat2_v;
+
+
+  switch (opc)
+  {
+    case (opc_i2l): 
+    {
+      int32_t operand = (int32_t)pop_operand(frame);
+      cat2_v = (u8)((int64_t)operand);
+      push_operand2(frame, cat2_v);
+      return;
+    }
+
+    case (opc_i2f): 
+    {
+      int32_t operand = (int32_t)pop_operand(frame);
+      cat1_v = float_to_u4((float)operand);
+      push_operand(frame, cat1_v);
+      return;
+    }
+
+    case (opc_i2d): 
+    {
+      int32_t operand = (int32_t)pop_operand(frame);
+      cat2_v = double_to_u8((double)operand); 
+      push_operand2(frame, cat2_v);
+      return;
+    }
+
+    case (opc_i2b):
+    {
+      cat1_v = (int32_t)((u1)pop_operand2(frame));
+      push_operand(frame, cat1_v);
+      return;
+    }
+
+    case (opc_i2c):
+    {
+      cat1_v = (u2)pop_operand(frame);
+      push_operand(frame, cat1_v);
+      return;
+    }
+
+    case (opc_i2s):
+    {
+      cat1_v = (int32_t)((u2)pop_operand(frame));
+      push_operand(frame, cat1_v);
+      return;
+    }
+
+    case (opc_l2i):
+    {
+      cat1_v = (int32_t)((int64_t)pop_operand2(frame));
+      push_operand(frame, cat1_v);
+      return;
+    }
+
+    case (opc_l2d):
+    {
+      double d = (double)((int64_t)pop_operand2(frame));
+      push_operand2(frame, double_to_u8(d));
+      return;
+    }
+
+    case (opc_l2f):
+    {
+      float f = (float)((int64_t)pop_operand2(frame));
+      push_operand(frame, float_to_u4(f));
+      return;
+    } 
+
+    case (opc_f2i):
+    {
+      float f = u4_to_float(pop_operand(frame));
+      push_operand(frame, (int32_t)f);
+      return;
+    }
+
+    case (opc_f2d):
+    {
+      float f = u4_to_float(pop_operand(frame));
+      push_operand2(frame, double_to_u8((double)f));
+      return;
+    }
+
+    case (opc_f2l):
+    {
+      float f = u4_to_float(pop_operand(frame));
+      push_operand2(frame, (int64_t)f);
+      return;
+    }
+
+    case (opc_d2i):
+    {
+      double d = u8_to_double(pop_operand2(frame));
+      push_operand(frame, (int32_t)d);
+      return;
+    }
+
+    case (opc_d2l):
+    {
+      double d = u8_to_double(pop_operand2(frame));
+      push_operand2(frame, (int64_t)d);
+      return;
+    }
+
+    case (opc_d2f):
+    {
+      double d = u8_to_double(pop_operand2(frame));
+      push_operand(frame, float_to_u4((float)d));
+      return;
+    }
+  }
+  
 }
