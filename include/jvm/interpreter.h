@@ -99,12 +99,29 @@ void handle_store(JVM_Context* ctx, u1 opc);
 void handle_arithmetic(JVM_Context* ctx, u1 opc);
 
 /**
+ * @brief Função que implementa opcodes de conversão de tipo
+ * @param ctx contexto de execução JVM
+ * @param opc opcode
+ */
+void handle_conversion(JVM_Context* ctx, u1 opc);
+
+/**
+ * @brief Função que implementa opcode de comparação
+ * de long (0x94)
+ * @param ctx contexto de execução JVM
+ * @param opc opcode
+ */
+void handle_lcmp(JVM_Context* ctx, u1 opc);
+
+/**
  * @brief Função que implementa opcodes de comparação de valores 
- * em ponto flutuantee e double (0x95-0x98 fcmp, dcmp) 
+ * em ponto flutuantee e double (0x95-0x97 fcmp, dcmp) 
  * @param ctx contexto de execução JVM
  * @param opc opcode
  */
 void handle_fdcmp(JVM_Context* ctx, u1 opc);
+
+
 
 /**
  * @brief Função que implementa opcodes de operações de saltos 

@@ -218,3 +218,18 @@ void handle_fdcmp(JVM_Context* ctx, u1 opc)
     push_operand(frame, (u4)-1);
 }
 
+void handle_lcmp(JVM_Context* ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+  int64_t v2 = (int64_t)pop_operand2(frame);
+  int64_t v1 = (int64_t)pop_operand2(frame);
+
+  if (v1 > v2)
+    push_operand(frame, 1);
+
+  else if (v1 == v2)
+    push_operand(frame, 0);
+
+  else if (v1 < v2)
+    push_operand(frame, (u4)-1);
+}
