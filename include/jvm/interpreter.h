@@ -99,6 +99,14 @@ void handle_store(JVM_Context* ctx, u1 opc);
 void handle_arithmetic(JVM_Context* ctx, u1 opc);
 
 /**
+ * @brief Função que implementa opcodes de operações bitwise
+ * (ishl-lxor)
+ * @param ctx contexto de execução Java
+ * @param opc opcode
+ */
+void handle_logic(JVM_Context* ctx, u1 opc);
+
+/**
  * @brief Função que implementa opcodes de conversão de tipo
  * @param ctx contexto de execução JVM
  * @param opc opcode

@@ -356,3 +356,100 @@ void handle_conversion(JVM_Context *ctx, u1 opc)
   }
   
 }
+
+void handle_logic(JVM_Context *ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+
+  int32_t iv1, iv2;
+  int64_t lv1, lv2;
+
+
+  switch (opc) 
+  {
+    case (opc_ishl):
+    case (opc_ishr):
+    {
+      iv2 = (int32_t)pop_operand(frame) & 0x1F;
+      iv1 = (int32_t)pop_operand(frame);
+      iv1 = (opc == opc_ishl) ? 
+        iv1 << iv2 : iv1 >> iv2;
+      push_operand(frame, (int32_t)iv1);
+      return;
+    }
+
+    case (opc_lshl):
+    case (opc_lshr):
+    {
+      iv2 = (int32_t)pop_operand(frame) & 0x1F;
+      lv1 = (int64_t)pop_operand2(frame);
+      lv1 = (opc == opc_lshl) ? lv1 << iv2 : lv1 >> iv2;
+      push_operand2(frame, (int64_t)lv1);
+      return;
+    }
+
+    case (opc_iushr):
+    {
+      iv2 = (int32_t)pop_operand(frame) & 0x1F;
+      iv1 = (int32_t)pop_operand(frame);
+      push_operand(frame, ((u4)iv1) >> iv2);
+      return;
+    }
+
+    case (opc_lushr):
+    {
+      iv2 = (int32_t)pop_operand(frame) & 0x1F;
+      lv1 = (int64_t)pop_operand2(frame);
+      push_operand2(frame, ((u8)lv1) >> iv2);
+      return;
+    }
+
+    case (opc_iand):
+    {
+      iv2 = (int32_t)pop_operand(frame);
+      iv1 = (int32_t)pop_operand(frame);
+      push_operand(frame, iv2 & iv1);
+      return;
+    }
+
+    case (opc_land):
+    {
+      lv2 = (int64_t)pop_operand2(frame);
+      lv1 = (int64_t)pop_operand2(frame);
+      push_operand2(frame, lv2 & lv1);
+      return;
+    }
+
+    case (opc_ior):
+    {
+      iv2 = pop_operand(frame);
+      iv1 = pop_operand(frame);
+      push_operand(frame, iv2 | iv1);
+      return;
+    }
+
+    case (opc_lor):
+    {
+      lv2 = (int64_t)pop_operand2(frame);
+      lv1 = (int64_t)pop_operand2(frame);
+      push_operand2(frame, lv2 | lv1);
+      return;
+    }
+
+    case (opc_ixor):
+    {
+      iv2 = (int32_t)pop_operand(frame);
+      iv1 = (int32_t)pop_operand(frame);
+      push_operand(frame, iv2 ^ iv1);
+      return;
+    }
+
+    case (opc_lxor):
+    {
+      lv2 = (int64_t)pop_operand2(frame);
+      lv1 = (int64_t)pop_operand2(frame);
+      push_operand2(frame, lv2 ^ lv1);
+      return;
+    }
+  }
+}
