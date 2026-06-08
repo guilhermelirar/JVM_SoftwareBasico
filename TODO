@@ -4,6 +4,9 @@
 [] Implementar neg no aritmethic
 [] (alloc_static_fields): iniciar constantes
 [] putfield e getfield
+  [] helper para resolver fields (para achar descritor, nome, e class index)
+  [] helper para resolver indice do field no vetor de field, e classe onde ele está de fato
+
 
 [] Implementar exceções 
 [] Terminar resto dos store

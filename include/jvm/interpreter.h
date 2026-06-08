@@ -173,6 +173,13 @@ void handle_return(JVM_Context* ctx, u1 opc);
 void handle_getstatic(JVM_Context* ctx, u1 opc); // 178
 
 /**
+ * @brief Função que implementa puttstatic (179)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode
+ */                                  
+void handle_puttstatic(JVM_Context* ctx, u1 opc); // 179
+
+/**
  * @brief Função que implementa invokevirtual (182)
  * @param ctx contexto de execução da JVM
  * @param opc opcode

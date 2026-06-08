@@ -1,3 +1,4 @@
+#include <stdbool.h>
 #include <stdint.h>
 #include <string.h>
 #include <strings.h>
@@ -179,3 +180,33 @@ void handle_getstatic(JVM_Context *ctx, u1 opc)
   // ... busca na área de métodos
 }
 
+// 179 
+void handle_putstatic(JVM_Context* ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+
+  u2 index = fetch_u2(&frame->pc); // indice para field
+  cp_info* entry = &constant_pool(frame)[index];
+
+  if (entry->tag != CONSTANT_Fieldref) return; // TODO erro?
+
+  u2 field_class = entry->info.fieldref_info.class_index; 
+  u2 nt_index = entry->info.fieldref_info.name_and_type_index;
+  cp_info* nt_entry = &constant_pool(frame)[nt_index];
+  u2 descriptor_index = nt_entry->info.name_and_type_info.descriptor_index;
+  char* dsc = cp_get_utf8(constant_pool(frame), descriptor_index);
+
+  bool is_cat2 = (dsc[0] == 'J' || dsc[0] == 'D');
+
+  if (is_cat2)
+  {
+    u8 valor = pop_operand2(frame);
+  }
+  else 
+  {
+    u4 valor = pop_operand(frame);
+  }
+
+
+}
