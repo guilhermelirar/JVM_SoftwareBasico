@@ -100,7 +100,7 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name)
   LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
   loaded->cf = cf;
   loaded->static_fields = NULL;
-  loaded->cp = (Resolved_cp_info*)calloc(cf->fields_count, 
+  loaded->cp = (Resolved_cp_info*)calloc(cf->constant_pool_count, 
       sizeof(Resolved_cp_info));
   loaded->is_initialized = false;
   loaded->super = super_loaded;

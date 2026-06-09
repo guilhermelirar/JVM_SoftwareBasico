@@ -344,7 +344,7 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
   {
     res->tag = CP_RESOLVED_FIELD;
     res->info.field.index = JAVA_SYSTEM_OUT_IDX;
-    return NULL;
+    return &res->info.field;
   }
 
   field_info* f;  
