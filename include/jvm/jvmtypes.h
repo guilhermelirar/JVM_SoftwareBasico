@@ -21,18 +21,47 @@ typedef struct LoadedClass LoadedClass;
 typedef struct {
   LoadedClass* holder_class;
   u2 access_flags;
-
   const char* name;
   const char* descriptor;
-
   u2 max_stack;
   u2 max_locals;
   u4 code_length;
   u1* code;
-
   u2 exception_table_length;
   exception_info* exception_info;
-} Method;
+} RuntimeMethod;
+
+/*@brief estrutura que representa um Field resolvido por 
+ * meio de uma constant pool em tempo de execução, 
+ * com acesso direto às informações.
+ * */
+typedef struct {
+  LoadedClass* holder_class; /*< Classe que possui o field */
+  u2 access_flags;
+  const char* name;
+  const char* descriptor;
+  u2 index;                  /*< Índice em LoadedClass.static_fields 
+                                 ou Object.fields */
+  u2 attributes_count;       /**< Quantidade de atributos */
+  attribute_info *attributes;
+} RuntimeField;
+
+typedef enum {
+    CP_UNRESOLVED = 0,
+    CP_RESOLVED_CLASS,
+    JAVA_LANG_SYSTEM,
+    CP_RESOLVED_FIELD,
+    CP_RESOLVED_METHOD
+} RuntimeCPTag;
+
+typedef struct {
+  RuntimeCPTag tag;
+  union {
+    LoadedClass* clazz;
+    RuntimeMethod method;
+    RuntimeField field;
+  } info;
+} Resolved_cp_info;
 
 /**
  * @brief Estrutura que representa um Frame da JVM
@@ -44,7 +73,7 @@ typedef struct {
   u4 *operand_stack;       /**< pilha de operandos */
   int stack_ptr;           /**< índice para topo da pilha */
 
-  Method method;           /**< Método atual */
+  RuntimeMethod method;           /**< Método atual */
 } Frame;
 
 /**
@@ -92,6 +121,7 @@ struct LoadedClass {
   u4* static_fields;    /*> Campos estáticos (fields com ACC_STATIC) */
   bool is_initialized;  /*> Indica se classe foi inicializada 
                           (campos estáticos inicializados )*/
+  Resolved_cp_info* cp;
   LoadedClass* super;   /*> Ponteiro para superclasse na área de métodos */
 };
 
