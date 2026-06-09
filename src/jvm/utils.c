@@ -28,11 +28,11 @@ void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor,
       break;
 
     case 'D':
-      printf("%f%s", u8_to_double(pop_operand2(frame)), end);
+      printf("%g%s", u8_to_double(pop_operand2(frame)), end);
       break;
 
     case 'F':
-      printf("%f%s", u4_to_float(pop_operand(frame)), end);
+      printf("%g%s", u4_to_float(pop_operand(frame)), end);
       break;
   } 
 
