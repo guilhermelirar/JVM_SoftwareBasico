@@ -225,14 +225,38 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
   if (IN_RANGE(opc, opc_irem, opc_drem))
     return handle_rem(current_frame(ctx), opc);
 
-  if (opc == opc_iinc)
-  {
-    u1 idx = *current_frame(ctx)->pc++;
-    int8_t constant = (int8_t)*current_frame(ctx)->pc++;
+  Frame* f = current_frame(ctx);
 
-    int local = (int)current_frame(ctx)->locals[idx];
-    local += constant;
-    current_frame(ctx)->locals[idx] = (u4)local;
+  switch (opc)
+  {
+    case opc_iinc:
+    {
+      u1 idx = *f->pc++;
+      int8_t constant = (int8_t)*f->pc++;
+
+      int local = (int)f->locals[idx];
+      local += constant;
+      f->locals[idx] = (u4)local;
+      return;
+    }
+
+    case opc_ineg:
+      push_operand(f, -(int32_t)pop_operand(f));
+      return;
+
+    case opc_lneg:
+      push_operand2(f, -(int64_t)pop_operand2(f));
+      return;
+
+    case opc_fneg:
+      push_operand(f, float_to_u4(-u4_to_float(pop_operand(f))));
+      return;
+
+    case opc_dneg:      
+      push_operand2(f, double_to_u8(-u8_to_double(pop_operand2(f))));
+
+    default:
+      return;
   }
 }
 
