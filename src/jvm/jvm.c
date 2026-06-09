@@ -202,6 +202,7 @@ void terminateJVM(JVM_Context *ctx)
   {
     free_classfile(ctx->method_area[ctx->classes_count].cf);
     free(ctx->method_area[ctx->classes_count].static_fields);
+    free(ctx->method_area[ctx->classes_count].cp);  // constant pool resolvida
   }
 
   free(ctx);
