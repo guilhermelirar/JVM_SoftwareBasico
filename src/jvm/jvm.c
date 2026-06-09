@@ -380,7 +380,7 @@ LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx)
   cp_info* entry = &cp[cp_idx];
   if (entry->tag != CONSTANT_Class) return NULL;
 
-  const char* name = cp_class_name(cp, entry->info.class_info.name_index);
+  const char* name = cp_class_name(cp, cp_idx);
   if (strcmp(name, "java/lang/System") == 0)
   {
     resolved_entry->tag = JAVA_LANG_SYSTEM;
