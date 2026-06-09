@@ -34,8 +34,10 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
         nt_entry->info.name_and_type_info.descriptor_index);
 
   if (strcmp(class_name, "java/io/PrintStream") == 0 && 
-      strcmp(method_name, "println") == 0)
-    handle_sysout(frame, ctx, descriptor[1]);
+    (strcmp(method_name, "println") == 0 || strcmp(method_name, "print") == 0))
+  {
+    handle_sysout(frame, ctx, descriptor[1], method_name);
+  }
 }
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)

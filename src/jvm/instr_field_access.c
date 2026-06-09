@@ -92,13 +92,11 @@ void handle_getstatic(JVM_Context *ctx, u1 opc)
 {
   (void)opc;
   Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+  u1* opc_pc = frame->pc - 1;
+  
   u2 cp_idx = fetch_u2(&frame->pc);
-
   // encontrando cpinfo
   cp_info* cp_entry = &constant_pool(frame)[cp_idx];
-  
-  if (cp_entry->tag != CONSTANT_Fieldref) return;
-
   u2 class_index = cp_entry->info.fieldref_info.class_index;
   u2 nt_index = cp_entry->info.fieldref_info.name_and_type_index;
   const char* class = cp_class_name(constant_pool(frame), class_index);
@@ -111,8 +109,45 @@ void handle_getstatic(JVM_Context *ctx, u1 opc)
     return;
   }
 
-  // TODO busca na área de métodos
-  // ... busca na área de métodos
+  LoadedClass* this = frame->method.holder_class;
+  LoadedClass* base_class = NULL;
+  LoadedClass* owner_class = NULL;
+  const char* name = NULL;
+  const char* descriptor = NULL;
+  u2 access_flags = 0;
+
+  int idx = resolve_field(ctx, 
+      cp_idx, &base_class, &owner_class, &descriptor, &name, &access_flags);
+
+  if (this != owner_class)
+  {
+    if ((access_flags & ACC_PRIVATE) || 
+        ((access_flags & ACC_PROTECTED) && !extends(this, base_class)))
+    {
+      fprintf(stderr, "IllegalAccessException"); // TODO throw (?)
+      terminateJVM(ctx);
+      exit(1);
+    }
+  }
+
+  // PC Rewind
+  if (!base_class->is_initialized)
+  {
+    initialize_class(ctx, base_class);
+    frame->pc = opc_pc;
+    return;
+  }
+
+  if (descriptor[0] == 'J' || descriptor[0] == 'D')
+  {
+    u8 val = ((u8)owner_class->static_fields[idx] << 32) |
+      owner_class->static_fields[idx + 1];
+
+    push_operand2(frame, val);
+    return;
+  }
+
+  push_operand(frame, owner_class->static_fields[idx]);  
 }
 
 // 179 
@@ -132,7 +167,8 @@ void handle_putstatic(JVM_Context* ctx, u1 opc)
   u2 access_flags = 0;
 
   int idx = resolve_field(ctx, 
-      cp_index, &base_class, &owner_class, &descriptor, &name, &access_flags);
+      cp_index, &base_class, &owner_class, 
+      &descriptor, &name, &access_flags);
 
   if (this != owner_class)
   {

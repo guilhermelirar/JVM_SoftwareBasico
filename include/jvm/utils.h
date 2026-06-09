@@ -60,8 +60,11 @@ static inline u8 double_to_u8(double d) {
  * @param frame Frame de execução 
  * @param ctx Contexto de execução JVM 
  * @param descriptor caracter inicail do descritor para indicar o 
- * tipo a do argumento a ser impresso, se for L, assume ser java/lang/String */
-void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor);
+ * tipo a do argumento a ser impresso, se for L, assume ser java/lang/String 
+ * @param method nome do método (println ou print)
+ */
+void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor, 
+    const char* method);
 
 /**
  * @brief Função que exibe mensagem de erro de opcode não implementado 

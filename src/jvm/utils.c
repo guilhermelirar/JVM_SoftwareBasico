@@ -7,29 +7,32 @@
 #include "jvm/jvm.h"
 
 
-void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor) 
+void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor,
+    const char* method) 
 {
+  char* end = !strcmp("println", method) ? "\n" : "";
+
   switch (descriptor) {
     case 'L':
-        printf("%s\n", ctx->strings.strings[pop_operand(frame)]);
+        printf("%s%s", ctx->strings.strings[pop_operand(frame)], end);
       break;
       
     case 'S':
     case 'B':
     case 'I':
-      printf("%d\n", (int)pop_operand(frame));
+      printf("%d%s", (int)pop_operand(frame), end);
       break;
 
     case 'J':
-      printf("%lld\n", (long long)(int64_t)pop_operand2(frame));
+      printf("%lld%s", (long long)(int64_t)pop_operand2(frame), end);
       break;
 
     case 'D':
-      printf("%f\n", u8_to_double(pop_operand2(frame)));
+      printf("%f%s", u8_to_double(pop_operand2(frame)), end);
       break;
 
     case 'F':
-      printf("%f\n", u4_to_float(pop_operand(frame)));
+      printf("%f%s", u4_to_float(pop_operand(frame)), end);
       break;
   } 
 
