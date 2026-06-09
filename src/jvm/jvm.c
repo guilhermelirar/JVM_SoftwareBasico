@@ -323,6 +323,10 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
   cp_info* entry = &cp[cp_idx];
   if (entry->tag != CONSTANT_Fieldref) return NULL;
 
+  Resolved_cp_info* res = &frame->method.holder_class->cp[cp_idx];
+  if (res->tag != CP_UNRESOLVED) 
+    return &res->info.field;
+
   u2 class_index = entry->info.fieldref_info.class_index;
   u2 nt_index = entry->info.fieldref_info.name_and_type_index;
   
@@ -333,13 +337,21 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
       nt->info.name_and_type_info.descriptor_index);
 
   LoadedClass* clazz = resolve_class(ctx, class_index);
+  if (clazz == NULL && 
+      frame->method.holder_class->cp[class_index].tag == JAVA_LANG_SYSTEM 
+      && strcmp(name, "out") == 0)
+  {
+    res->tag = CP_RESOLVED_FIELD;
+    res->info.field.index = JAVA_SYSTEM_OUT_IDX;
+    return NULL;
+  }
+
   field_info* f;  
   u2 field_idx;
   do {
     f = field_by_name_and_type(clazz->cf, name, descriptor, &field_idx);
     if (f != NULL) 
     {
-      Resolved_cp_info* res = &frame->method.holder_class->cp[cp_idx];
       res->tag = CP_RESOLVED_FIELD;
       res->info.field.holder_class = clazz;
       res->info.field.descriptor = descriptor;
@@ -361,6 +373,8 @@ LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx)
   Frame* frame = current_frame(ctx);
   cp_info* cp = constant_pool(frame);
   Resolved_cp_info* resolved_entry = &frame->method.holder_class->cp[cp_idx];
+  if (resolved_entry->tag != CP_UNRESOLVED) 
+    return resolved_entry->info.clazz;
 
   cp_info* entry = &cp[cp_idx];
   if (entry->tag != CONSTANT_Class) return NULL;

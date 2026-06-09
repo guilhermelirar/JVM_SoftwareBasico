@@ -9,6 +9,8 @@
 #define JVM_MAX_CLASSES 100
 #define JVM_STRING_TABLE_SIZE 64
 
+#define JAVA_SYSTEM_OUT_IDX 0xFFFF
+
 typedef struct LoadedClass LoadedClass;
 
 /**
