@@ -290,3 +290,94 @@ err_main_not_found:
   terminateJVM(ctx);
   exit(1);
 }
+
+
+static field_info* field_by_name_and_type(ClassFile* cf, 
+    const char* name, const char* descriptor, u2* offset)
+{
+  field_info* f;
+  *offset = 0;
+  for (int i = 0; i < cf->fields_count; i++)
+  {
+    f = &cf->fields[i];
+    const char* f_dsc = cp_get_utf8(cf->constant_pool, f->descriptor_index);
+    if (strcmp(name, cp_get_utf8(cf->constant_pool, f->name_index)) == 0 &&
+        strcmp(descriptor, f_dsc) == 0)
+    {
+      return f;
+    }
+    
+    if (f_dsc[0] == 'J' || f_dsc[0] == 'D')
+      (*offset)++; // long e double ocupam 2 slots
+    (*offset)++;
+  }
+
+  return NULL;
+}
+
+RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
+{
+  Frame* frame = current_frame(ctx);
+  cp_info* cp = constant_pool(frame);
+
+  cp_info* entry = &cp[cp_idx];
+  if (entry->tag != CONSTANT_Fieldref) return NULL;
+
+  u2 class_index = entry->info.fieldref_info.class_index;
+  u2 nt_index = entry->info.fieldref_info.name_and_type_index;
+  
+  cp_info* nt = &cp[nt_index];
+
+  const char* name = cp_get_utf8(cp, nt->info.name_and_type_info.name_index);
+  const char* descriptor = cp_get_utf8(cp, 
+      nt->info.name_and_type_info.descriptor_index);
+
+  LoadedClass* clazz = resolve_class(ctx, class_index);
+  field_info* f;  
+  u2 field_idx;
+  do {
+    f = field_by_name_and_type(clazz->cf, name, descriptor, &field_idx);
+    if (f != NULL) 
+    {
+      Resolved_cp_info* res = &frame->method.holder_class->cp[cp_idx];
+      res->tag = CP_RESOLVED_FIELD;
+      res->info.field.holder_class = clazz;
+      res->info.field.descriptor = descriptor;
+      res->info.field.name = name;
+      res->info.field.access_flags = f->access_flags;
+      res->info.field.attributes = f->attributes;
+      res->info.field.attributes_count = f->attributes_count;
+      res->info.field.index = field_idx;
+      return &res->info.field;
+    }
+    clazz = clazz->super;
+  } while (clazz != NULL);
+
+  return NULL;
+}
+
+LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx)
+{
+  Frame* frame = current_frame(ctx);
+  cp_info* cp = constant_pool(frame);
+  Resolved_cp_info* resolved_entry = &frame->method.holder_class->cp[cp_idx];
+
+  cp_info* entry = &cp[cp_idx];
+  if (entry->tag != CONSTANT_Class) return NULL;
+
+  const char* name = cp_class_name(cp, entry->info.class_info.name_index);
+  if (strcmp(name, "java/lang/System") == 0)
+  {
+    resolved_entry->tag = JAVA_LANG_SYSTEM;
+    resolved_entry->info.clazz = NULL;
+    return NULL;
+  }
+
+  LoadedClass* clazz = get_class(ctx, name);
+  if (clazz == NULL) return NULL;
+
+
+  resolved_entry->tag = CP_RESOLVED_CLASS;
+  resolved_entry->info.clazz = clazz;
+  return clazz;
+}

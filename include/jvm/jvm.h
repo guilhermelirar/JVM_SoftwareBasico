@@ -259,4 +259,32 @@ method_info* lookup_method(LoadedClass** base_class_pp,
  */
 void jvm_run(JVM_Context* ctx, const char *entry_class_name);
 
+
+
+/*
+ * @brief retorna ponteiro para estrutura de método resolvida 
+ * a partir de um contexto JVM e do índice da constant_pool da 
+ * classe em execução do frame atual 
+ * @param ctx Contexto JVM 
+ * @param cp_index índice válido para um CONSTANT_Methodref 
+ * na constant_pool da classe atual */
+RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx);
+
+/*
+ * @brief retorna ponteiro para estrutura de field resolvida 
+ * a partir de um contexto JVM e do índice da constant_pool da 
+ * classe em execução do frame atual 
+ * @param ctx Contexto JVM 
+ * @param cp_index índice válido para um CONSTANT_Fieldref
+ * na constant_pool da classe atual */
+RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx);
+
+/*
+ * @brief retorna ponteiro para estrutura LoadedClass resolvida 
+ * a partir de um contexto JVM e do índice da constant_pool da 
+ * classe em execução do frame atual 
+ * @param ctx Contexto JVM 
+ * @param cp_index índice válido para um CONSTANT_Fieldref
+ * na constant_pool da classe atual */
+LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx);
 #endif
