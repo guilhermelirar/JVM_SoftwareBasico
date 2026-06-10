@@ -116,7 +116,6 @@ Frame* new_frame(LoadedClass* clazz, RuntimeMethod* method)
   frame->stack_ptr = -1;
   
   frame->pc = method->code_attr->code;
-
   frame->method = *method;
   return frame;
 
@@ -283,7 +282,9 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
   if (main == NULL || (main->access_flags & required) != required)
     goto err_main_not_found;
 
-  Frame* f = new_frame(curr, main);
+  RuntimeMethod main_method;
+  init_RuntimeMethod(curr->cf->constant_pool, main, &main_method);
+  Frame* f = new_frame(curr, &main_method);
   push_frame(&ctx->t, f);
 
   initialize_class(ctx, entry_class_loaded); // <clinit> e static fields
