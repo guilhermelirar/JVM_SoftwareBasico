@@ -46,7 +46,7 @@ void handle_ifcond(JVM_Context* ctx, u1 opc)
 {
   Frame* frame = current_frame(ctx);
   u1* ifcond_pc = frame->pc - 1; // inicio do if
-  int32_t offset = (int32_t)fetch_u2(&frame->pc);
+  int32_t offset = (int32_t)(int16_t)fetch_u2(&frame->pc);
 
   int32_t value = (int32_t)pop_operand(frame);
   int cond = 0;

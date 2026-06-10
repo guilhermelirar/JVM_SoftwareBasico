@@ -67,11 +67,9 @@ void handle_tconst(JVM_Context *ctx, u1 opc)
     case opc_dconst_0:
     case opc_dconst_1:
     {
-      double d = opc == opc_dconst_0 ? 0.0 : 0.1;
-      u8 value;
-      memcpy(&value, &d, sizeof(double));
-      push_operand(frame, (u4)(value >> 8));
-      push_operand(frame, (u4)(value & 0xFFFF));
+      double d = opc == opc_dconst_0 ? 0.0 : 1.0;
+      u8 value = double_to_u8(d);
+      push_operand2(frame, value);
       break;
     }
 
