@@ -97,17 +97,19 @@ Frame* new_frame(LoadedClass* clazz, method_info* method)
     }
   }
 
+  if (code == NULL)
+  {
+    fprintf(stderr, "Error: java.lang.AbstractMethodError");
+    return NULL;
+  }
+
   frame->locals = (u4*)calloc(code->max_locals, sizeof(u4));
   frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
   frame->stack_ptr = -1;
   
   frame->pc = code->code;
   frame->method.holder_class = clazz; 
-  frame->method.code = code->code;
-  frame->method.max_stack = code->max_stack;
-  frame->method.max_locals = code->max_locals;
-  frame->method.access_flags = method->access_flags;
-  frame->method.code_length = code->code_length;
+  frame->method.code_attr = code;
 
   frame->method.name = cp_get_utf8(
       frame->method.holder_class->cf->constant_pool,
@@ -118,6 +120,8 @@ Frame* new_frame(LoadedClass* clazz, method_info* method)
       method->descriptor_index);
 
   return frame;
+
+  exit(1);
 }
 
 JVM_Context* jvm_init()
@@ -259,23 +263,53 @@ method_info* lookup_method(LoadedClass** base_class_pp,
   return NULL;
 }
 
+static Code_attribute* find_code_attr(cp_info* cp, method_info* m)
+{
+  Code_attribute* code = NULL;
+  for (u4 i = 0; i < m->attributes_count; i++)
+  {
+    if (strcmp("Code", cp_get_utf8(cp, 
+            m->attributes[i].attribute_name_index)) == 0)
+    {
+      code = m->attributes[i].info.code_attribute;
+      return code;
+    }
+  }
+  return NULL;
+}
+
+static void init_RuntimeMethod(cp_info* cp, method_info* m_info, 
+    RuntimeMethod* runtime_m)
+{
+  if (runtime_m == NULL) return;
+  runtime_m->info = m_info;
+  runtime_m->code_attr = find_code_attr(cp, m_info);
+  runtime_m->name = cp_get_utf8(cp, m_info->name_index);
+  runtime_m->descriptor = cp_get_utf8(cp, m_info->descriptor_index);
+}
+
 void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
 {
   if (ctx == NULL) return;
 
   LoadedClass* entry_class_loaded = get_class(ctx, entry_class_name);
-  LoadedClass** main_class_loaded_pp = &entry_class_loaded;
 
-  method_info* main_method = lookup_method(main_class_loaded_pp, 
-      "main", "([Ljava/lang/String;)V");
+  method_info* main; 
+  LoadedClass* curr = entry_class_loaded;
+ 
+  // Procura na atual e nas superclasse até achar
+  do {
+     main = find_method(curr->cf, "main", "([Ljava/lang/String;)V");
+     if (main != NULL) break;
+     curr = curr->super;
+  } while (curr != NULL); 
 
   // Testando se flags de acesso estão corretas
   u2 required = ACC_STATIC | ACC_PUBLIC;
-  if (main_method == NULL || 
-      (main_method->access_flags & required) != required)
+  if (main == NULL || (main->access_flags & required) != required)
     goto err_main_not_found;
 
-  Frame* f = new_frame((*main_class_loaded_pp), main_method);
+  Frame* f = new_frame(curr, main);
   push_frame(&ctx->t, f);
 
   initialize_class(ctx, entry_class_loaded); // <clinit> e static fields

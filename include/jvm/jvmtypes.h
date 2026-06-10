@@ -22,15 +22,12 @@ typedef struct LoadedClass LoadedClass;
  */
 typedef struct {
   LoadedClass* holder_class;
-  u2 access_flags;
   const char* name;
   const char* descriptor;
-  u2 max_stack;
-  u2 max_locals;
-  u4 code_length;
-  u1* code;
-  u2 exception_table_length;
-  exception_info* exception_info;
+
+  // Ponteiros para estruturas da ClassFile
+  method_info* info;
+  Code_attribute* code_attr;
 } RuntimeMethod;
 
 /*@brief estrutura que representa um Field resolvido por 
