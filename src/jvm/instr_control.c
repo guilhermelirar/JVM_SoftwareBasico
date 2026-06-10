@@ -115,7 +115,7 @@ void handle_goto_jsr_ret(JVM_Context* ctx, u1 opc)
     case (opc_jsr):
     {
       int16_t offset = (int16_t)fetch_u2(&frame->pc);
-      push_operand(frame, (u4)(frame->pc - frame->method.code));
+      push_operand(frame, (u4)(frame->pc - frame->method.code_attr->code));
       frame->pc = opcode_pc + offset;
       return;
     }
@@ -124,7 +124,7 @@ void handle_goto_jsr_ret(JVM_Context* ctx, u1 opc)
     {
       int32_t offset = (int32_t)fetch_u4(&frame->pc);
       // salva pc do retorno
-      push_operand(frame, (u4)(frame->pc - frame->method.code));
+      push_operand(frame, (u4)(frame->pc - frame->method.code_attr->code));
       frame->pc = opcode_pc + offset;
       return;
     }
@@ -135,7 +135,7 @@ void handle_goto_jsr_ret(JVM_Context* ctx, u1 opc)
       u1 idx = *frame->pc++; // indice para locals
 
       // returnAddress recuperado
-      u1* returnAddress = frame->method.code + frame->locals[idx];
+      u1* returnAddress = frame->method.code_attr->code + frame->locals[idx];
       frame->pc = returnAddress;
       return;
     }

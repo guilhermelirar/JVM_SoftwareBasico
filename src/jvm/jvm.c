@@ -29,10 +29,13 @@ static Code_attribute* find_code_attr(cp_info* cp, method_info* m)
   return NULL;
 }
 
-static void init_RuntimeMethod(cp_info* cp, method_info* m_info, 
+void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info, 
     RuntimeMethod* runtime_m)
 {
-  if (runtime_m == NULL) return;
+  if (runtime_m == NULL || holder_class == NULL) return;
+  cp_info* cp = holder_class->cf->constant_pool;
+
+  runtime_m->holder_class = holder_class;
   runtime_m->info = m_info;
   runtime_m->code_attr = find_code_attr(cp, m_info);
   runtime_m->name = cp_get_utf8(cp, m_info->name_index);
@@ -110,6 +113,7 @@ Frame* new_frame(LoadedClass* clazz, RuntimeMethod* method)
 {
   Frame* frame = (Frame*)malloc(sizeof(Frame));
   if (frame == NULL) return NULL;
+
 
   frame->locals = (u4*)calloc(method->code_attr->max_locals, sizeof(u4));
   frame->operand_stack = (u4*)calloc(method->code_attr->max_stack, sizeof(u4));
@@ -283,7 +287,7 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
     goto err_main_not_found;
 
   RuntimeMethod main_method;
-  init_RuntimeMethod(curr->cf->constant_pool, main, &main_method);
+  init_RuntimeMethod(curr, main, &main_method);
   Frame* f = new_frame(curr, &main_method);
   push_frame(&ctx->t, f);
 
@@ -470,7 +474,7 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
     goto terminate;
   }
 
-  init_RuntimeMethod(curr->cf->constant_pool, m, &res->info.method);
+  init_RuntimeMethod(curr, m, &res->info.method);
   res->tag = CP_RESOLVED_METHOD;
   return &res->info.method;
 

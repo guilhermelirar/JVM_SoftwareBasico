@@ -260,7 +260,9 @@ method_info* lookup_method(LoadedClass** base_class_pp,
  */
 void jvm_run(JVM_Context* ctx, const char *entry_class_name);
 
-
+// TODO doc
+void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info, 
+    RuntimeMethod* runtime_m);
 
 /*
  * @brief retorna ponteiro para estrutura de método resolvida 
