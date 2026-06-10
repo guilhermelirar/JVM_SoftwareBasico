@@ -14,6 +14,31 @@
     #define DEBUG_PRINT(...) do {} while (0)
 #endif
 
+static Code_attribute* find_code_attr(cp_info* cp, method_info* m)
+{
+  Code_attribute* code = NULL;
+  for (u4 i = 0; i < m->attributes_count; i++)
+  {
+    if (strcmp("Code", cp_get_utf8(cp, 
+            m->attributes[i].attribute_name_index)) == 0)
+    {
+      code = m->attributes[i].info.code_attribute;
+      return code;
+    }
+  }
+  return NULL;
+}
+
+static void init_RuntimeMethod(cp_info* cp, method_info* m_info, 
+    RuntimeMethod* runtime_m)
+{
+  if (runtime_m == NULL) return;
+  runtime_m->info = m_info;
+  runtime_m->code_attr = find_code_attr(cp, m_info);
+  runtime_m->name = cp_get_utf8(cp, m_info->name_index);
+  runtime_m->descriptor = cp_get_utf8(cp, m_info->descriptor_index);
+}
+
 method_info* find_method(ClassFile *cf, const char* name, 
     const char* descriptor) 
 {
@@ -81,44 +106,18 @@ LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name)
   return NULL;
 }
 
-Frame* new_frame(LoadedClass* clazz, method_info* method)
+Frame* new_frame(LoadedClass* clazz, RuntimeMethod* method)
 {
   Frame* frame = (Frame*)malloc(sizeof(Frame));
   if (frame == NULL) return NULL;
 
-  Code_attribute* code = NULL;
-  for (u4 i = 0; i < method->attributes_count; i++)
-  {
-    if (strcmp("Code", cp_get_utf8(clazz->cf->constant_pool, 
-            method->attributes[i].attribute_name_index)) == 0)
-    {
-      code = method->attributes[i].info.code_attribute;
-      break;
-    }
-  }
-
-  if (code == NULL)
-  {
-    fprintf(stderr, "Error: java.lang.AbstractMethodError");
-    return NULL;
-  }
-
-  frame->locals = (u4*)calloc(code->max_locals, sizeof(u4));
-  frame->operand_stack = (u4*)calloc(code->max_stack, sizeof(u4));
+  frame->locals = (u4*)calloc(method->code_attr->max_locals, sizeof(u4));
+  frame->operand_stack = (u4*)calloc(method->code_attr->max_stack, sizeof(u4));
   frame->stack_ptr = -1;
   
-  frame->pc = code->code;
-  frame->method.holder_class = clazz; 
-  frame->method.code_attr = code;
+  frame->pc = method->code_attr->code;
 
-  frame->method.name = cp_get_utf8(
-      frame->method.holder_class->cf->constant_pool,
-      method->name_index);
-
-  frame->method.descriptor = cp_get_utf8(
-      frame->method.holder_class->cf->constant_pool,
-      method->descriptor_index);
-
+  frame->method = *method;
   return frame;
 
   exit(1);
@@ -261,31 +260,6 @@ method_info* lookup_method(LoadedClass** base_class_pp,
   } while (curr != NULL); 
 
   return NULL;
-}
-
-static Code_attribute* find_code_attr(cp_info* cp, method_info* m)
-{
-  Code_attribute* code = NULL;
-  for (u4 i = 0; i < m->attributes_count; i++)
-  {
-    if (strcmp("Code", cp_get_utf8(cp, 
-            m->attributes[i].attribute_name_index)) == 0)
-    {
-      code = m->attributes[i].info.code_attribute;
-      return code;
-    }
-  }
-  return NULL;
-}
-
-static void init_RuntimeMethod(cp_info* cp, method_info* m_info, 
-    RuntimeMethod* runtime_m)
-{
-  if (runtime_m == NULL) return;
-  runtime_m->info = m_info;
-  runtime_m->code_attr = find_code_attr(cp, m_info);
-  runtime_m->name = cp_get_utf8(cp, m_info->name_index);
-  runtime_m->descriptor = cp_get_utf8(cp, m_info->descriptor_index);
 }
 
 void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
