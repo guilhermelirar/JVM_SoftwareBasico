@@ -325,6 +325,16 @@ static field_info* field_by_name_and_type(ClassFile* cf,
   return NULL;
 }
 
+static bool extends(LoadedClass* class_a, LoadedClass* class_b)
+{
+  do {
+    if (class_a == class_b) return true;
+    class_a = class_a->super;
+  } while (class_a != NULL);
+  
+  return false;
+}
+
 RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
 {
   Frame* frame = current_frame(ctx);
@@ -404,4 +414,67 @@ LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx)
   resolved_entry->tag = CP_RESOLVED_CLASS;
   resolved_entry->info.clazz = clazz;
   return clazz;
+}
+
+RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
+{
+  Frame* frame = current_frame(ctx);
+  Resolved_cp_info* res = &frame->method.holder_class->cp[cp_idx];
+
+  // Já resolvido
+  if (res->tag == CP_RESOLVED_METHOD)
+    return &res->info.method; 
+
+  // Não resolvido
+  cp_info* cp = constant_pool(frame);
+
+  LoadedClass* clazz = resolve_class(ctx, cp[cp_idx].info.methodref_info.class_index);
+
+  cp_info* nt_info = &cp[cp[cp_idx].info.methodref_info.name_and_type_index];
+  
+  const char* name = cp_get_utf8(
+      cp, 
+      nt_info->info.name_and_type_info.name_index
+  );
+
+  const char* descriptor = cp_get_utf8(
+      cp, 
+      nt_info->info.name_and_type_info.descriptor_index
+  );
+
+  method_info* m;
+  LoadedClass* curr = clazz;
+  do {
+    m = find_method(curr->cf, name, descriptor);
+    if (m != NULL) break;
+    curr = curr->super;
+  } while (curr != NULL);
+
+  if (m == NULL)
+  {
+    fprintf(stderr, "Error: NoSuchMethodError");
+    goto terminate;
+  }
+
+  if (frame->method.holder_class != clazz && 
+      (m->access_flags & ACC_PRIVATE || 
+      !extends(frame->method.holder_class, clazz)))
+  {
+    fprintf(stderr, "Error: IllegalAccessError");
+    goto terminate;
+  }
+ 
+  if (m->access_flags & ACC_ABSTRACT)
+  {
+    fprintf(stderr, "Error: AbstractMethodError");
+    goto terminate;
+  }
+
+  init_RuntimeMethod(curr->cf->constant_pool, m, &res->info.method);
+  res->tag = CP_RESOLVED_METHOD;
+  return &res->info.method;
+
+terminate:
+  terminateJVM(ctx);
+  exit(1);
 }
