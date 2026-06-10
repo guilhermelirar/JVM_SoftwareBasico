@@ -109,7 +109,7 @@ LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name)
   return NULL;
 }
 
-Frame* new_frame(LoadedClass* clazz, RuntimeMethod* method)
+Frame* new_frame(RuntimeMethod* method)
 {
   Frame* frame = (Frame*)malloc(sizeof(Frame));
   if (frame == NULL) return NULL;
@@ -288,7 +288,7 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
 
   RuntimeMethod main_method;
   init_RuntimeMethod(curr, main, &main_method);
-  Frame* f = new_frame(curr, &main_method);
+  Frame* f = new_frame(&main_method);
   push_frame(&ctx->t, f);
 
   initialize_class(ctx, entry_class_loaded); // <clinit> e static fields
@@ -432,7 +432,8 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   // Não resolvido
   cp_info* cp = constant_pool(frame);
 
-  LoadedClass* clazz = resolve_class(ctx, cp[cp_idx].info.methodref_info.class_index);
+  LoadedClass* clazz = resolve_class(ctx, 
+      cp[cp_idx].info.methodref_info.class_index);
 
   cp_info* nt_info = &cp[cp[cp_idx].info.methodref_info.name_and_type_index];
   
@@ -461,8 +462,12 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   }
 
   if (frame->method.holder_class != clazz && 
-      (m->access_flags & ACC_PRIVATE || 
-      !extends(frame->method.holder_class, clazz)))
+      (
+       m->access_flags & ACC_PRIVATE || 
+       (!extends(frame->method.holder_class, clazz) && 
+        m->access_flags & ACC_PROTECTED)
+       )
+      )
   {
     fprintf(stderr, "Error: IllegalAccessError");
     goto terminate;

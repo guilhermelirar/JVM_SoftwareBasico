@@ -77,7 +77,7 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
       RuntimeMethod rclinit;
       init_RuntimeMethod(curr, 
           clinit, &rclinit);
-      Frame* clinit_frame = new_frame(curr, &rclinit);
+      Frame* clinit_frame = new_frame(&rclinit);
       push_frame(&ctx->t, clinit_frame);
     }
 

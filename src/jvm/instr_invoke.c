@@ -55,7 +55,7 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
   }
 
   int args = count_args_size(method->descriptor);
-  push_frame(&ctx->t, new_frame(method->holder_class, method));
+  push_frame(&ctx->t, new_frame(method));
   Frame* new_f = current_frame(ctx);
 
   for (int i = args-1; i >= 0; i--) {

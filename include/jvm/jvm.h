@@ -134,12 +134,11 @@ JVM_Context* jvm_init();
 
 /**
  * @brief aloca memória e inicializa um novo Frame
- * @param cazz LoadedClass da classe atual
  * @param method ponteiro para RuntimeMethod cujo conteúdo será copiado
  * para o RuntimeMethod do novo frame
  * @return ponteiro para o novo Frame
  */
-Frame* new_frame(LoadedClass* clazz, RuntimeMethod* method);
+Frame* new_frame(RuntimeMethod* method);
 
 /**
  @brief Termina execução da JVM liberando toda memória alocada
