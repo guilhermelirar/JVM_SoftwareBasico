@@ -196,7 +196,7 @@ static void handle_rem(Frame *f, u1 opc)
       return;
     }
 
-    case opc_ddiv:
+    case opc_drem:
     {
       double d2 = u8_to_double(pop_operand2(f));
       double d1 = u8_to_double(pop_operand2(f));
