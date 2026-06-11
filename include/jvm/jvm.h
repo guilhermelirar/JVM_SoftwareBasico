@@ -259,7 +259,14 @@ method_info* lookup_method(LoadedClass** base_class_pp,
  */
 void jvm_run(JVM_Context* ctx, const char *entry_class_name);
 
-// TODO doc
+/**
+ * @brief Inicializa uma estrutura RuntimeMethod passado como ponteiro 
+ * @param holder_class classe que implementa o método 
+ * @param m_info ponteiro para estrutura method_info da constant_pool 
+ * da classe que implementa
+ * @param runtime_m ponteiro para a estrutura RuntimeMethod que será
+ * inicializada a partir dos dois parâmetros anteriores
+ */
 void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info, 
     RuntimeMethod* runtime_m);
 
