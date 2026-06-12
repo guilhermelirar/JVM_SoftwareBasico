@@ -7,12 +7,14 @@
 void handle_store(JVM_Context *ctx, u1 opc)
 {
   Frame *f = current_frame(ctx);
+  bool widened = (*(f->pc - 2)) == opc_wide;
 
   // Carrega o índice
-  u1 idx = 0;
+  u2 idx = 0;
   if (opc < opc_istore_0)
   {
-    idx = *f->pc++;
+    // wide torna index u2
+    idx = widened ? fetch_u2(&f->pc) : *f->pc++;
   }
   else if (opc < opc_iastore) 
   {
@@ -47,12 +49,14 @@ void handle_store(JVM_Context *ctx, u1 opc)
 void handle_load(JVM_Context* ctx, u1 opc) {
   Frame* frame = current_frame(ctx);
 
-  u4 idx = 0;  // índice para a variável local
-
+  u2 idx = 0;  // índice para a variável local
+  bool widened = (*(frame->pc - 2)) == opc_wide;
   // Opcodes com operandos
   if (IN_RANGE(opc, opc_iload, opc_aload))
-    idx = *frame->pc++;
-
+  {
+    // wide torna index u2
+    idx = widened ? fetch_u2(&frame->pc) : *frame->pc++;
+  }
   // Opcodes sem operandos
   else if (IN_RANGE(opc, opc_iload_0, opc_aload_3)) 
   {
