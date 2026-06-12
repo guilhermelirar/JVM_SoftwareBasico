@@ -231,9 +231,12 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
   {
     case opc_iinc:
     {
-      u1 idx = *f->pc++;
-      int8_t constant = (int8_t)*f->pc++;
-
+      bool widened = (*(f->pc - 2)) == opc_wide;
+      
+      u2 idx = widened ? fetch_u2(&f->pc) : *f->pc++;
+      int16_t constant = widened ?
+        (int16_t)fetch_u2(&f->pc) : (int8_t)*f->pc++;
+        
       int local = (int)f->locals[idx];
       local += constant;
       f->locals[idx] = (u4)local;
