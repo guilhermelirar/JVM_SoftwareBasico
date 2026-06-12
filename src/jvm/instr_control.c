@@ -132,7 +132,10 @@ void handle_goto_jsr_ret(JVM_Context* ctx, u1 opc)
     // ret 
     case (opc_ret):
     {
-      u1 idx = *frame->pc++; // indice para locals
+      bool widened = (*(frame->pc - 2)) == opc_wide;
+
+      // indice para locals
+      u2 idx = widened ? fetch_u2(&frame->pc) : *frame->pc++; 
 
       // returnAddress recuperado
       u1* returnAddress = frame->method.code_attr->code + frame->locals[idx];
