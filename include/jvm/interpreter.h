@@ -90,6 +90,16 @@ void handle_load(JVM_Context* ctx, u1 opc);
  */
 void handle_store(JVM_Context* ctx, u1 opc);
 
+
+/**
+ * @brief função que implementa os opcodes de manipulação da pilha
+ * sem retorno (87 a 96)
+ * @param ctx contexto de execução Java 
+ * @param opc opcode
+ */ 
+void handle_stack(JVM_Context* ctx, u1 opc);
+
+
 /**
  * @brief Função que implementa opcodes de operações aritméticas
  * como add, sub, mul, div, rem, neg (95-119)

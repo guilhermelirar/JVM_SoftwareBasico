@@ -149,3 +149,84 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
       break;
   }
 }
+
+
+void handle_stack(JVM_Context* ctx, u1 opc)
+{
+  Frame *frame = current_frame(ctx);
+
+  switch (opc)
+  {
+    case opc_pop:
+      pop_operand(frame);
+      return;
+
+    case opc_pop2:
+      pop_operand2(frame);
+      return;
+
+    case opc_dup:
+    {
+      u4 value = pop_operand(frame);
+      push_operand(frame, value);
+      return push_operand(frame, value);
+    }
+
+    case opc_dup_x1:
+    {
+      u4 v1, v2;
+      v1 = pop_operand(frame);
+      v2 = pop_operand(frame);
+      push_operand(frame, v1);
+      push_operand(frame, v2);
+      return push_operand(frame, v1);
+    }
+      
+    case opc_dup_x2:
+    {
+      u4 v1 = pop_operand(frame);
+      u8 v2 = pop_operand2(frame);
+      push_operand(frame, v1);
+      push_operand2(frame, v2);
+      return push_operand(frame, v1);
+    }
+
+    case opc_dup2:
+    {
+      u8 value = pop_operand2(frame);
+      push_operand2(frame, value);
+      return push_operand2(frame, value);
+    }
+
+    case opc_dup2_x1:
+    {
+      u8 v1 = pop_operand2(frame);
+      u4 v2 = pop_operand(frame);
+      push_operand2(frame, v1);
+      push_operand(frame, v2);
+      return push_operand2(frame, v2);
+    }
+
+    case opc_dup2_x2:
+    {
+      u8 v1, v2;
+      v1 = pop_operand2(frame);
+      v2 = pop_operand2(frame);
+      push_operand2(frame, v1);
+      push_operand2(frame, v1);
+      return push_operand2(frame, v2);
+    }
+
+    case opc_swap:
+    {
+      u4 v1, v2;
+      v1 = pop_operand(frame);
+      v2 = pop_operand(frame);
+      push_operand(frame, v1);
+      return push_operand(frame, v2);
+    }
+
+    default:
+    return;
+  }
+}
