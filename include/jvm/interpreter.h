@@ -43,7 +43,11 @@ static inline u4 fetch_u4(u1 **pc) {
 
 
 /**
- * @brief Função que implementa NOP 
+ * @brief Função que implementa NOP
+ * Termina a execução imediatamente caso o opcode 
+ * não seja opc_nop ou opc_wide (lógica de wide 
+ * é tratada internamente pelos handlers dos opcodes
+ * que podem seguir wide)
  *
  * @param ctx contexto de execução da JVM
  * @param opc opcode
