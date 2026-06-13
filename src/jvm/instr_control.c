@@ -7,6 +7,7 @@
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdint.h>
+#include <strings.h>
 
 void handle_return(JVM_Context *ctx, u1 opc)
 {
@@ -236,4 +237,36 @@ void handle_lcmp(JVM_Context* ctx, u1 opc)
 
   else if (v1 < v2)
     push_operand(frame, (u4)-1);
+}
+
+void handle_tableswitch(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* f = current_frame(ctx);
+  
+  u1* base_pc = f->pc - 1;
+
+  // offset
+  while ((f->pc - f->method.code_attr->code) % 4 != 0)
+    f->pc++;
+
+  int32_t default_offset = (int32_t)fetch_u4(&f->pc);
+  int32_t low = (int32_t)fetch_u4(&f->pc);
+  int32_t high = (int32_t)fetch_u4(&f->pc);
+
+  int32_t index = (int32_t)pop_operand(f);
+
+  u1* table_start = f->pc;
+  int32_t offset;
+  if (index < low || index > high)
+  {
+    offset = default_offset;
+  } 
+  else 
+  {
+     u1* target_offset_ptr = table_start + ((index - low) * 4);
+     offset = (int32_t)fetch_u4(&target_offset_ptr);
+  }
+
+  f->pc = base_pc + offset;
 }
