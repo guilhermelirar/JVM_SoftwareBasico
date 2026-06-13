@@ -270,3 +270,35 @@ void handle_tableswitch(JVM_Context *ctx, u1 opc)
 
   f->pc = base_pc + offset;
 }
+
+void handle_lookupswitch(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* f = current_frame(ctx);
+  
+  u1* base_pc = f->pc - 1;
+
+  // offset
+  while ((f->pc - f->method.code_attr->code) % 4 != 0)
+    f->pc++;
+
+  int32_t default_offset = (int32_t)fetch_u4(&f->pc);
+  int32_t npairs = (int32_t)fetch_u4(&f->pc);
+
+  int32_t key = (int32_t)pop_operand(f);
+  int32_t offset;
+
+  for (int i = 0; i < npairs; i++)
+  {
+    int32_t pair_key = (int32_t)fetch_u4(&f->pc);
+    offset = (int32_t)fetch_u4(&f->pc);
+    
+    if (key == pair_key) 
+      goto branch;
+  }
+
+  offset = default_offset;
+
+branch:
+  f->pc = base_pc + offset;
+}

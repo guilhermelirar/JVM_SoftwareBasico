@@ -169,7 +169,7 @@
 [opc_jsr] = handle_goto_jsr_ret,
 [opc_ret] = handle_goto_jsr_ret,
 [opc_tableswitch] = handle_tableswitch,
-[opc_lookupswitch] = handle_nop,
+[opc_lookupswitch] = handle_lookupswitch,
 [opc_ireturn] = handle_return,
 [opc_lreturn] = handle_return,
 [opc_freturn] = handle_return,
