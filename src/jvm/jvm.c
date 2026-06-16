@@ -356,7 +356,8 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
   
   cp_info* nt = &cp[nt_index];
 
-  const char* name = cp_get_utf8(cp, nt->info.name_and_type_info.name_index);
+  const char* name = cp_get_utf8(cp, 
+      nt->info.name_and_type_info.name_index);
   const char* descriptor = cp_get_utf8(cp, 
       nt->info.name_and_type_info.descriptor_index);
 
@@ -486,4 +487,25 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
 terminate:
   terminateJVM(ctx);
   exit(1);
+}
+
+
+u4 load_string(JVM_Context* ctx, LoadedClass* clazz, u4 cp_idx)
+{
+  cp_info* entry = &clazz->cf->constant_pool[cp_idx];
+  const char* str = cp_get_utf8(clazz->cf->constant_pool, 
+          entry->info.string_info.string_index);
+      
+      // ver se está na tabela de strings do ctx ou inserir
+      for (u4 i = 0; i < ctx->strings.count; i++)
+      {
+        if (str == ctx->strings.strings[i])
+        {
+          return i;
+        }
+      }
+      
+      ctx->strings.strings[ctx->strings.count] = (char*)str;
+      ctx->strings.count++;
+      return ctx->strings.count - 1;
 }

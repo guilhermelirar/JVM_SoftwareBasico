@@ -296,4 +296,18 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx);
  * @param cp_index índice válido para um CONSTANT_Fieldref
  * na constant_pool da classe atual */
 LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx);
+
+
+/*
+ * @brief Resolve uma setring a partir de um CONSTANT_String, 
+ * carrega na tabela de Strings e retorna o índice na tabela 
+ * de strings (StringTable)
+ * @param ctx Contexto de execução JVM
+ * @param clazz classe carregada em que a constant_pool contém o CONSTANT_String
+ * válido no índice dado por cp_idx
+ * @param cp_idx índice válido para um CONSTANT_String na constant_pool do 
+ * classfile parseado da classe carregada 
+ * @return u4 índice na StringTable para a string carregada 
+ */
+u4 load_string(JVM_Context *ctx, LoadedClass* clazz, u4 cp_idx);
 #endif

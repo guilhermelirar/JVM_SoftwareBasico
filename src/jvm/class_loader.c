@@ -37,9 +37,81 @@ ClassFile* ClassFile_from_path(const char *path)
   return cf;
 }
 
+static attribute_info* get_constant_value(LoadedClass* class, field_info* f)
+{
+  for (int i = 0; i < f->attributes_count; i++)
+  {
+    const char* attr_name = cp_get_utf8(class->cf->constant_pool, 
+        f->attributes[i].attribute_name_index);
+
+    if (strcmp(attr_name, "ConstantValue") == 0)
+    {
+      return &f->attributes[i];
+    }
+  }
+
+  return NULL;
+}
+
+static void init_static_fields(LoadedClass* class)
+{
+  int offset = 0;
+  for (int i = 0; i < class->cf->fields_count; i++)
+  {
+    field_info* f = &class->cf->fields[i];
+    const char* descriptor = cp_get_utf8(class->cf->constant_pool, 
+          f->descriptor_index);
+   
+    if (f->access_flags & ACC_STATIC)
+    {
+
+      attribute_info* cv = get_constant_value(class, f);
+      if (cv)
+      {
+        cp_info* cv_info = &class->cf->
+          constant_pool[cv->info.constantvalue_index];
+
+        switch (descriptor[0])
+        {
+          case 'I':
+            class->static_fields[offset] = cv_info->info.int_info.bytes;
+            break;
+
+          case 'F':
+            class->static_fields[offset] = cv_info->info.float_info.bytes;
+            break;
+
+          case 'J':
+            class->static_fields[offset] = cv_info->info.long_info.h_bytes;
+            class->static_fields[offset+1] = cv_info->info.long_info.l_bytes;
+            break;
+
+          case 'D':
+            class->static_fields[offset] = cv_info->info.double_info.h_bytes;
+            class->static_fields[offset+1] = cv_info->info.double_info.l_bytes;
+            break;
+
+          case 'L':
+            if (strcmp("Ljava/lang/String;", descriptor) == 0)
+            {
+
+            }
+            break;
+        }
+      }
+    }
+    
+    if (descriptor[0] == 'J' || descriptor[0] == 'D')
+      offset++;
+
+    offset++;
+
+  }
+}
+
 static void alloc_static_fields(LoadedClass* class)
 {
-  u2 needed_slots = 0;
+  class->static_fields_size = 0;
 
   for (int i = 0; i < class->cf->fields_count; i++)
   {
@@ -52,13 +124,14 @@ static void alloc_static_fields(LoadedClass* class)
       
       // ocupam dois slots
       if (descriptor[0] == 'J' || descriptor[0] == 'D')
-        needed_slots++;
+        class->static_fields_size++;
 
-      needed_slots++;
+      class->static_fields_size++;
     }
   }
 
-  class->static_fields = (u4*)calloc(needed_slots, sizeof(u4));
+  class->static_fields = (u4*)calloc(class->static_fields_size, sizeof(u4));
+  init_static_fields(class);
 }
 
 void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
