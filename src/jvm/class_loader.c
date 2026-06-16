@@ -53,7 +53,7 @@ static attribute_info* get_constant_value(LoadedClass* class, field_info* f)
   return NULL;
 }
 
-static void init_static_fields(LoadedClass* class)
+static void init_static_fields(JVM_Context* ctx, LoadedClass* class)
 {
   int offset = 0;
   for (int i = 0; i < class->cf->fields_count; i++)
@@ -74,6 +74,10 @@ static void init_static_fields(LoadedClass* class)
         switch (descriptor[0])
         {
           case 'I':
+          case 'Z':
+          case 'B':
+          case 'C':
+          case 'S':
             class->static_fields[offset] = cv_info->info.int_info.bytes;
             break;
 
@@ -94,8 +98,13 @@ static void init_static_fields(LoadedClass* class)
           case 'L':
             if (strcmp("Ljava/lang/String;", descriptor) == 0)
             {
+              u4 str_idx = load_string(ctx, class, 
+                  cv_info->info.string_info.string_index);
 
-            }
+              class->static_fields[offset] = str_idx;
+            } 
+
+          default:
             break;
         }
       }
@@ -131,32 +140,32 @@ static void alloc_static_fields(LoadedClass* class)
   }
 
   class->static_fields = (u4*)calloc(class->static_fields_size, sizeof(u4));
-  init_static_fields(class);
 }
+
 
 void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
 {
-  if (loaded->is_initialized == true) return;
+  if (loaded == NULL || loaded->is_initialized == true) return;
 
-  // Inicializando classe atual e superclasses
-  LoadedClass* curr = loaded;
-  do {
-    alloc_static_fields(curr); // inicializa campos estáticos
+  // empilha clinit, para ser executado depois da superclasse (se houver)
+  method_info* clinit = find_method(loaded->cf, "<clinit>", "()V");
+  if (clinit != NULL)
+  {
+    RuntimeMethod rclinit;
+    init_RuntimeMethod(loaded, clinit, &rclinit);
+    Frame* clinit_frame = new_frame(&rclinit);
+    push_frame(&ctx->t, clinit_frame);
+  }
 
-    // Empilhando <clinit> se houver
-    method_info* clinit = find_method(curr->cf, "<clinit>", "()V");
-    if (clinit != NULL)
-    {
-      RuntimeMethod rclinit;
-      init_RuntimeMethod(curr, 
-          clinit, &rclinit);
-      Frame* clinit_frame = new_frame(&rclinit);
-      push_frame(&ctx->t, clinit_frame);
-    }
+  // marca como inicializado para evitar loop
+  loaded->is_initialized = true; 
 
-    curr->is_initialized = true; // <clinit> em progresso ou encerrado
-    curr = curr->super;  // Para inicializar a superclasse 
-  } while (curr != NULL);
+  if (loaded->super != NULL) {
+    initialize_class(ctx, loaded->super);
+  }
+
+  alloc_static_fields(loaded); 
+  init_static_fields(ctx, loaded); 
 }
 
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 
