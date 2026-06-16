@@ -118,6 +118,7 @@ typedef struct {
 struct LoadedClass {
   ClassFile* cf;        /*> ClassFile parseado */
   u4* static_fields;    /*> Campos estáticos (fields com ACC_STATIC) */
+  u4 static_fields_size; /*> Número de slots*/
   bool is_initialized;  /*> Indica se classe foi inicializada 
                           (campos estáticos inicializados )*/
   Resolved_cp_info* cp;

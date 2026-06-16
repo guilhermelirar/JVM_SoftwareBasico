@@ -127,22 +127,8 @@ void handle_ldc(JVM_Context* ctx, u1 opc)
 
     case CONSTANT_String: 
     {
-      const char* str = cp_get_utf8(constant_pool(frame), 
-          entry->info.string_info.string_index);
-      
-      // ver se está na tabela de strings do ctx ou inserir
-      for (u4 i = 0; i < ctx->strings.count; i++)
-      {
-        if (str == ctx->strings.strings[i])
-        {
-          push_operand(frame, i);
-          return;
-        }
-      }
-      
-      ctx->strings.strings[ctx->strings.count] = (char*)str;
-      push_operand(frame, ctx->strings.count);
-      ctx->strings.count++;
+      int str_idx = load_string(ctx, frame->method.holder_class, cp_idx);
+      push_operand(frame, str_idx);
       break;
     }
     default:
