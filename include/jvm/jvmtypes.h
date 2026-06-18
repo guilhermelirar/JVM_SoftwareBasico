@@ -121,6 +121,7 @@ struct LoadedClass {
   u4 static_fields_size; /*> Número de slots*/
   bool is_initialized;  /*> Indica se classe foi inicializada 
                           (campos estáticos inicializados )*/
+  u4 instance_size;     /*> Número de slots de fields de instância */
   Resolved_cp_info* cp;
   LoadedClass* super;   /*> Ponteiro para superclasse na área de métodos */
 };

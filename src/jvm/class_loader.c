@@ -118,30 +118,36 @@ static void init_static_fields(JVM_Context* ctx, LoadedClass* class)
   }
 }
 
-static void alloc_static_fields(LoadedClass* class)
+// inicializa static_fields_size e instance_size
+// isto é, número de slots de 32 bits para representar
+// campos estáticos e de instância
+static void resolve_fields_size(LoadedClass* class)
 {
   class->static_fields_size = 0;
+  class->instance_size = 0;
 
   for (int i = 0; i < class->cf->fields_count; i++)
   {
+    u1 field_size;
     field_info* f = &class->cf->fields[i];
 
-    if (f->access_flags & ACC_STATIC)
-    {
-      const char* descriptor = cp_get_utf8(class->cf->constant_pool, 
-          f->descriptor_index);
+    const char* descriptor = cp_get_utf8(class->cf->constant_pool, 
+        f->descriptor_index);
       
-      // ocupam dois slots
-      if (descriptor[0] == 'J' || descriptor[0] == 'D')
-        class->static_fields_size++;
+    // double e long ocupam dois slots
+    field_size = (descriptor[0] == 'J' || descriptor[0] == 'D') ? 2 : 1;
 
-      class->static_fields_size++;
-    }
+    if (f->access_flags & ACC_STATIC)
+      class->static_fields_size += field_size;
+    else
+      class->instance_size += field_size;
   }
+
+  if (class->super != NULL)
+    class->instance_size += class->super->instance_size;
 
   class->static_fields = (u4*)calloc(class->static_fields_size, sizeof(u4));
 }
-
 
 void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
 {
@@ -159,12 +165,13 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
 
   // marca como inicializado para evitar loop
   loaded->is_initialized = true; 
-
   if (loaded->super != NULL) {
     initialize_class(ctx, loaded->super);
   }
 
-  alloc_static_fields(loaded); 
+  // descorbrir tamanho de static fields e instance fields 
+  // em termos de slots de 32 bits
+  resolve_fields_size(loaded); 
   init_static_fields(ctx, loaded); 
 }
 
