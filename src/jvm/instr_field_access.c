@@ -40,18 +40,6 @@ void handle_getstatic(JVM_Context *ctx, u1 opc)
     return;
   }
 
-  if (frame->method.holder_class != clazz)
-  {
-    if ((field->access_flags & ACC_PRIVATE) || 
-        ((field->access_flags & ACC_PROTECTED) && 
-         !extends(frame->method.holder_class, clazz)))
-    {
-      fprintf(stderr, "IllegalAccessException"); // TODO throw (?)
-      terminateJVM(ctx);
-      exit(1);
-    }
-  }
-
   // PC Rewind
   if (!clazz->is_initialized)
   {
@@ -86,18 +74,6 @@ void handle_putstatic(JVM_Context* ctx, u1 opc)
 
   LoadedClass* clazz = resolve_class(ctx, class_index);
   RuntimeField* field = resolve_field(ctx, cp_idx);
-
-  if (frame->method.holder_class != clazz)
-  {
-    if ((field->access_flags & ACC_PRIVATE) || 
-        ((field->access_flags & ACC_PROTECTED) && 
-         !extends(frame->method.holder_class, clazz)))
-    {
-      fprintf(stderr, "IllegalAccessException"); // TODO throw (?)
-      terminateJVM(ctx);
-      exit(1);
-    }
-  }
 
   // PC Rewind
   if (!clazz->is_initialized)
