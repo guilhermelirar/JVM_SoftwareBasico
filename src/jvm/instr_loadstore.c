@@ -89,11 +89,10 @@ void handle_load(JVM_Context* ctx, u1 opc) {
     idx = pop_operand(frame);
     u4 arrayref = pop_operand(frame);
 
-    JVM_Array* array;
-    void* array_v = ctx->objects.entries[arrayref];
+    Object array_obj = ctx->objects.entries[arrayref];
     // TODO null check
 
-    array = (JVM_Array*)array_v;
+    Array* array = &array_obj.content.arr;
     // TODO index on range check
 
     // TODO checagem de tipo

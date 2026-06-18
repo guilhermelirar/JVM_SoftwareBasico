@@ -84,12 +84,13 @@ typedef struct {
 } JVM_Thread;
 
 /**
- * @brief representação de um Objeto nesta JVM 
+ * @brief distingue instancia de classse 
+ * de objeto array
  */
-typedef struct {
-  u2 class_index; /**< Índice para classe desta instância */
-  u4 *fields;     /**< Conteúdo dos campos da instância */
-} Object;
+typedef enum {
+    OBJ_INSTANCE,
+    OBJ_ARRAY
+} ObjectType;
 
 /**
  * @brief Representação de um array de tipos primitivos.
@@ -99,14 +100,25 @@ typedef struct {
   u1 dimensions; /**< Dimensões do array */
   u4 length; /**< Quantidade de elementos no array. */
   u4 *data;   /**< Ponteiro para os dados brutos */
-} JVM_Array;
+} Array;
+
+/**
+ * @brief representação de um Objeto nesta JVM 
+ */
+typedef struct {
+  ObjectType type;
+  LoadedClass* clazz; /**< Classe desta instância */
+  union {
+    Array arr;
+    u4 *fields;     /**< Conteúdo dos campos da instância */
+  } content;
+} Object;
 
 /**
  * @brief Estrutura onde instâncias são armazenadas nesta JVM
  */
 typedef struct {
-  void* entries[JVM_HEAP_CAPACITY]; /**< Array de referências para 
-                                      os objetos ou array */
+  Object entries[JVM_HEAP_CAPACITY]; /**< Array de objetos */
   u4 count;  /**< Número de itens armazenados */
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } ObjectTable;
