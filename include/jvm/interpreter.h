@@ -220,4 +220,10 @@ void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
  */    
 void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
 
+/**
+ * @brief Função que implementa new (instanciação de objetos)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode
+ */    
+void handle_new(JVM_Context* ctx, u1 opc); // 187
 #endif
