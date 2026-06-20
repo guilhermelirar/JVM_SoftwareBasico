@@ -196,24 +196,6 @@ int count_args_size(const char* descriptor)
   return count;
 }
 
-void terminateJVM(JVM_Context *ctx)
-{
-  while (ctx->t.frame_ptr >= 0) 
-  {
-    free_frame(ctx->t.frames[ctx->t.frame_ptr]);
-    ctx->t.frame_ptr--;
-  }
-
-  while (ctx->classes_count--)
-  {
-    free_classfile(ctx->method_area[ctx->classes_count].cf);
-    free(ctx->method_area[ctx->classes_count].static_fields);
-    free(ctx->method_area[ctx->classes_count].cp);  // constant pool resolvida
-  }
-
-  free(ctx);
-}
-
 void free_frame(Frame *f)
 {
   if (f == NULL) return;
@@ -504,16 +486,49 @@ u4 load_string(JVM_Context* ctx, LoadedClass* clazz, u4 cp_idx)
   const char* str = cp_get_utf8(clazz->cf->constant_pool, 
           entry->info.string_info.string_index);
       
-      // ver se está na tabela de strings do ctx ou inserir
-      for (u4 i = 0; i < ctx->strings.count; i++)
-      {
-        if (str == ctx->strings.strings[i])
-        {
-          return i;
-        }
-      }
-      
-      ctx->strings.strings[ctx->strings.count] = (char*)str;
-      ctx->strings.count++;
-      return ctx->strings.count - 1;
+  // ver se está na tabela de strings do ctx ou inserir
+  for (u4 i = 0; i < ctx->strings.count; i++)
+  {
+    if (str == ctx->strings.strings[i])
+    {
+      return i;
+    }
+  }
+  
+  ctx->strings.strings[ctx->strings.count] = (char*)str;
+  ctx->strings.count++;
+  return ctx->strings.count - 1;
+}
+
+
+void terminateJVM(JVM_Context *ctx)
+{
+  while (ctx->t.frame_ptr >= 0) 
+  {
+    free_frame(ctx->t.frames[ctx->t.frame_ptr]);
+    ctx->t.frame_ptr--;
+  }
+
+  while (ctx->classes_count--)
+  {
+    free_classfile(ctx->method_area[ctx->classes_count].cf);
+    free(ctx->method_area[ctx->classes_count].static_fields);
+    free(ctx->method_area[ctx->classes_count].cp);  // constant pool resolvida
+  }
+
+  // limpa tabela de objetos
+  for (u4 i = 0; i < ctx->objects.count; i++)
+  {
+    switch (ctx->objects.entries[i].type)
+    {
+      case (OBJ_INSTANCE):
+        free(ctx->objects.entries[i].content.fields);
+        break;
+      case (OBJ_ARRAY):
+        free(ctx->objects.entries[i].content.arr.data);
+        break;
+    }
+  }
+
+  free(ctx);
 }

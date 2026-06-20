@@ -9,8 +9,8 @@ static u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
 {
   if (ctx->objects.count == ctx->objects.capacity)
     return 0; // NULL
-
   u4 idx = ctx->objects.count++;
+  ctx->objects.entries[idx].type = OBJ_INSTANCE;
   ctx->objects.entries[idx].clazz = clazz; 
   ctx->objects.entries[idx].content.fields = 
     (u4*)calloc(clazz->instance_size, sizeof(u4));
