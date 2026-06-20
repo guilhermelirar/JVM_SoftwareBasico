@@ -231,7 +231,8 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
   {
     case opc_iinc:
     {
-      bool widened = (*(f->pc - 2)) == opc_wide;
+      bool widened = (f->pc - 1 != f->method.code_attr->code) && 
+          (*(f->pc - 2)) == opc_wide;
       
       u2 idx = widened ? fetch_u2(&f->pc) : *f->pc++;
       int16_t constant = widened ?

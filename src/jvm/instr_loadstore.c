@@ -7,7 +7,8 @@
 void handle_store(JVM_Context *ctx, u1 opc)
 {
   Frame *f = current_frame(ctx);
-  bool widened = (*(f->pc - 2)) == opc_wide;
+  bool widened = (f->pc - 1 != f->method.code_attr->code) && 
+    (*(f->pc - 2)) == opc_wide;
 
   // Carrega o índice
   u2 idx = 0;
@@ -50,7 +51,9 @@ void handle_load(JVM_Context* ctx, u1 opc) {
   Frame* frame = current_frame(ctx);
 
   u2 idx = 0;  // índice para a variável local
-  bool widened = (*(frame->pc - 2)) == opc_wide;
+  bool widened = (frame->pc - 1 != frame->method.code_attr->code) && 
+    (*(frame->pc - 2)) == opc_wide;
+
   // Opcodes com operandos
   if (IN_RANGE(opc, opc_iload, opc_aload))
   {
