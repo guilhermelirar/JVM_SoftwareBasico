@@ -181,7 +181,7 @@
 [opc_getfield] = handle_nop,
 [opc_putfield] = handle_nop,
 [opc_invokevirtual] = handle_invokevirtual,
-[opc_invokespecial] = handle_nop,
+[opc_invokespecial] = handle_invokespecial,
 [opc_invokestatic] = handle_invokestatic,
 [opc_invokeinterface] = handle_nop,
 [opc_invokedynamic] = handle_nop,

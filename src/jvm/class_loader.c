@@ -177,19 +177,34 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
 
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 
 {
+  // Caso especial: java/lang/Object
+  if (strcmp("java/lang/Object", name) == 0)
+  {
+    LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
+    loaded->name = name;
+    loaded->cf = NULL;
+    loaded->super = NULL;
+    loaded->static_fields = NULL;
+    loaded->cp = NULL;
+    loaded->is_initialized = true; 
+    loaded->instance_size = 0; 
+    return loaded; 
+  }
+
+  ClassFile* cf = NULL;
+  LoadedClass* super_loaded = NULL;
+
   char path[512];
   snprintf(path, sizeof(path), "%s%s.class", ctx->base_dir, name);
-  ClassFile* cf = ClassFile_from_path(path);
+  cf = ClassFile_from_path(path);
 
-  // Se há superclasse carregável por esta implementação da JVM
-  LoadedClass* super_loaded = NULL;
   const char* super_name = get_superclass_name(cf);
-  if (super_name != NULL && strcmp(super_name, "java/lang/Object") != 0)
-  {
-    super_loaded = load_class(ctx, get_superclass_name(cf)); 
+  if (super_name != NULL) {
+    super_loaded = get_class(ctx, super_name); 
   }
 
   LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
+  loaded->name = name;
   loaded->cf = cf;
   loaded->static_fields = NULL;
   loaded->cp = (Resolved_cp_info*)calloc(cf->constant_pool_count, 

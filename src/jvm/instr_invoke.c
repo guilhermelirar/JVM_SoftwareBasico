@@ -77,7 +77,10 @@ void handle_invokespecial(JVM_Context *ctx, u1 opc)
   Frame* frame = current_frame(ctx);
 
   u2 cp_idx = fetch_u2(&frame->pc);
+
   RuntimeMethod* resolved_m = resolve_method(ctx, cp_idx);
+  if (strcmp(resolved_m->holder_class->name, "java/lang/Object") == 0)
+    return;
 
   bool ACC_SUPER_set = frame->method.holder_class->
     cf->access_flags & ACC_SUPER;

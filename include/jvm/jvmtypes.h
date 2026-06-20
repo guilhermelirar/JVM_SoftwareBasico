@@ -129,6 +129,7 @@ typedef struct {
  * e seus campos estáticos
  */
 struct LoadedClass {
+  const char* name;     /*> Nome da classe para fácil acesso */
   ClassFile* cf;        /*> ClassFile parseado */
   u4* static_fields;    /*> Campos estáticos (fields com ACC_STATIC) */
   u4 static_fields_size; /*> Número de slots*/

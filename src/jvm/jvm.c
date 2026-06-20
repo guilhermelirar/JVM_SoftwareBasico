@@ -100,8 +100,7 @@ LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name)
     class = &ctx->method_area[i];
 
     // achou classe
-    if (strcmp(name, cp_class_name(class->cf->constant_pool, 
-            class->cf->this_class)) == 0)
+    if (strcmp(name, class->name) == 0)
     {
       return class;
     }
@@ -430,13 +429,20 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   // Já resolvido
   if (res->tag == CP_RESOLVED_METHOD)
     return &res->info.method; 
-
+  
   // Não resolvido
   cp_info* cp = constant_pool(frame);
 
   LoadedClass* clazz = resolve_class(ctx, 
       cp[cp_idx].info.methodref_info.class_index);
 
+  if (strcmp(clazz->name, "java/lang/Object") == 0)
+  {
+    res->info.method.holder_class = clazz;
+    res->tag = CP_RESOLVED_METHOD;
+    return &res->info.method;
+  }
+  
   cp_info* nt_info = &cp[cp[cp_idx].info.\
                      methodref_info.name_and_type_index];
   
