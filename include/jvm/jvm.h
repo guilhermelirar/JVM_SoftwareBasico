@@ -310,4 +310,13 @@ LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx);
  * @return u4 índice na StringTable para a string carregada 
  */
 u4 load_string(JVM_Context *ctx, LoadedClass* clazz, u4 cp_idx);
+
+
+// TODO
+bool extends(LoadedClass* class_a, LoadedClass* class_b);
+
+
+// TODO
+void invoke_method(JVM_Context* ctx, RuntimeMethod* target_method); 
+
 #endif

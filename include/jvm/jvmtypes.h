@@ -24,6 +24,7 @@ typedef struct {
   LoadedClass* holder_class;
   const char* name;
   const char* descriptor;
+  u4 args_size;
 
   // Ponteiros para estruturas da ClassFile
   method_info* info;

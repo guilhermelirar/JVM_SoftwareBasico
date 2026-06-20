@@ -40,6 +40,7 @@ void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info,
   runtime_m->code_attr = find_code_attr(cp, m_info);
   runtime_m->name = cp_get_utf8(cp, m_info->name_index);
   runtime_m->descriptor = cp_get_utf8(cp, m_info->descriptor_index);
+  runtime_m->args_size = count_args_size(runtime_m->descriptor);
 }
 
 method_info* find_method(ClassFile *cf, const char* name, 
@@ -329,7 +330,7 @@ static field_info* field_by_name_and_type(ClassFile* cf,
   return NULL;
 }
 
-static bool extends(LoadedClass* class_a, LoadedClass* class_b)
+bool extends(LoadedClass* class_a, LoadedClass* class_b)
 {
   do {
     if (class_a == class_b) return true;
@@ -436,7 +437,8 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   LoadedClass* clazz = resolve_class(ctx, 
       cp[cp_idx].info.methodref_info.class_index);
 
-  cp_info* nt_info = &cp[cp[cp_idx].info.methodref_info.name_and_type_index];
+  cp_info* nt_info = &cp[cp[cp_idx].info.\
+                     methodref_info.name_and_type_index];
   
   const char* name = cp_get_utf8(
       cp, 
