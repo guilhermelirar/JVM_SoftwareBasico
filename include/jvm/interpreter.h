@@ -214,6 +214,14 @@ void handle_putstatic(JVM_Context* ctx, u1 opc); // 179
 void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
 
 /**
+ * @brief Função que implementa instrução invokespecial, 
+ * que lida com invocalçao de métodos de instância, 
+ * lidando com superclasses, métodos privados e métodos 
+ * de inicialização de instância
+ */
+void handle_invokespecial(JVM_Context* ctx, u1 opc); // 182
+
+/**
  * @brief Função que implementa invokestatic (184)
  * @param ctx contexto de execução da JVM
  * @param opc opcode

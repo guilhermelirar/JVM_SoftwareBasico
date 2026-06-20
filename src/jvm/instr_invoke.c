@@ -1,5 +1,4 @@
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include "jvm/interpreter.h"
@@ -8,6 +7,20 @@
 #include "jvm/utils.h"
 #include "common/classfile.h"
 #include "common/bytecode.h" // IWYU pragma: keep
+
+void invoke_method(JVM_Context *ctx, RuntimeMethod *target_method)
+{
+  Frame* frame = current_frame(ctx);
+  Frame* next_frame = new_frame(target_method);
+    
+  int total_params = target_method->args_size; 
+    
+  for (int i = total_params - 1; i >= 0; i--) {
+    next_frame->locals[i] = pop_operand(frame);
+  }
+    
+  push_frame(&ctx->t, next_frame);
+}
 
 void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   (void)opc;
@@ -55,11 +68,28 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
     return;
   }
 
-  int args = count_args_size(method->descriptor);
-  push_frame(&ctx->t, new_frame(method));
-  Frame* new_f = current_frame(ctx);
-
-  for (int i = args-1; i >= 0; i--) {
-    new_f->locals[i] = pop_operand(frame);
-  }
+  invoke_method(ctx, method);
 }
+
+void handle_invokespecial(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+
+  u2 cp_idx = fetch_u2(&frame->pc);
+  RuntimeMethod* resolved_m = resolve_method(ctx, cp_idx);
+
+  bool ACC_SUPER_set = frame->method.holder_class->
+    cf->access_flags & ACC_SUPER;
+  
+  bool current_extends_holder = extends(frame->method.holder_class, 
+      resolved_m->holder_class);
+
+  bool not_init = strcmp("<init>", resolved_m->name);
+  
+  if (!(ACC_SUPER_set && current_extends_holder && not_init))
+    return invoke_method(ctx, resolved_m);
+  
+  // TODO caso especial
+}
+

@@ -1,23 +1,10 @@
 #include <stdbool.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include <strings.h>
 #include "common/classfile.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
 #include "jvm/interpreter.h"
 
-
-static bool extends(LoadedClass* class_a, LoadedClass* class_b)
-{
-  do {
-    if (class_a == class_b) return true;
-    class_a = class_a->super;
-  } while (class_a != NULL);
-  
-  return false;
-}
 
 // 178
 void handle_getstatic(JVM_Context *ctx, u1 opc)
