@@ -179,7 +179,7 @@
 [opc_getstatic] = handle_getstatic,
 [opc_putstatic] = handle_putstatic,
 [opc_getfield] = handle_nop,
-[opc_putfield] = handle_nop,
+[opc_putfield] = handle_putfield,
 [opc_invokevirtual] = handle_invokevirtual,
 [opc_invokespecial] = handle_invokespecial,
 [opc_invokestatic] = handle_invokestatic,

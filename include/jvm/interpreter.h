@@ -213,6 +213,14 @@ void handle_putstatic(JVM_Context* ctx, u1 opc); // 179
  */    
 void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
 
+
+/**
+ * @brief Função que implementa opcode putfield para 
+ * mudança de campos de isntância
+ * @param ctx contexto de execução jvm 
+ * @param opc opcode (181) */
+void handle_putfield(JVM_Context* ctx, u1 opc);
+
 /**
  * @brief Função que implementa instrução invokespecial, 
  * que lida com invocalçao de métodos de instância, 
