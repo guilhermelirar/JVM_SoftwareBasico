@@ -175,6 +175,7 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
   init_static_fields(ctx, loaded); 
 }
 
+
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 
 {
   // Caso especial: java/lang/Object

@@ -285,8 +285,11 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx);
  * classe em execução do frame atual 
  * @param ctx Contexto JVM 
  * @param cp_index índice válido para um CONSTANT_Fieldref
- * na constant_pool da classe atual */
-RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx);
+ * na constant_pool da classe atual 
+ * @param is_static deve ser true se field esperado é estático, e falso 
+ * caso contrário, para cálculo correto do índice
+ */
+RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx, bool is_static);
 
 /*
  * @brief retorna ponteiro para estrutura LoadedClass resolvida 

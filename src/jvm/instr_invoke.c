@@ -24,10 +24,10 @@ void invoke_method(JVM_Context *ctx, RuntimeMethod *target_method)
 
 void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   (void)opc;
-  Frame* frame = ctx->t.frames[ctx->t.frame_ptr];
+  Frame* frame = current_frame(ctx);
   cp_info* cp = constant_pool(frame);
   u2 cp_idx = fetch_u2(&frame->pc);
-  cp_info* entry = &constant_pool(frame)[cp_idx];
+  cp_info* entry = &cp[cp_idx];
 
   // classe do método
   u2 class_idx = entry->info.methodref_info.class_index;
@@ -53,7 +53,6 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
     handle_sysout(frame, ctx, descriptor[1], method_name);
   }
 }
-
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
 {
   (void)opc;

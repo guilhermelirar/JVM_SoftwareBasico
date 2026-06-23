@@ -41,6 +41,9 @@ void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info,
   runtime_m->name = cp_get_utf8(cp, m_info->name_index);
   runtime_m->descriptor = cp_get_utf8(cp, m_info->descriptor_index);
   runtime_m->args_size = count_args_size(runtime_m->descriptor);
+
+  if (!(m_info->access_flags & ACC_STATIC))
+    runtime_m->args_size++; // THIS
 }
 
 method_info* find_method(ClassFile *cf, const char* name, 
@@ -132,7 +135,7 @@ JVM_Context* jvm_init()
   if (ctx == NULL) return NULL;
 
   ctx->objects.capacity = JVM_HEAP_CAPACITY;
-  ctx->objects.count = 0;
+  ctx->objects.count = 1;
 
   ctx->classes_count = 0;
   ctx->strings.count = 0;
@@ -289,13 +292,16 @@ err_main_not_found:
 
 
 static field_info* field_by_name_and_type(ClassFile* cf, 
-    const char* name, const char* descriptor, u2* offset)
+    const char* name, const char* descriptor, u2* offset, bool is_static)
 {
   field_info* f;
   *offset = 0;
   for (int i = 0; i < cf->fields_count; i++)
   {
     f = &cf->fields[i];
+
+    if (is_static != ((f->access_flags & ACC_STATIC) != 0)) continue;  
+
     const char* f_dsc = cp_get_utf8(cf->constant_pool, f->descriptor_index);
     if (strcmp(name, cp_get_utf8(cf->constant_pool, f->name_index)) == 0 &&
         strcmp(descriptor, f_dsc) == 0)
@@ -321,7 +327,7 @@ bool extends(LoadedClass* class_a, LoadedClass* class_b)
   return false;
 }
 
-RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
+RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx, bool is_static)
 {
   Frame* frame = current_frame(ctx);
   cp_info* cp = constant_pool(frame);
@@ -356,7 +362,9 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
   field_info* f;  
   u2 field_idx;
   do {
-    f = field_by_name_and_type(clazz->cf, name, descriptor, &field_idx);
+    f = field_by_name_and_type(clazz->cf, name, descriptor, &field_idx, 
+        is_static);
+    
     if (f != NULL) 
     {
       res->tag = CP_RESOLVED_FIELD;
@@ -366,7 +374,15 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx)
       res->info.field.access_flags = f->access_flags;
       res->info.field.attributes = f->attributes;
       res->info.field.attributes_count = f->attributes_count;
-      res->info.field.index = field_idx;
+      
+      // se field é estático, offset é o índice,
+      // caso contrário, deve-se somar ao tamanho da 
+      // instância da superclasse
+      if (f->access_flags & ACC_STATIC || clazz->super == NULL)
+        res->info.field.index = field_idx;
+      else
+        res->info.field.index = field_idx + clazz->super->instance_size;
+
       return &res->info.field;
     }
     clazz = clazz->super;

@@ -32,7 +32,7 @@ void handle_new(JVM_Context *ctx, u1 opc)
       clazz->cf->access_flags & ACC_INTERFACE)
   {
     // TODO exceção 
-    fprintf(stderr, "Illegal instanatiation");
+    fprintf(stderr, "Illegal instantiation");
     terminateJVM(ctx);
     exit(1);
   }
