@@ -14,8 +14,11 @@ void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor,
 
   switch (descriptor) {
     case 'L':
-        printf("%s%s", ctx->strings.strings[pop_operand(frame)], end);
+    {
+      u4 str_ref = pop_operand(frame);
+      printf("%s%s", str_ref ? ctx->strings.strings[str_ref] : "null", end);
       break;
+    }
       
     case 'S':
     case 'B':

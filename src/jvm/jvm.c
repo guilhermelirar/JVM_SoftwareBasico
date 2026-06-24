@@ -135,10 +135,10 @@ JVM_Context* jvm_init()
   if (ctx == NULL) return NULL;
 
   ctx->objects.capacity = JVM_HEAP_CAPACITY;
-  ctx->objects.count = 1;
+  ctx->objects.count = 1; // 0 = null
 
   ctx->classes_count = 0;
-  ctx->strings.count = 0;
+  ctx->strings.count = 1; // 0 = null
   ctx->strings.capacity = JVM_STRING_TABLE_SIZE;
 
   ctx->t.frame_ptr = -1;
