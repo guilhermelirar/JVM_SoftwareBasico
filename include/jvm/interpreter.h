@@ -207,12 +207,11 @@ void handle_getstatic(JVM_Context* ctx, u1 opc); // 178
 void handle_putstatic(JVM_Context* ctx, u1 opc); // 179
 
 /**
- * @brief Função que implementa invokevirtual (182)
- * @param ctx contexto de execução da JVM
- * @param opc opcode
- */    
-void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
-
+ * @brief Função que implementa opcode get para 
+ * acessar variáveis de instância
+ * @param ctx contexto de execução jvm 
+ * @param opc opcode (180) */
+void handle_getfield(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcode putfield para 
@@ -222,12 +221,19 @@ void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
 void handle_putfield(JVM_Context* ctx, u1 opc);
 
 /**
+ * @brief Função que implementa invokevirtual (182)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode
+ */    
+void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
+
+/**
  * @brief Função que implementa instrução invokespecial, 
  * que lida com invocalçao de métodos de instância, 
  * lidando com superclasses, métodos privados e métodos 
  * de inicialização de instância
  */
-void handle_invokespecial(JVM_Context* ctx, u1 opc); // 182
+void handle_invokespecial(JVM_Context* ctx, u1 opc); //183
 
 /**
  * @brief Função que implementa invokestatic (184)
