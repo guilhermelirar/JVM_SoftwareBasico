@@ -1,4 +1,5 @@
 #include <stdint.h>
+#include <stdio.h>
 #include <string.h>
 #include <strings.h>
 #include "jvm/interpreter.h"
@@ -51,8 +52,13 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
      || strcmp(method_name, "print") == 0))
   {
     handle_sysout(frame, ctx, descriptor[1], method_name);
+    return;
   }
+
+  RuntimeMethod* method = resolve_method(ctx, cp_idx);
+  invoke_method(ctx, method);
 }
+
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
 {
   (void)opc;

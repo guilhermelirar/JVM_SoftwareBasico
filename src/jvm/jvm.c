@@ -131,7 +131,7 @@ Frame* new_frame(RuntimeMethod* method)
 
 JVM_Context* jvm_init()
 {
-  JVM_Context* ctx = (JVM_Context*)malloc(sizeof(JVM_Context));
+  JVM_Context* ctx = (JVM_Context*)calloc(1, sizeof(JVM_Context));
   if (ctx == NULL) return NULL;
 
   ctx->objects.capacity = JVM_HEAP_CAPACITY;
@@ -519,6 +519,8 @@ u4 load_string(JVM_Context* ctx, LoadedClass* clazz, u4 cp_idx)
 
 void terminateJVM(JVM_Context *ctx)
 {
+  if (ctx == NULL) return;
+
   while (ctx->t.frame_ptr >= 0) 
   {
     free_frame(ctx->t.frames[ctx->t.frame_ptr]);
@@ -542,6 +544,8 @@ void terminateJVM(JVM_Context *ctx)
         break;
       case (OBJ_ARRAY):
         free(ctx->objects.entries[i].content.arr.data);
+        break;
+      default:
         break;
     }
   }
