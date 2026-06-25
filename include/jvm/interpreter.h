@@ -106,6 +106,14 @@ void handle_load(JVM_Context* ctx, u1 opc);
 void handle_store(JVM_Context* ctx, u1 opc);
 
 /**
+ * @brief Função que implementa opcodes astore (arrays)
+ * @param ctx contexto de execução Java
+ * @param opc opcode
+ */
+void handle_astore(JVM_Context* ctx, u1 opc);
+
+
+/**
  * @brief Função que implementa opcode de tableswitch 
  * @param ctx contexto de execução Java
  * @param opc opcode
