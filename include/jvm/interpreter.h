@@ -267,5 +267,12 @@ void handle_new(JVM_Context* ctx, u1 opc); // 187
  * @param opc opcode (188) */    
 void handle_newarray(JVM_Context* ctx, u1 opc); // 188
 
+/**
+ * @brief Função que implementa arraylength  
+ * (tamanho da array retornado na pilha como inteiro)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (190, 0xBE) */    
+void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
+
 #endif
 

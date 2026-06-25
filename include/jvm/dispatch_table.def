@@ -188,7 +188,7 @@
 [opc_new] = handle_new,
 [opc_newarray] = handle_newarray,
 [opc_anewarray] = handle_nop,
-[opc_arraylength] = handle_nop,
+[opc_arraylength] = handle_arraylength,
 [opc_athrow] = handle_nop,
 [opc_checkcast] = handle_nop,
 [opc_instanceof] = handle_nop,

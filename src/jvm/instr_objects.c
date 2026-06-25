@@ -95,3 +95,21 @@ void handle_newarray(JVM_Context *ctx, u1 opc)
 
   push_operand(frame, arrayref);
 }
+
+
+void handle_arraylength(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+  u4 arrayref = pop_operand(frame);
+
+  if (arrayref == 0 || ctx->objects.entries[arrayref].type != OBJ_ARRAY)
+  {
+    // TODO throw
+    fprintf(stderr, "NullPointerException");
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  push_operand(frame, ctx->objects.entries[arrayref].content.arr.length);
+}
