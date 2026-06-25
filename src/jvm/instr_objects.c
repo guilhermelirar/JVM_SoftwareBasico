@@ -2,6 +2,7 @@
 #include "jvm/jvmtypes.h"
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
+#include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -50,3 +51,47 @@ void handle_new(JVM_Context *ctx, u1 opc)
   push_operand(frame, objectref);
 }
 
+void handle_newarray(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+  u1 type = *(frame->pc++);
+ 
+  // obtém número de elementos e inicializa número de slots
+  int32_t count = (int32_t)pop_operand(frame);
+  if (count < 0)
+  {
+    fprintf(stderr, "NegativeArraySizeException"); // TODO
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  int32_t arr_size = count;
+
+  u4 arrayref = ctx->objects.count++;
+  if (arrayref == JVM_HEAP_CAPACITY)
+  {
+    fprintf(stderr, "Out of memory\n");
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  // inicializando objeto
+  Object* arr_obj = &ctx->objects.entries[arrayref];
+  Array* array = &arr_obj->content.arr;
+  arr_obj->type = OBJ_ARRAY;
+  arr_obj->clazz = NULL;
+  array->type = type;
+  array->length = count;
+  array->dimensions = 1;
+
+  // Número de slots 
+  if (type == T_LONG || type == T_DOUBLE)
+  {
+    arr_size *= 2;
+  }
+  
+  array->data = (u4*)(calloc(arr_size, sizeof(u4)));
+
+  push_operand(frame, arrayref);
+}

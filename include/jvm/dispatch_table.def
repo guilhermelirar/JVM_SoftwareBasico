@@ -186,7 +186,7 @@
 [opc_invokeinterface] = handle_nop,
 [opc_invokedynamic] = handle_nop,
 [opc_new] = handle_new,
-[opc_newarray] = handle_nop,
+[opc_newarray] = handle_newarray,
 [opc_anewarray] = handle_nop,
 [opc_arraylength] = handle_nop,
 [opc_athrow] = handle_nop,

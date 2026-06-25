@@ -1,6 +1,17 @@
 #ifndef INTERPRETER
 #define INTERPRETER
 
+
+#define T_BOOLEAN 4 
+#define T_BOOLEAN	4
+#define T_CHAR	5
+#define T_FLOAT	6
+#define T_DOUBLE	7
+#define T_BYTE	8
+#define T_SHORT	9
+#define T_INT	10
+#define T_LONG	11
+
 #include "jvmtypes.h"
 
 #define JVM_HANDLE_SYSOUT 0x01
@@ -248,4 +259,13 @@ void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
  * @param opc opcode
  */    
 void handle_new(JVM_Context* ctx, u1 opc); // 187
+
+/**
+ * @brief Função que implementa newarray 
+ * (instanciação de arrays de tipos primitivos)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (188) */    
+void handle_newarray(JVM_Context* ctx, u1 opc); // 188
+
 #endif
+
