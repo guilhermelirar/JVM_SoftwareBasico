@@ -37,6 +37,13 @@ void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor,
     case 'F':
       printf("%f%s", u4_to_float(pop_operand(frame)), end);
       break;
+
+    case 'C': 
+      printf("%c%s", (char)pop_operand(frame), end);
+      break;
+
+    default:
+      printf("%s", end);
   } 
 
   pop_operand(frame); // consumindo object_ref
