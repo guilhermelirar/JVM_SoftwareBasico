@@ -96,10 +96,10 @@ void handle_load(JVM_Context* ctx, u1 opc) {
     idx = pop_operand(frame);
     u4 arrayref = pop_operand(frame);
 
-    Object array_obj = ctx->objects.entries[arrayref];
+    Object* array_obj = &ctx->objects.entries[arrayref];
     // TODO null check
 
-    Array* array = &array_obj.content.arr;
+    Array* array = &array_obj->content.arr;
     // TODO index on range check
 
     // TODO checagem de tipo
@@ -143,6 +143,7 @@ void handle_tastore(JVM_Context *ctx, u1 opc)
     case opc_bastore:
     case opc_aastore:
     case opc_sastore:
+    case opc_castore:
     {
       u4 val = pop_operand(frame);
       int32_t index = (int32_t)pop_operand(frame);
