@@ -106,11 +106,11 @@ void handle_load(JVM_Context* ctx, u1 opc);
 void handle_store(JVM_Context* ctx, u1 opc);
 
 /**
- * @brief Função que implementa opcodes astore (arrays)
+ * @brief Função que implementa opcodes <t>astore (arrays)
  * @param ctx contexto de execução Java
  * @param opc opcode
  */
-void handle_astore(JVM_Context* ctx, u1 opc);
+void handle_tastore(JVM_Context* ctx, u1 opc);
 
 
 /**

@@ -2,6 +2,8 @@
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "common/bytecode.h"
+#include <stdint.h>
+#include <stdio.h>
 
 // 54-86
 void handle_store(JVM_Context *ctx, u1 opc)
@@ -131,12 +133,61 @@ void handle_load(JVM_Context* ctx, u1 opc) {
   }
 }
 
-void handle_astore(JVM_Context *ctx, u1 opc)
+void handle_tastore(JVM_Context *ctx, u1 opc)
 {
   Frame* frame = current_frame(ctx);
   switch (opc)
   {
-    
+    case opc_iastore:
+    case opc_fastore:
+    case opc_bastore:
+    case opc_aastore:
+    case opc_sastore:
+    {
+      u4 val = pop_operand(frame);
+      int32_t index = (int32_t)pop_operand(frame);
+      u4 arrayref = pop_operand(frame);
+
+      if (!arrayref)
+        goto nullptr_exc;
+      
+      Array* arr = &ctx->objects.entries[arrayref].content.arr;
+      if (!IN_RANGE(index, 0, (int32_t)arr->length - 1))
+        goto idx_oob;
+
+      arr->data[index] = val;
+      return;
+    }
+
+    case opc_dastore:
+    case opc_lastore:
+    {
+      u8 val = pop_operand2(frame);
+      int32_t index = (int32_t)pop_operand(frame);
+      u4 arrayref = pop_operand(frame);
+      
+      if (!arrayref)
+        goto nullptr_exc;
+      
+      Array* arr = &ctx->objects.entries[arrayref].content.arr;
+      if (!IN_RANGE(index, 0, (int32_t)arr->length * 2 - 2))
+        goto idx_oob;
+
+      arr->data[index*2] = (u4)(val >> 32);
+      arr->data[index*2 + 1] = (u4)val;
+    }
+
+    default:
+    return;
   }
+
+idx_oob: // TODO throw
+  terminateJVM(ctx);
+  fprintf(stderr, "ArrayIndexOutOfBounds");
+  exit(1); 
+nullptr_exc: // TODO throw
+  terminateJVM(ctx);
+  fprintf(stderr, "NullPointerException");
+  exit(1);
 }
 
