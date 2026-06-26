@@ -43,8 +43,10 @@ void handle_store(JVM_Context *ctx, u1 opc)
     return;
   }
 
-  // TODO
-  // iastore, lastore, fastore, dastore, aastore, bastore, castore, sastore
+  if (IN_RANGE(opc, opc_astore_0, opc_astore_3))
+  {
+    f->locals[opc - opc_astore_0] = pop_operand(f);
+  }
 }
 
 void handle_load(JVM_Context* ctx, u1 opc) {
@@ -126,6 +128,15 @@ void handle_load(JVM_Context* ctx, u1 opc) {
 
     // if (float or int)
     push_operand(frame, array->data[idx]);
+  }
+}
+
+void handle_astore(JVM_Context *ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+  switch (opc)
+  {
+    
   }
 }
 
