@@ -54,10 +54,12 @@ void handle_ifcond(JVM_Context* ctx, u1 opc)
 
   switch (opc)
   {
+    case (opc_ifnull):
     case (opc_ifeq):
       cond = value == 0;
       break;
 
+    case (opc_ifnonnull):
     case (opc_ifne):
       cond = value != 0;
       break;
