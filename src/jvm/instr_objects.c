@@ -20,6 +20,27 @@ static u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
   return idx;
 }
 
+static u4 new_array(JVM_Context *ctx, 
+    LoadedClass* clazz, u1 type, int32_t count, u4 dimensions)
+{
+
+  u4 arr_size = count;
+  if ((dimensions == 1) 
+    && ((type == T_DOUBLE) || (type == T_LONG)))
+    arr_size *= 2;
+ 
+  u4 ref = ctx->objects.count++;
+  Object* obj = &ctx->objects.entries[ref];
+  obj->type = OBJ_ARRAY;
+  obj->content.arr.type = 0;
+  obj->clazz = clazz;
+  obj->content.arr.dimensions = dimensions;
+  obj->content.arr.length = count;
+  obj->content.arr.data = (u4*)calloc(arr_size, sizeof(u4));
+
+  return ref;
+}
+
 void handle_new(JVM_Context *ctx, u1 opc)
 {
   (void)opc;
@@ -67,33 +88,8 @@ void handle_newarray(JVM_Context *ctx, u1 opc)
     exit(1);
   }
 
-  int32_t arr_size = count;
-
-  u4 arrayref = ctx->objects.count++;
-  if (arrayref == JVM_HEAP_CAPACITY)
-  {
-    fprintf(stderr, "Out of memory\n");
-    terminateJVM(ctx);
-    exit(1);
-  }
-
   // inicializando objeto
-  Object* arr_obj = &ctx->objects.entries[arrayref];
-  Array* array = &arr_obj->content.arr;
-  arr_obj->type = OBJ_ARRAY;
-  arr_obj->clazz = NULL;
-  array->type = type;
-  array->length = count;
-  array->dimensions = 1;
-
-  // Número de slots 
-  if (type == T_LONG || type == T_DOUBLE)
-  {
-    arr_size *= 2;
-  }
-  
-  array->data = (u4*)(calloc(arr_size, sizeof(u4)));
-
+  u4 arrayref = new_array(ctx, NULL, type, count, 1);
   push_operand(frame, arrayref);
 }
 
@@ -154,22 +150,9 @@ static void new_ref_array(JVM_Context* ctx, LoadedClass* ref_class)
   } 
  
   u1 type = char_to_ttype(*name);
+  int32_t count = (int32_t)pop_operand(frame);
 
-  u4 ref = ctx->objects.count++;
-  Object* obj = &ctx->objects.entries[ref];
-  obj->type = OBJ_ARRAY;
-  obj->clazz = clazz;
-  obj->content.arr.type = type;
-
-  bool is_cat2 = (dimensions == 1) 
-    && ((type == T_DOUBLE) || (type == T_LONG));
-
-  int32_t count = pop_operand(frame);
-  obj->content.arr.dimensions = dimensions;
-  obj->content.arr.length = count;
-  obj->content.arr.data = (u4*)calloc(is_cat2 ? count*2 : count, 
-      sizeof(u4));
-
+  u4 ref = new_array(ctx, clazz, type, count, dimensions);
   push_operand(frame, ref);
 }
 
