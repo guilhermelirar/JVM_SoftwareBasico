@@ -169,14 +169,8 @@ void handle_anewarray(JVM_Context *ctx, u1 opc)
     return new_ref_array(ctx, ref_class);
   }
 
-  u4 ref = ctx->objects.count++;
-  Object* obj = &ctx->objects.entries[ref];
-  obj->type = OBJ_ARRAY;
-  obj->content.arr.type = 0;
-  obj->clazz = ref_class;
-  obj->content.arr.dimensions = 1;
 
-  int32_t len = pop_operand(frame);
-  obj->content.arr.length = len;
-  obj->content.arr.data = (u4*)calloc(len, sizeof(u4));
+  int32_t count = pop_operand(frame);
+  u4 ref = new_array(ctx, ref_class, 0, count, 1); 
+  push_operand(frame, ref);
 }
