@@ -276,6 +276,13 @@ void handle_new(JVM_Context* ctx, u1 opc); // 187
 void handle_newarray(JVM_Context* ctx, u1 opc); // 188
 
 /**
+ * @brief Função que implementa newarray 
+ * (instanciação de arrays de referência)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (189) */    
+void handle_anewarray(JVM_Context* ctx, u1 opc); // 188
+
+/**
  * @brief Função que implementa arraylength  
  * (tamanho da array retornado na pilha como inteiro)
  * @param ctx contexto de execução da JVM

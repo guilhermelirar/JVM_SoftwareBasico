@@ -5,6 +5,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 static u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
 {
@@ -112,4 +113,87 @@ void handle_arraylength(JVM_Context *ctx, u1 opc)
   }
 
   push_operand(frame, ctx->objects.entries[arrayref].content.arr.length);
+}
+
+static u1 char_to_ttype(char c) {
+  switch (c) {
+    case 'Z': return T_BOOLEAN; 
+    case 'C': return T_CHAR;  
+    case 'F': return T_FLOAT; 
+    case 'D': return T_DOUBLE;  
+    case 'B': return T_BYTE;  
+    case 'S': return T_SHORT;  
+    case 'I': return T_INT; 
+    case 'J': return T_LONG;
+    default:  return 0; 
+  }
+}
+
+static void new_ref_array(JVM_Context* ctx, LoadedClass* ref_class)
+{
+  Frame* frame = current_frame(ctx);
+
+  u4 dimensions = 1;
+  const char* name = ref_class->name;
+  while (*name == '[')
+  {
+    dimensions++;
+    name++;
+  }
+  
+  LoadedClass* clazz = NULL;
+  if (*name == 'L') {
+    name++; 
+    size_t len = strchr(name, ';') - name; 
+    char* clean_name = malloc(len + 1);
+    
+    strncpy(clean_name, name, len);
+    clean_name[len] = '\0';
+    clazz = get_class(ctx, clean_name);
+    free(clean_name);
+  } 
+ 
+  u1 type = char_to_ttype(*name);
+
+  u4 ref = ctx->objects.count++;
+  Object* obj = &ctx->objects.entries[ref];
+  obj->type = OBJ_ARRAY;
+  obj->clazz = clazz;
+  obj->content.arr.type = type;
+
+  bool is_cat2 = (dimensions == 1) 
+    && ((type == T_DOUBLE) || (type == T_LONG));
+
+  int32_t count = pop_operand(frame);
+  obj->content.arr.dimensions = dimensions;
+  obj->content.arr.length = count;
+  obj->content.arr.data = (u4*)calloc(is_cat2 ? count*2 : count, 
+      sizeof(u4));
+
+  push_operand(frame, ref);
+}
+
+void handle_anewarray(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+  u2 cp_idx = fetch_u2(&frame->pc);
+
+  LoadedClass* ref_class = resolve_class(ctx, cp_idx);
+
+  if (ref_class->name[0] == '[')
+  {
+    return new_ref_array(ctx, ref_class);
+  }
+
+  u4 ref = ctx->objects.count++;
+  Object* obj = &ctx->objects.entries[ref];
+  obj->type = OBJ_ARRAY;
+  obj->content.arr.type = 0;
+  obj->clazz = ref_class;
+  obj->content.arr.dimensions = 1;
+
+  int32_t len = pop_operand(frame);
+  obj->content.arr.length = len;
+  obj->content.arr.data = (u4*)calloc(len, sizeof(u4));
 }
