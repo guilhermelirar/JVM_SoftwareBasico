@@ -250,4 +250,65 @@ u4 load_string(JVM_Context* ctx, LoadedClass* clazz, u4 cp_idx)
 }
 
 
+RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx)
+{
+  Frame* frame = current_frame(ctx);
+  Resolved_cp_info* res = &frame->method.holder_class->cp[cp_idx];
 
+  // Já resolvido
+  if (res->tag == CP_RESOLVED_METHOD)
+    return &res->info.method; 
+  
+  // Não resolvido
+  cp_info* cp = constant_pool(frame);
+
+  LoadedClass* clazz = resolve_class(ctx, 
+      cp[cp_idx].info.interface_methodref_info.class_index);
+
+  cp_info* nt_info = &cp[cp[cp_idx].info.\
+                     interface_methodref_info.name_and_type_index];
+  
+  const char* name = cp_get_utf8(
+      cp, 
+      nt_info->info.name_and_type_info.name_index
+  );
+
+  const char* descriptor = cp_get_utf8(
+      cp, 
+      nt_info->info.name_and_type_info.descriptor_index
+  );
+
+  method_info* m;
+  LoadedClass* curr = clazz;
+  do {
+    m = find_method(curr->cf, name, descriptor);
+    if (m != NULL) break;
+    curr = curr->super;
+  } while (curr != NULL);
+
+  if (m == NULL)
+  {
+    fprintf(stderr, "Error: NoSuchMethodError");
+    goto terminate;
+  }
+
+  if (frame->method.holder_class != clazz && 
+      (
+       m->access_flags & ACC_PRIVATE || 
+       (!extends(frame->method.holder_class, clazz) && 
+        m->access_flags & ACC_PROTECTED)
+       )
+      )
+  {
+    fprintf(stderr, "Error: IllegalAccessError");
+    goto terminate;
+  }
+ 
+  init_RuntimeMethod(curr, m, &res->info.method);
+  res->tag = CP_RESOLVED_METHOD;
+  return &res->info.method;
+
+terminate:
+  terminateJVM(ctx);
+  exit(1);
+}

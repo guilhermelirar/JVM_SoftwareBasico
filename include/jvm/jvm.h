@@ -279,6 +279,8 @@ void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info,
  * na constant_pool da classe atual */
 RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx);
 
+RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx);
+
 /*
  * @brief retorna ponteiro para estrutura de field resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
