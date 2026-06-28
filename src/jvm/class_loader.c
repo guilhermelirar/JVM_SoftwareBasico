@@ -178,8 +178,9 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
 
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 
 {
-  // Caso especial: java/lang/Object
-  if (strcmp("java/lang/Object", name) == 0)
+  // Caso especial: java/lang/Object ou String
+  if (strcmp("java/lang/Object", name) == 0 ||
+      strcmp("java/lang/String", name) == 0)
   {
     LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
     loaded->name = name;
