@@ -268,7 +268,7 @@ void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
  * @param ctx contexto de execução da JVM
  * @param opc opcode (185)
  */    
-void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
+void handle_invokeinterface(JVM_Context* ctx, u1 opc); // 184
 
 /**
  * @brief Função que implementa new (instanciação de objetos)

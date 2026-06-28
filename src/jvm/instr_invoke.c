@@ -69,12 +69,15 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   }
   invoke_method(ctx, &method);
   return;
+
 illegal_acc:
   // TODO
   fprintf(stderr, "IllegalAccessError\n");
   terminateJVM(ctx);
   exit(1);
 }
+
+void handle_invokeinterface()
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
 {
