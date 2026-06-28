@@ -262,6 +262,15 @@ void handle_invokespecial(JVM_Context* ctx, u1 opc); //183
 void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
 
 /**
+ * @brief Função que implementa invokeinterface (185)
+ * Para executar métodos de instância resultantes da 
+ * implementação de interfaces
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (185)
+ */    
+void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
+
+/**
  * @brief Função que implementa new (instanciação de objetos)
  * @param ctx contexto de execução da JVM
  * @param opc opcode
@@ -283,19 +292,20 @@ void handle_newarray(JVM_Context* ctx, u1 opc); // 188
 void handle_anewarray(JVM_Context* ctx, u1 opc); // 188
 
 /**
- * @brief Função que implementa arraylength  
- * (tamanho da array retornado na pilha como inteiro)
- * @param ctx contexto de execução da JVM
- * @param opc opcode (190, 0xBE) */    
-void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
-
-/**
  * @brief Função que implementa multianewarray 
  * (instanciação de arrays multidimensionais com 
  * cada dimensão já alocada)
  * @param ctx contexto de execução da JVM
  * @param opc opcode (189) */    
 void handle_multianewarray(JVM_Context* ctx, u1 opc); // 189
+
+
+/**
+ * @brief Função que implementa arraylength  
+ * (tamanho da array retornado na pilha como inteiro)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (190, 0xBE) */    
+void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
 
 /**
  * @brief Função que implementa instanceof 

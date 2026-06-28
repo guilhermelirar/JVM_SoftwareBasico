@@ -183,7 +183,7 @@
 [opc_invokevirtual] = handle_invokevirtual,
 [opc_invokespecial] = handle_invokespecial,
 [opc_invokestatic] = handle_invokestatic,
-[opc_invokeinterface] = handle_nop,
+[opc_invokeinterface] = handle_invokeinterface,
 [opc_invokedynamic] = handle_nop,
 [opc_new] = handle_new,
 [opc_newarray] = handle_newarray,
