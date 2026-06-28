@@ -37,7 +37,8 @@ void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info,
 
   runtime_m->holder_class = holder_class;
   runtime_m->info = m_info;
-  runtime_m->code_attr = find_code_attr(cp, m_info);
+  runtime_m->code_attr = m_info->access_flags & ACC_ABSTRACT ? 
+    NULL : find_code_attr(cp, m_info);
   runtime_m->name = cp_get_utf8(cp, m_info->name_index);
   runtime_m->descriptor = cp_get_utf8(cp, m_info->descriptor_index);
   runtime_m->args_size = count_args_size(runtime_m->descriptor);
