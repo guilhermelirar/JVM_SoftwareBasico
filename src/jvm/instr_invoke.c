@@ -23,6 +23,29 @@ void invoke_method(JVM_Context *ctx, RuntimeMethod *target_method)
   push_frame(&ctx->t, next_frame);
 }
 
+static void get_actual_instance_method(JVM_Context* ctx, 
+    RuntimeMethod* resolved, LoadedClass* object_ref_c)
+{
+  LoadedClass* curr = object_ref_c; 
+  method_info* new_mi = NULL;
+  do {
+    new_mi = find_method(curr->cf, resolved->name, resolved->descriptor);
+    if (new_mi != NULL) break;
+    curr = curr->super;
+  } while (curr != NULL);
+
+  // TODO throw
+  if (new_mi == NULL || new_mi->access_flags & ACC_ABSTRACT)
+  {
+    terminateJVM(ctx);
+    fprintf(stderr, "AbstractMethodError\n");
+    exit(1);
+  }
+
+  // não fará alteração se um dos valores for null
+  init_RuntimeMethod(curr, new_mi, resolved); 
+}
+
 void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   (void)opc;
   Frame* frame = current_frame(ctx);
@@ -56,16 +79,7 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
         method.info->access_flags & ACC_PRIVATE)
       goto illegal_acc;
 
-    LoadedClass* curr = this_ref_c; 
-    method_info* new_mi = NULL;
-    do {
-      new_mi = find_method(curr->cf, method.name, method.descriptor);
-      if (new_mi != NULL) break;
-      curr = curr->super;
-    } while (curr != NULL);
-
-    // não fará alteração se um dos valores for null
-    init_RuntimeMethod(curr, new_mi, &method); 
+    get_actual_instance_method(ctx, &method, this_ref_c);
   }
   invoke_method(ctx, &method);
   return;
@@ -77,7 +91,31 @@ illegal_acc:
   exit(1);
 }
 
-void handle_invokeinterface()
+void handle_invokeinterface(JVM_Context* ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+  u2 cp_idx = fetch_u2(&frame->pc);
+  u1 count = *frame->pc++; // contagem de slots dos argumentos
+  frame->pc++; // 0 obrigatório
+
+  RuntimeMethod interface_method = *resolve_interface_method(ctx, cp_idx); 
+  u4 this_ref = frame->operand_stack[frame->stack_ptr - count + 1];
+
+  if (!this_ref) // TODO throw tmp
+  {
+    fprintf(stderr, "NullPointerException\n");
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  Object* this_ref_o = &ctx->objects.entries[this_ref];
+  LoadedClass* this_ref_c = this_ref_o->clazz;
+  if (this_ref_c != interface_method.holder_class)
+    get_actual_instance_method(ctx, &interface_method, this_ref_c);
+
+  invoke_method(ctx, &interface_method);
+}
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
 {
