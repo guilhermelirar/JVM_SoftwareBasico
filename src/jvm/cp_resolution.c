@@ -164,13 +164,6 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   LoadedClass* clazz = resolve_class(ctx, 
       cp[cp_idx].info.methodref_info.class_index);
 
-  if (strcmp(clazz->name, "java/lang/Object") == 0)
-  {
-    res->info.method.holder_class = clazz;
-    res->tag = CP_RESOLVED_METHOD;
-    return &res->info.method;
-  }
-  
   cp_info* nt_info = &cp[cp[cp_idx].info.\
                      methodref_info.name_and_type_index];
   
@@ -183,6 +176,16 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
       cp, 
       nt_info->info.name_and_type_info.descriptor_index
   );
+
+  if (strcmp(clazz->name, "java/lang/Object") == 0 ||
+      strcmp(clazz->name, "java/io/PrintStream") == 0)
+  {
+    res->info.method.holder_class = clazz;
+    res->info.method.name = name;
+    res->info.method.descriptor = descriptor;
+    res->tag = CP_RESOLVED_METHOD;
+    return &res->info.method;
+  }  
 
   method_info* m;
   LoadedClass* curr = clazz;

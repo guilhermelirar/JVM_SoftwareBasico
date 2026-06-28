@@ -26,37 +26,20 @@ void invoke_method(JVM_Context *ctx, RuntimeMethod *target_method)
 void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   (void)opc;
   Frame* frame = current_frame(ctx);
-  cp_info* cp = constant_pool(frame);
   u2 cp_idx = fetch_u2(&frame->pc);
-  cp_info* entry = &cp[cp_idx];
 
-  // classe do método
-  u2 class_idx = entry->info.methodref_info.class_index;
-  const char* class_name = cp_class_name(cp, class_idx);
+  RuntimeMethod method = *resolve_method(ctx, cp_idx);
 
-  // name_and_type
-  u2 nt_idx = entry->info.methodref_info.name_and_type_index;
-  cp_info* nt_entry = &cp[nt_idx];
-
-  // descritor
-  const char* method_name = 
-    cp_get_utf8(cp, 
-        nt_entry->info.name_and_type_info.name_index);
-  
-  const char* descriptor = 
-    cp_get_utf8(cp, 
-        nt_entry->info.name_and_type_info.descriptor_index);
-
-  if (strcmp(class_name, "java/io/PrintStream") == 0 && 
-    (strcmp(method_name, "println") == 0 
-     || strcmp(method_name, "print") == 0))
+  // Tratando caso de print e println
+  if (strcmp(method.holder_class->name, "java/io/PrintStream") == 0 && 
+    (strcmp(method.name, "println") == 0 
+     || strcmp(method.name, "print") == 0))
   {
-    handle_sysout(frame, ctx, descriptor[1], method_name);
+    handle_sysout(frame, ctx, method.descriptor[1], method.name);
     return;
   }
 
-  RuntimeMethod* method = resolve_method(ctx, cp_idx);
-  invoke_method(ctx, method);
+  invoke_method(ctx, &method);
 }
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
