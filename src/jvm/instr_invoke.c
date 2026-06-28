@@ -39,7 +39,41 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
     return;
   }
 
+  u4 this_ref = frame->operand_stack[frame->stack_ptr - method.args_size + 1];
+
+  if (!this_ref) // TODO throw tmp
+  {
+    fprintf(stderr, "NullPointerException\n");
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  Object* this_ref_o = &ctx->objects.entries[this_ref];
+  LoadedClass* this_ref_c = this_ref_o->clazz;
+  if (this_ref_c != method.holder_class)
+  {
+    if (!extends(this_ref_c, method.holder_class) || 
+        method.info->access_flags & ACC_PRIVATE)
+      goto illegal_acc;
+
+    LoadedClass* curr = this_ref_c; 
+    method_info* new_mi = NULL;
+    do {
+      new_mi = find_method(curr->cf, method.name, method.descriptor);
+      if (new_mi != NULL) break;
+      curr = curr->super;
+    } while (curr != NULL);
+
+    // não fará alteração se um dos valores for null
+    init_RuntimeMethod(curr, new_mi, &method); 
+  }
   invoke_method(ctx, &method);
+  return;
+illegal_acc:
+  // TODO
+  fprintf(stderr, "IllegalAccessError\n");
+  terminateJVM(ctx);
+  exit(1);
 }
 
 void handle_invokestatic(JVM_Context *ctx, u1 opc)
@@ -48,15 +82,16 @@ void handle_invokestatic(JVM_Context *ctx, u1 opc)
   Frame* frame = current_frame(ctx);
   u2 cp_idx = fetch_u2(&frame->pc);
 
-  RuntimeMethod* method = resolve_method(ctx, cp_idx);
-  if (!method->holder_class->is_initialized)
+  RuntimeMethod method = *resolve_method(ctx, cp_idx);
+  if (!method.holder_class->is_initialized)
   {
-    initialize_class(ctx, method->holder_class);
+    initialize_class(ctx, method.holder_class);
     frame->pc = frame->pc - 3; // Volta o PC para re-executar
     return;
   }
 
-  invoke_method(ctx, method);
+  invoke_method(ctx, &method);
+  return;
 }
 
 void handle_invokespecial(JVM_Context *ctx, u1 opc)
