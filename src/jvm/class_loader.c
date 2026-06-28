@@ -203,7 +203,8 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name)
   cf = ClassFile_from_path(path);
 
   const char* super_name = get_superclass_name(cf);
-  if (super_name != NULL) {
+  if (super_name != NULL || !strcmp(super_name, "java/lang/Object")) 
+  {
     super_loaded = get_class(ctx, super_name); 
   }
 
