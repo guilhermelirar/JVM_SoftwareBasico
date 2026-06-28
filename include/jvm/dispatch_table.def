@@ -195,7 +195,7 @@
 [opc_monitorenter] = handle_nop,
 [opc_monitorexit] = handle_nop,
 [opc_wide] = handle_nop,
-[opc_multianewarray] = handle_nop,
+[opc_multianewarray] = handle_multianewarray,
 [opc_ifnull] = handle_ifcond,
 [opc_ifnonnull] = handle_ifcond,
 [opc_goto_w] = handle_goto_jsr_ret,

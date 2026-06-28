@@ -125,11 +125,9 @@ static u1 char_to_ttype(char c) {
   }
 }
 
-static void new_ref_array(JVM_Context* ctx, LoadedClass* ref_class)
+static u4 new_ref_array(JVM_Context* ctx, int32_t count, u1 dimensions,  
+      LoadedClass* ref_class)
 {
-  Frame* frame = current_frame(ctx);
-
-  u4 dimensions = 1;
   const char* name = ref_class->name;
   while (*name == '[')
   {
@@ -150,10 +148,7 @@ static void new_ref_array(JVM_Context* ctx, LoadedClass* ref_class)
   } 
  
   u1 type = char_to_ttype(*name);
-  int32_t count = (int32_t)pop_operand(frame);
-
-  u4 ref = new_array(ctx, clazz, type, count, dimensions);
-  push_operand(frame, ref);
+  return new_array(ctx, clazz, type, count, dimensions);
 }
 
 void handle_anewarray(JVM_Context *ctx, u1 opc)
@@ -164,13 +159,51 @@ void handle_anewarray(JVM_Context *ctx, u1 opc)
 
   LoadedClass* ref_class = resolve_class(ctx, cp_idx);
 
+  int32_t count = pop_operand(frame);
+  u4 ref = 0;
   if (ref_class->name[0] == '[')
+    ref =  new_ref_array(ctx, count, 1, ref_class);
+  else 
+    ref = new_array(ctx, ref_class, 0, count, 1); 
+
+  push_operand(frame, ref);
+}
+
+void handle_multianewarray(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+  u2 cp_idx = fetch_u2(&frame->pc);
+  u1 dimensions = *(frame->pc++);
+
+  u4* dim_count = (u4*)calloc(dimensions, sizeof(u4));
+  for(u1 i = dimensions; i > 0; i--)
   {
-    return new_ref_array(ctx, ref_class);
+    dim_count[i-1] = (int32_t)pop_operand(frame);
   }
 
+  LoadedClass* clazz = resolve_class(ctx, cp_idx);
+  u4 arrayref = 0;
+  if (clazz->name[0] == '[')
+    arrayref =  new_ref_array(ctx, dim_count[0], 1, clazz);
+  else 
+    arrayref = new_array(ctx, clazz, char_to_ttype(clazz->name[0]), 
+        dim_count[0], dimensions);  
+  
+  u4 parent_ref = arrayref;
+  for(u1 i = 1; i < dimensions; i++)
+  {
+    Array* parent = &ctx->objects.entries[parent_ref].content.arr;
+    for (u4 j = 0; j < parent->length; j++)
+    {
+      u4 child_ref = new_array(ctx, clazz, 
+          0, dim_count[i], dimensions - i);
 
-  int32_t count = pop_operand(frame);
-  u4 ref = new_array(ctx, ref_class, 0, count, 1); 
-  push_operand(frame, ref);
+      parent->data[j] = child_ref; 
+      parent_ref = child_ref;
+    }
+  }
+
+  free(dim_count);
+  push_operand(frame, arrayref);
 }

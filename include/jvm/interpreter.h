@@ -289,5 +289,12 @@ void handle_anewarray(JVM_Context* ctx, u1 opc); // 188
  * @param opc opcode (190, 0xBE) */    
 void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
 
+/**
+ * @brief Função que implementa multianewarray 
+ * (instanciação de arrays multidimensionais com 
+ * cada dimensão já alocada)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (189) */    
+void handle_multianewarray(JVM_Context* ctx, u1 opc); // 188
 #endif
 
