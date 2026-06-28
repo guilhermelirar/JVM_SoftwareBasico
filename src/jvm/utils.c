@@ -6,6 +6,16 @@
 #include "common/bytecode.h"
 #include "jvm/jvm.h"
 
+char* mystrdup(const char* s) 
+{
+    size_t len = strlen(s) + 1;
+    char* p = malloc(len);
+    if (p != NULL) 
+    {
+        memcpy(p, s, len);
+    }
+    return p;
+}
 
 void handle_sysout(Frame* frame, JVM_Context* ctx, char descriptor,
     const char* method) 

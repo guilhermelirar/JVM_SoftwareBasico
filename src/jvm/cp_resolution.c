@@ -2,6 +2,7 @@
 #include "jvm/jvmtypes.h"
 #include "common/classfile_reader.h"
 #include <string.h>
+#include "jvm/utils.h"
 
 static field_info* field_by_name_and_type(ClassFile* cf, 
     const char* name, const char* descriptor, u2* offset, bool is_static)
@@ -112,7 +113,7 @@ LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name)
   if (name[0] == '[')
   {
     class = &ctx->method_area[ctx->classes_count++];
-    class->name = name;
+    class->name = mystrdup(name);
     class->cp = NULL;
     class->instance_size = 0;
     return class;

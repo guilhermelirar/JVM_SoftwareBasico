@@ -83,4 +83,6 @@ void extract_class_dir(const char* path, char* dest, size_t dest_size);
 
 const char* extract_class_name_from_path(const char *path);
 
+char* mystrdup(const char* s);
+
 #endif

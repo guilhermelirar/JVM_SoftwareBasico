@@ -7,17 +7,7 @@
 #include "common/reader.h"
 #include "jvm/jvmtypes.h"
 #include "jvm/jvm.h"
-
-static char* mystrdup(const char* s) 
-{
-    size_t len = strlen(s) + 1;
-    char* p = malloc(len);
-    if (p != NULL) 
-    {
-        memcpy(p, s, len);
-    }
-    return p;
-}
+#include "jvm/utils.h"
 
 ClassFile* ClassFile_from_path(const char *path)
 {
