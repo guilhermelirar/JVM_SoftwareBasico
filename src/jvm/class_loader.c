@@ -8,6 +8,17 @@
 #include "jvm/jvmtypes.h"
 #include "jvm/jvm.h"
 
+static char* mystrdup(const char* s) 
+{
+    size_t len = strlen(s) + 1;
+    char* p = malloc(len);
+    if (p != NULL) 
+    {
+        memcpy(p, s, len);
+    }
+    return p;
+}
+
 ClassFile* ClassFile_from_path(const char *path)
 {
   FILE* file = fopen(path, "rb");
@@ -180,10 +191,10 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name)
 {
   // Caso especial: java/lang/Object ou String
   if (strcmp("java/lang/Object", name) == 0 ||
-      strcmp("java/lang/String", name) == 0)
+      strcmp("java/lang/String", name) == 0) 
   {
     LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
-    loaded->name = name;
+    loaded->name = mystrdup(name);
     loaded->cf = NULL;
     loaded->super = NULL;
     loaded->static_fields = NULL;
@@ -206,7 +217,7 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name)
   }
 
   LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
-  loaded->name = name;
+  loaded->name = mystrdup(name);
   loaded->cf = cf;
   loaded->static_fields = NULL;
   loaded->cp = (Resolved_cp_info*)calloc(cf->constant_pool_count, 

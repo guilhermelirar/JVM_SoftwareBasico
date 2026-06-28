@@ -137,14 +137,8 @@ static u4 new_ref_array(JVM_Context* ctx, int32_t count, u1 dimensions,
   
   LoadedClass* clazz = NULL;
   if (*name == 'L') {
-    name++; 
-    size_t len = strchr(name, ';') - name; 
-    char* clean_name = malloc(len + 1);
-    
-    strncpy(clean_name, name, len);
-    clean_name[len] = '\0';
-    clazz = get_class(ctx, clean_name);
-    free(clean_name);
+    name++;  
+    clazz = get_class(ctx, name);
   } 
  
   u1 type = char_to_ttype(*name);

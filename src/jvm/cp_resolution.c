@@ -246,38 +246,4 @@ u4 load_string(JVM_Context* ctx, LoadedClass* clazz, u4 cp_idx)
 }
 
 
-void terminateJVM(JVM_Context *ctx)
-{
-  if (ctx == NULL) return;
 
-  while (ctx->t.frame_ptr >= 0) 
-  {
-    free_frame(ctx->t.frames[ctx->t.frame_ptr]);
-    ctx->t.frame_ptr--;
-  }
-
-  while (ctx->classes_count--)
-  {
-    free_classfile(ctx->method_area[ctx->classes_count].cf);
-    free(ctx->method_area[ctx->classes_count].static_fields);
-    free(ctx->method_area[ctx->classes_count].cp);  // constant pool resolvida
-  }
-
-  // limpa tabela de objetos
-  for (u4 i = 0; i < ctx->objects.count; i++)
-  {
-    switch (ctx->objects.entries[i].type)
-    {
-      case (OBJ_INSTANCE):
-        free(ctx->objects.entries[i].content.fields);
-        break;
-      case (OBJ_ARRAY):
-        free(ctx->objects.entries[i].content.arr.data);
-        break;
-      default:
-        break;
-    }
-  }
-
-  free(ctx);
-}
