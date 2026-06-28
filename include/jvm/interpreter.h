@@ -295,6 +295,12 @@ void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
  * cada dimensão já alocada)
  * @param ctx contexto de execução da JVM
  * @param opc opcode (189) */    
-void handle_multianewarray(JVM_Context* ctx, u1 opc); // 188
+void handle_multianewarray(JVM_Context* ctx, u1 opc); // 189
+
+/**
+ * @brief Função que implementa instanceof 
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (193) */   
+void handle_instanceof(JVM_Context* ctx, u1 opc);
 #endif
 

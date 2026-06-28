@@ -207,3 +207,30 @@ void handle_multianewarray(JVM_Context *ctx, u1 opc)
   free(dim_count);
   push_operand(frame, arrayref);
 }
+
+
+void handle_instanceof(JVM_Context* ctx, u1 opc)
+{
+  Frame* frame = current_frame(ctx);
+  (void)opc;
+
+  u2 cp_idx = fetch_u2(&frame->pc);
+  LoadedClass* clazz = resolve_class(ctx, cp_idx);
+
+  u4 objectref = pop_operand(frame);
+  if (objectref == 0)
+    return push_operand(frame, 0);
+
+  Object* obj = &ctx->objects.entries[objectref];
+  if (clazz->name[0] == '[') // array
+  {
+    if (obj->type == OBJ_ARRAY && 
+        obj->content.arr.type == (clazz->name)[strlen(clazz->name)-1])
+      return push_operand(frame, 1);
+
+    return push_operand(frame, 1);
+  }
+
+  u4 res = extends(obj->clazz, clazz) ? 1 : 0;
+  push_operand(frame, res);
+}

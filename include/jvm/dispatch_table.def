@@ -191,7 +191,7 @@
 [opc_arraylength] = handle_arraylength,
 [opc_athrow] = handle_nop,
 [opc_checkcast] = handle_nop,
-[opc_instanceof] = handle_nop,
+[opc_instanceof] = handle_instanceof,
 [opc_monitorenter] = handle_nop,
 [opc_monitorexit] = handle_nop,
 [opc_wide] = handle_nop,
