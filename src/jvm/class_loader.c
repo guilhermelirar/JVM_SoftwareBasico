@@ -176,23 +176,50 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded)
   init_static_fields(ctx, loaded); 
 }
 
+LoadedClass* load_mock_class(JVM_Context* ctx, const char* name)
+{
+  LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
+  loaded->name = mystrdup(name);
+  loaded->cf = NULL;
+  loaded->super = NULL;
+  loaded->static_fields = NULL;
+  loaded->cp = NULL;
+  loaded->is_initialized = true; 
+  loaded->instance_size = 0; 
+  return loaded; 
+}
+
+static bool is_native_java_class(const char* name) {
+    static const char* native_classes[] = {
+        "java/lang/Object",
+        "java/lang/String",
+        "java/io/PrintStream",
+        "java/lang/ArithmeticException",
+        "java/lang/NullPointerException",
+        "java/lang/ArrayIndexOutOfBoundsException",
+        "java/lang/ClassCastException",
+        "java/lang/NegativeArraySizeException"
+    };
+    int total = sizeof(native_classes) / sizeof(native_classes[0]);
+    for (int i = 0; i < total; i++) {
+        if (strcmp(native_classes[i], name) == 0) return true;
+    }
+    return false;
+}
 
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 
 {
-  // Caso especial: java/lang/Object ou String
-  if (strcmp("java/lang/Object", name) == 0 ||
-      strcmp("java/lang/String", name) == 0 ||
-      strcmp("java/io/PrintStream", name) == 0) 
+  if (ctx->classes_count == JVM_MAX_CLASSES)
   {
-    LoadedClass* loaded = &ctx->method_area[ctx->classes_count++];
-    loaded->name = mystrdup(name);
-    loaded->cf = NULL;
-    loaded->super = NULL;
-    loaded->static_fields = NULL;
-    loaded->cp = NULL;
-    loaded->is_initialized = true; 
-    loaded->instance_size = 0; 
-    return loaded; 
+    fprintf(stderr, "OutOfMemoryError");
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  // classes em que preciso do nome mas são nativas
+  if (is_native_java_class(name))  
+  {
+    return load_mock_class(ctx, name);
   }
 
   ClassFile* cf = NULL;

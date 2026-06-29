@@ -7,7 +7,7 @@
 #include <stdlib.h>
 #include <string.h>
 
-static u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
+u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
 {
   if (ctx->objects.count == ctx->objects.capacity)
     return 0; // NULL
