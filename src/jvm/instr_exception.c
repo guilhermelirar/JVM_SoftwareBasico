@@ -1,9 +1,7 @@
-#include "common/bytecode.h"
 #include "common/classfile.h"
 #include "jvm/interpreter.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
-#include "jvm/utils.h"
 #include <stdint.h>
 #include <stdio.h>
 #include <string.h>
@@ -34,16 +32,18 @@ static exception_info* get_catch_info(Frame* frame, Object* exception)
 
 void handle_athrow(JVM_Context *ctx, u1 opc)
 {
-  (void)opc;
+ (void)opc;
   Frame* frame = current_frame(ctx);
 
   u4 exc_ref = pop_operand(frame);
   Object* e = get_object(ctx, exc_ref);
-  
+ 
+  // procura tratamento de exceção até acabar a execução
   while (frame != NULL)
   {
     exception_info* catch_info = get_catch_info(frame, e);
 
+    // tratamento encontrado, mudar pc para o handler
     if (catch_info != NULL) 
     {
       push_operand(frame, exc_ref); 
@@ -54,7 +54,9 @@ void handle_athrow(JVM_Context *ctx, u1 opc)
     pop_frame(&ctx->t);
     frame = (ctx->t.frame_ptr > 0) ? current_frame(ctx) : NULL;
   }
-
+ 
+  // Exceção causa fim da execução
+  fprintf(stderr, "Exception in thread \"main\" %s\n", e->clazz->name);
   terminateJVM(ctx);
   exit(1);
 }
