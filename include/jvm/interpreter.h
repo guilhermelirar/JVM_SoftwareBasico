@@ -299,7 +299,6 @@ void handle_anewarray(JVM_Context* ctx, u1 opc); // 188
  * @param opc opcode (189) */    
 void handle_multianewarray(JVM_Context* ctx, u1 opc); // 189
 
-
 /**
  * @brief Função que implementa arraylength  
  * (tamanho da array retornado na pilha como inteiro)
@@ -312,5 +311,18 @@ void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
  * @param ctx contexto de execução da JVM
  * @param opc opcode (193) */   
 void handle_instanceof(JVM_Context* ctx, u1 opc);
+
+/**
+ * @brief Função que implementa athrow.
+ * Espera uma referência para objeto de exceção no topo da pilha.
+ * Busca por um catch no método corrente, e caso encontre-o, a pilha 
+ * de operandos é zerada para ter apenas a referência à exceção, e o 
+ * pc é mudado para handler_pc. Em caso não encontrar, o frame é desempilhado
+ * e o processo reinicia até encontrar o catch ou encerrar o programa.
+ * Essa função pode ser chamada fora de jvm_run, para lançamento de exceções 
+ * nativas, desde que a referência ao objeto tenha sido empilhada.
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (193) */   
+void handle_athrow(JVM_Context* ctx, u1 opc);
 #endif
 

@@ -63,6 +63,12 @@ static inline u8 pop_operand2(Frame *f)
   return (h << 32) | l;
 }
 
+static inline Object* get_object(JVM_Context* ctx, u4 objectref)
+{
+  if (objectref >= JVM_HEAP_CAPACITY) return NULL;
+  return &ctx->objects.entries[objectref];
+}
+
 /**
  * @brief Libera memória de um frame 
  * @param f Frame a ser liberado  
@@ -253,7 +259,7 @@ void jvm_run(JVM_Context* ctx, const char *entry_class_name);
 void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info, 
     RuntimeMethod* runtime_m);
 
-/*
+/**
  * @brief retorna ponteiro para estrutura de método resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
  * classe em execução do frame atual 
@@ -264,7 +270,7 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx);
 
 RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx);
 
-/*
+/**
  * @brief retorna ponteiro para estrutura de field resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
  * classe em execução do frame atual 
@@ -276,7 +282,7 @@ RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx);
  */
 RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx, bool is_static);
 
-/*
+/**
  * @brief retorna ponteiro para estrutura LoadedClass resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
  * classe em execução do frame atual 
@@ -286,7 +292,7 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx, bool is_static);
 LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx);
 
 
-/*
+/**
  * @brief Resolve uma setring a partir de um CONSTANT_String, 
  * carrega na tabela de Strings e retorna o índice na tabela 
  * de strings (StringTable)
@@ -300,11 +306,27 @@ LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx);
 u4 load_string(JVM_Context *ctx, LoadedClass* clazz, u4 cp_idx);
 
 
-// TODO
+/**
+ * @brief função que retorna verdadeiro se a classe_a herda 
+ * da classe_b (verdadeiro se as duas são iguais também).
+ * Verifica se é possível obter class_b ao acessar continuamente 
+ * o ponteiro super a partir de class_a e sua superclasse
+ * @param class_a classe que pode herdade de b 
+ * @param class_b classe que pode ser tal que class_a herda de class_b
+ * @return bool verdadeiro se classes são iguais ou se class_a herda 
+ * de class_b
+ */
 bool extends(LoadedClass* class_a, LoadedClass* class_b);
 
 
-// TODO
+/**
+ * @brief função que recebe um ponteiro de RuntimeMethod 
+ * e cria um novo frame com o método carregado e empilha 
+ * na thread principal do contexto passado por parâmetro
+ * @param ctx Contexto de execução jvm 
+ * @param target_method ponteiro para RuntimeMethod que contém o 
+ * código que será executado no novo frame
+ */
 void invoke_method(JVM_Context* ctx, RuntimeMethod* target_method); 
 
 /**
@@ -328,5 +350,27 @@ static inline int push_frame(JVM_Context* ctx, Frame* f)
   ctx->t.frames[ctx->t.frame_ptr] = f;
   return 0;
 }
+
+/**
+ * @brief simula carregamento de uma classe java, mas sem o comportamento real.
+ * A exemplo de java/lang/Object, e exceções. Usada para simular a existência 
+ * de classes da biblioteca do java no contexto em que apenas o nome da classe 
+ * é necessário. 
+ * @param ctx contexto de execução da JVM 
+ * @param name nome da classe
+ * @return LoadedClass* em que apenas o nome da classe é iniciado, a classe 
+ * é marcada como inicializada e todos os outros campos são zerados 
+ * (constant pool e classfile)
+ */
+LoadedClass* load_mock_class(JVM_Context* ctx, const char* name);
+
+/**
+ * @brief instancia um novo objeto da classe passada como parâmetro 
+ * e retorna a referência obtida
+ * @param ctx contexto de execução JVM 
+ * @param clazz classe do objeto em questão
+ * @return u4 referência do objeto (índice na tabela de objetos)
+ */
+u4 new_object(JVM_Context* ctx, LoadedClass* clazz);
 
 #endif
