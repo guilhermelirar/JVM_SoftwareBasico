@@ -149,39 +149,26 @@ void handle_invokespecial(JVM_Context *ctx, u1 opc)
 
   u2 cp_idx = fetch_u2(&frame->pc);
 
-  RuntimeMethod* resolved_m_ptr = resolve_method(ctx, cp_idx);
-
-  if (resolved_m_ptr == NULL)
-  {
-    fprintf(stderr, "MethodNotFoundError");
-    goto terminate;
-  }
+  RuntimeMethod* resolved_m = resolve_method(ctx, cp_idx);
 
   // java/lang/Object.<init>
-  if (strcmp(resolved_m_ptr->holder_class->name, "java/lang/Object") == 0)
+  if (strcmp(resolved_m->holder_class->name, "java/lang/Object") == 0)
   {
     pop_operand(frame);
     return;
   }
 
-  u4 objectref = frame->operand_stack[frame->stack_ptr - 
-    resolved_m_ptr->args_size + 1];
+  bool ACC_SUPER_set = frame->method.holder_class->
+    cf->access_flags & ACC_SUPER;
+  
+  bool current_extends_holder = extends(frame->method.holder_class, 
+      resolved_m->holder_class) && 
+    frame->method.holder_class != resolved_m->holder_class;
 
-  if (!objectref)
-  {
-    fprintf(stderr, "NullPointerException");
-    goto terminate;
-  }
-
-  Object* obj = &ctx->objects.entries[objectref];
-
-  // Cria cópia do resolved_m_ptr para caso de houver sobrescrita
-  RuntimeMethod resolved_m = *resolved_m_ptr;
-  get_actual_instance_method(ctx, &resolved_m, obj->clazz);
-  invoke_method(ctx, &resolved_m);
-  return;
-terminate:
-  terminateJVM(ctx);
-  exit(1);
+  bool not_init = strcmp("<init>", resolved_m->name);
+  
+  if (!(ACC_SUPER_set && current_extends_holder && not_init))
+    return invoke_method(ctx, resolved_m);
+  
+  // TODO caso especial
 }
-
