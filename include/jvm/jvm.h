@@ -81,23 +81,6 @@ static inline void pop_frame(JVM_Thread* t)
   free_frame(f);
 }
 
-/**
- * @brief Empilha um frame na thread ou retorna sem empilhar 
- * em caso de Stack Overflow
- * @param t Thread de execução para o frame ser empilhado
- * @param f Frame inicializado a ser empilhado
- */
-#define STACK_OVERFLOR_ERROR -1
-// TODO sistema de erros mais robusto
-static inline int push_frame(JVM_Thread* t, Frame* f)
-{
-  t->frame_ptr++;
-  if (t->frame_ptr >= JVM_STACK_SIZE) {
-    return STACK_OVERFLOR_ERROR;
-  }
-  t->frames[t->frame_ptr] = f;
-  return 0;
-}
 
 static inline Frame* current_frame(JVM_Context* ctx)
 {
@@ -323,5 +306,27 @@ bool extends(LoadedClass* class_a, LoadedClass* class_b);
 
 // TODO
 void invoke_method(JVM_Context* ctx, RuntimeMethod* target_method); 
+
+/**
+ * @brief Empilha um frame na thread ou retorna sem empilhar 
+ * em caso de Stack Overflow
+ * @param t Thread de execução para o frame ser empilhado
+ * @param f Frame inicializado a ser empilhado
+ */
+#define STACK_OVERFLOR_ERROR -1
+// TODO sistema de erros mais robusto
+static inline int push_frame(JVM_Context* ctx, Frame* f)
+{
+  ctx->t.frame_ptr++;
+  if (ctx->t.frame_ptr >= JVM_STACK_SIZE)
+  {
+    fprintf(stderr, "StackOverflowError\n");
+    ctx->t.frame_ptr--;
+    terminateJVM(ctx);
+    exit(1);
+  }
+  ctx->t.frames[ctx->t.frame_ptr] = f;
+  return 0;
+}
 
 #endif

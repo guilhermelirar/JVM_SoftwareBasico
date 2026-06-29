@@ -20,7 +20,7 @@ void invoke_method(JVM_Context *ctx, RuntimeMethod *target_method)
     next_frame->locals[i] = pop_operand(frame);
   }
     
-  push_frame(&ctx->t, next_frame);
+  push_frame(ctx, next_frame);
 }
 
 /*

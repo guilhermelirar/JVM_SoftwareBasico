@@ -257,7 +257,7 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
   RuntimeMethod main_method;
   init_RuntimeMethod(curr, main, &main_method);
   Frame* f = new_frame(&main_method);
-  push_frame(&ctx->t, f);
+  push_frame(ctx, f);
 
   initialize_class(ctx, entry_class_loaded); // <clinit> e static fields
   
