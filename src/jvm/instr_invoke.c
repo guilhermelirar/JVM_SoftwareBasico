@@ -169,6 +169,13 @@ void handle_invokespecial(JVM_Context *ctx, u1 opc)
   
   if (!(ACC_SUPER_set && current_extends_holder && not_init))
     return invoke_method(ctx, resolved_m);
-  
-  // TODO caso especial
+
+  // chamada de Super
+  RuntimeMethod final_method = *resolved_m;
+
+  // procurando método a partir da super
+  get_actual_instance_method(ctx, &final_method, 
+      frame->method.holder_class->super);
+
+  invoke_method(ctx, &final_method);
 }
