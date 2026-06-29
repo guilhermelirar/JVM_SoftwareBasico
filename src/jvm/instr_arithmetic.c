@@ -6,6 +6,7 @@
 #include "jvm/utils.h"
 #include <math.h>
 #include <stdint.h>
+#include <stdio.h>
 
 
 static void handle_add(Frame *f, u1 opc)
@@ -128,13 +129,15 @@ static void handle_sub(Frame *f, u1 opc)
   }
 }
 
-static void handle_div(Frame *f, u1 opc)
+static void handle_div(JVM_Context* ctx, u1 opc)
 {
+  Frame* f = current_frame(ctx);
   switch (opc)
   {
     case opc_idiv:
     {
-      int32_t v2 = (int32_t)pop_operand(f); 
+      int32_t v2 = (int32_t)pop_operand(f);
+      if (!v2) goto zerodiv;
       int32_t v1 = (int32_t)pop_operand(f);
       push_operand(f, (u4)(v1 / v2));
       return;
@@ -143,6 +146,7 @@ static void handle_div(Frame *f, u1 opc)
     case opc_fdiv:
     {
       float v2 = u4_to_float(pop_operand(f));
+      if (!v2) goto zerodiv;
       float v1 = u4_to_float(pop_operand(f));
       push_operand(f, float_to_u4(v1 / v2));
       return;
@@ -151,6 +155,7 @@ static void handle_div(Frame *f, u1 opc)
     case opc_ldiv:
     {
       int64_t v2 = (int64_t)pop_operand2(f);
+      if (!v2) goto zerodiv;
       int64_t v1 = (int64_t)pop_operand2(f);
       push_operand2(f, (u8)(v1 / v2));
       return;
@@ -159,6 +164,7 @@ static void handle_div(Frame *f, u1 opc)
     case opc_ddiv:
     {
       double d2 = u8_to_double(pop_operand2(f));
+      if (!d2) goto zerodiv;
       double d1 = u8_to_double(pop_operand2(f)); 
       push_operand2(f, double_to_u8(d1 / d2));
     }
@@ -166,6 +172,15 @@ static void handle_div(Frame *f, u1 opc)
     default:
     return;
   }
+
+  u4 zerodiv_e;
+zerodiv:
+  zerodiv_e = new_object(ctx, 
+      get_class(ctx, "java/lang/ArithmeticException"));
+
+  push_operand(f, zerodiv_e);
+  handle_athrow(ctx, opc_athrow);
+  return;
 }
 
 static void handle_rem(Frame *f, u1 opc)
@@ -220,7 +235,7 @@ void handle_arithmetic(JVM_Context *ctx, u1 opc)
     return handle_mul(current_frame(ctx), opc);
 
   if (IN_RANGE(opc, opc_idiv, opc_ddiv))
-    return handle_div(current_frame(ctx), opc);
+    return handle_div(ctx, opc);
 
   if (IN_RANGE(opc, opc_irem, opc_drem))
     return handle_rem(current_frame(ctx), opc);
