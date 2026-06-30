@@ -401,9 +401,12 @@ static inline int push_frame(JVM_Context* ctx, Frame* f)
 
 /**
  * @brief simula carregamento de uma classe java, mas sem o comportamento real.
+ * @details Funcionamento:
  * A exemplo de java/lang/Object, e exceções. Usada para simular a existência 
  * de classes da biblioteca do java no contexto em que apenas o nome da classe 
- * é necessário. 
+ * é necessário. Inicializa apenas o nome da classe, mas não campos
+ * dependentes de classfile real. Funções que recebem algum LoadedClass devem 
+ * tratar ou não este caso conforme necessidade
  * @param ctx contexto de execução da JVM 
  * @param name nome da classe
  * @return LoadedClass* em que apenas o nome da classe é iniciado, a classe 
@@ -452,10 +455,11 @@ bool is_native_java_class(const char* name);
 
 /**
  * @brief termina a execução após um erro fatal e exibe stack trace
+ * @details Funcionamento:
  * Exibe a mensagem formatada seguida da stack trace, comparando 
  * o pc de cada frame com os atributos de LineNumberTable para obter 
  * o número da linha. Encerra a execução da jvm e libera toda a memória 
- * alocada.
+ * alocada. Retorna código de erro (1) ao sistema operacional.
  * @param ctx contexto de execução jvm
  * @param format string formatada a ser exibida, deve ser 
  * seguida dos valores passados ao formato
