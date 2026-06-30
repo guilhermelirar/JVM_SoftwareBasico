@@ -62,5 +62,5 @@ void handle_athrow(JVM_Context *ctx, u1 opc)
   }
  
   // Exceção causa fim da execução
-  fatal_error(ctx, "Exception in thread \"main\" %s\n", e->clazz->name);
+  fatal_error(ctx, "Exception in thread \"main\" %s", e->clazz->name);
 }

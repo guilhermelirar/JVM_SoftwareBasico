@@ -44,8 +44,9 @@ u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
   u4 idx = ctx->objects.count++;
   ctx->objects.entries[idx].type = OBJ_INSTANCE;
   ctx->objects.entries[idx].clazz = clazz; 
-  ctx->objects.entries[idx].content.fields = 
-    (u4*)calloc(clazz->instance_size, sizeof(u4));
+
+  ctx->objects.entries[idx].content.fields = clazz->instance_size > 0 ?  
+    (u4*)calloc(clazz->instance_size, sizeof(u4)) : NULL;
 
   return idx;
 }
@@ -81,8 +82,9 @@ void handle_new(JVM_Context *ctx, u1 opc)
   LoadedClass* clazz = resolve_class(ctx, cp_idx);
 
   // instanciação de classe que não pode ser instanciada
-  if (clazz->cf->access_flags & ACC_ABSTRACT ||
-      clazz->cf->access_flags & ACC_INTERFACE)
+  if (!is_native_java_class(clazz->name) 
+      && (clazz->cf->access_flags & ACC_ABSTRACT ||
+      clazz->cf->access_flags & ACC_INTERFACE))
   {
     fatal_error(ctx, "[FATAL] Illegal Instantiation of : %s", clazz->name);
   }

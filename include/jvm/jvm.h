@@ -395,6 +395,15 @@ static inline void throw_native(JVM_Context* ctx, const char* name)
 }
 
 /**
+ * @brief retorna verdadeiro se classe é nativa java 
+ * Usado para criação de objetos em que não é necessário 
+ * inicializar nenhum campo além de nome. 
+ * Exemplo: java/lang/Object, java/lang/String, java/lang/<exceptions>
+ * @param nome da classe
+ */
+bool is_native_java_class(const char* name);
+
+/**
  * @brief termina a execução após um erro fatal e exibe stack trace
  * Exibe a mensagem formatada seguida da stack trace, comparando 
  * o pc de cada frame com os atributos de LineNumberTable para obter 

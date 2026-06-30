@@ -138,8 +138,8 @@ void handle_invokespecial(JVM_Context *ctx, u1 opc)
 
   RuntimeMethod* resolved_m = resolve_method(ctx, cp_idx);
 
-  // java/lang/Object.<init>
-  if (strcmp(resolved_m->holder_class->name, "java/lang/Object") == 0)
+  // <init> de classes nativas!
+  if (is_native_java_class(resolved_m->holder_class->name))
   {
     pop_operand(frame);
     return;

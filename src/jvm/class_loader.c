@@ -189,22 +189,22 @@ LoadedClass* load_mock_class(JVM_Context* ctx, const char* name)
   return loaded; 
 }
 
-static bool is_native_java_class(const char* name) {
-    static const char* native_classes[] = {
-        "java/lang/Object",
-        "java/lang/String",
-        "java/io/PrintStream",
-        "java/lang/ArithmeticException",
-        "java/lang/NullPointerException",
-        "java/lang/ArrayIndexOutOfBoundsException",
-        "java/lang/ClassCastException",
-        "java/lang/NegativeArraySizeException"
-    };
-    int total = sizeof(native_classes) / sizeof(native_classes[0]);
-    for (int i = 0; i < total; i++) {
-        if (strcmp(native_classes[i], name) == 0) return true;
-    }
-    return false;
+bool is_native_java_class(const char* name) {
+  static const char* native_classes[] = {
+    "java/lang/Object",
+    "java/lang/String",
+    "java/io/PrintStream",
+    "java/lang/ArithmeticException",
+    "java/lang/NullPointerException",
+    "java/lang/ArrayIndexOutOfBoundsException",
+    "java/lang/ClassCastException",
+    "java/lang/NegativeArraySizeException"
+  };
+  int total = sizeof(native_classes) / sizeof(native_classes[0]);
+  for (int i = 0; i < total; i++) {
+    if (strcmp(native_classes[i], name) == 0) return true;
+  }
+  return false;
 }
 
 LoadedClass* load_class(JVM_Context* ctx, const char* name) 

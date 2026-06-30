@@ -176,8 +176,7 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
       nt_info->info.name_and_type_info.descriptor_index
   );
 
-  if (strcmp(clazz->name, "java/lang/Object") == 0 ||
-      strcmp(clazz->name, "java/io/PrintStream") == 0)
+  if (is_native_java_class(clazz->name))
   {
     res->info.method.holder_class = clazz;
     res->info.method.name = name;
