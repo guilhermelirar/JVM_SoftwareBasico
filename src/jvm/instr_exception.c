@@ -3,7 +3,6 @@
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
 #include <stdint.h>
-#include <stdio.h>
 #include <string.h>
 #include <stdarg.h>
 
