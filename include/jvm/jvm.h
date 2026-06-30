@@ -1,7 +1,9 @@
 #ifndef JVM
 #define JVM
 
+#include "common/bytecode.h"
 #include "common/classfile.h"
+#include "jvm/interpreter.h"
 #include "jvmtypes.h"
 #include <stdio.h>
 #include <stdlib.h>
@@ -372,5 +374,12 @@ LoadedClass* load_mock_class(JVM_Context* ctx, const char* name);
  * @return u4 referência do objeto (índice na tabela de objetos)
  */
 u4 new_object(JVM_Context* ctx, LoadedClass* clazz);
+
+static inline void throw_native(JVM_Context* ctx, const char* name)
+{
+  Frame* f = current_frame(ctx);
+  push_operand(f, new_object(ctx, get_class(ctx, name)));
+  handle_athrow(ctx, opc_athrow);
+}
 
 #endif
