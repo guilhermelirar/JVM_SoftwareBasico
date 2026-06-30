@@ -13,12 +13,20 @@ static exception_info* get_catch_info(Frame* frame, Object* exception)
   ClassFile* cf = frame->method.holder_class->cf;
   u2 exception_table_len = frame->method.code_attr->exception_table_length;
   exception_info* exc_info = frame->method.code_attr->exception_table;
- 
+
+  u4 current_pc_offset = (u4)(frame->pc - frame->method.code_attr->code - 1);
+
   // Procura por um catch_type com o nome da classe da esceção
   for (int i = 0; i < exception_table_len; i++, exc_info++)
   {
+    if (current_pc_offset < exc_info->start_pc || 
+        current_pc_offset >= exc_info->end_pc) 
+    {
+      continue;
+    }
+
     u2 catch_type = exc_info->catch_type;
-    if (!catch_type) continue;
+    if (!catch_type) return exc_info;
 
     const char* catch_type_name = cp_class_name(cf->constant_pool, 
       exc_info->catch_type);

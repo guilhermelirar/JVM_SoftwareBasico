@@ -202,8 +202,9 @@ void handle_multianewarray(JVM_Context *ctx, u1 opc)
   u4* dim_count = (u4*)calloc(dimensions, sizeof(u4));
   for(u1 i = dimensions; i > 0; i--)
   {
-    dim_count[i-1] = (int32_t)pop_operand(frame);
-    if (dim_count[i-1] < 0) 
+    int32_t count = (int32_t)pop_operand(frame);
+    dim_count[i-1] = count;
+    if (count < 0) 
       return throw_native(ctx, "java/lang/NegativeArraySizeException");
   }
 
