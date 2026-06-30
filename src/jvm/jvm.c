@@ -133,20 +133,6 @@ JVM_Context* jvm_init()
   return ctx;
 }
 
-void run_method(JVM_Context *ctx, int frame_ptr)
-{
-  while (ctx->t.frame_ptr >= frame_ptr)
-  {
-    Frame* frame = current_frame(ctx);
-    u1 opcode = *frame->pc++;
-    
-    DEBUG_PRINT("[DEBUG_RUN] frame_ptr=%2d | pc=%3u | opc=0x%02X (%s)\n", 
-      ctx->t.frame_ptr, frame->pc - 1, opcode, opcode_table[opcode].name);
-    
-    DISPATCH_TABLE[opcode](ctx, opcode);
-  }
-}
-
 int count_args_size(const char* descriptor) 
 {
   int count = 0;
@@ -212,29 +198,6 @@ void jvm_run(JVM_Context* ctx, const char* entry_class_name)
     
     DISPATCH_TABLE[opcode](ctx, opcode);
   }
-}
-
-method_info* lookup_method(LoadedClass** base_class_pp, 
-    const char* method_name, const char* method_descriptor)
-{
-  if (base_class_pp == NULL || *base_class_pp == NULL) return NULL;
-
-  method_info* m = NULL;
-  LoadedClass* curr = *base_class_pp;
- 
-  // Procura na atual e nas superclasse até achar
-  do {
-     m = find_method(curr->cf, method_name, method_descriptor);
-     if (m != NULL)
-     {
-       *base_class_pp = curr;
-       return m;
-     }
-
-     curr = curr->super;
-  } while (curr != NULL); 
-
-  return NULL;
 }
 
 void stack_main_frame(JVM_Context* ctx, const char* entry_class_name)
