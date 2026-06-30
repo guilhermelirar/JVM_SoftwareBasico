@@ -16,7 +16,7 @@
  */
 static inline void push_operand(Frame* f, u4 value) 
 {
-  f->operand_stack[++f->stack_ptr] = value;
+f->operand_stack[++f->stack_ptr] = value;
 }
 
 /** 
@@ -65,9 +65,14 @@ static inline u8 pop_operand2(Frame *f)
   return (h << 32) | l;
 }
 
+/**
+ * @brief retorna um objeto a partir de uma referência passada 
+ * @param ctx Contexto de execução JVM 
+ * @param objectref referência dos objetos 
+ */
 static inline Object* get_object(JVM_Context* ctx, u4 objectref)
 {
-  if (objectref >= JVM_HEAP_CAPACITY) return NULL;
+  if (objectref >= ctx->objects.count) return NULL;
   return &ctx->objects.entries[objectref];
 }
 
@@ -118,8 +123,13 @@ method_info* find_method(ClassFile *cf, const char* name,
 
 /**
  * @brief inicializa uma estrutura JVM_Context sem classes carregadas
- * @return JVM_Context pronto para loop de execução
- * ou NULL caso main_class seja inválida (ex: sem método main correto)
+ * @details Funcionamento:
+ * Aloca struct JVM_Context, inicializa capacidade da tabela de objetos 
+ * para 100, inicializa contagem de objetos em 1 (índice 0 é reservado 
+ * para representar nullptr). Inicializa contagem de classes em 0, strings 
+ * em 1 (nullptr com índice 0 reservado). 
+ * @return JVM_Context ponteiro para jvm context alocado ou NULL 
+ * em caso de erro
  */
 JVM_Context* jvm_init();
 
@@ -155,10 +165,18 @@ int count_args_size(const char* descriptor);
 ClassFile* ClassFile_from_path(const char* path);
 
 /**
- * @brief inicializa os campos estáticos de uma classe carregada, 
+ * @brief prepara a pilha para inicialziar uma classe 
+ * @details Funniniciamento:
+ * Inicializa os campos estáticos de uma classe carregada, 
  * e empilha na pilha JVM os métodos de inicialização <clinit> da 
  * hierarquia em ordem tal que as superclasses são inicializadas 
- * primeiro que a classe base (loaded)
+ * primeiro que a classe base (loaded). As classes são marcadas como 
+ * is_initialized = true, logo no início, para evitar dependência cíclica 
+ * de inicializações, o que poderia causar estouro da pilha. Este método 
+ * não executa os inicializadores, e sim unicamente os empiha na pilha de 
+ * frames, de forma que garantidamente, na próxima iteração do loop jvm_run, 
+ * as classes serão inicializadas na ordem que é determinada pelas 
+ * especificações da JVM
  * @param ctx Contexto de execução JVM 
  * @param loaded ponteiro para classe carregada na área de métodos
  */
@@ -166,23 +184,21 @@ void initialize_class(JVM_Context* ctx, LoadedClass* loaded);
 
 /**
  * @brief carrega classe a partir do nome  e do contexto de execução JVM, 
- * iniciando o campo cf do LoadedClass e colocando na área de métodos 
+ * iniciando o campo cf do LoadedClass e colocando na área de métodos
+ * @details Funcionamento:
+ * Procura uma classe a partir de seu nome simples, no diretório da classe 
+ * que tem o main (não resolve pacotes, ou interpreta pastas como pacotes, 
+ * ao coincidir caminhos relativos). Caso a classe seja uma classe nativa, como 
+ * String, ou exceções comuns como NullPointerException, ArithmeticException, 
+ * ArrayIndexOutOfBoundsEx., NegativeArraySizeEx., ClassCastEx., a classe é 
+ * inicializada sem ser carregada propriamente, uma vez que a existência do 
+ * LoadedClass é necessária para o Funcionamento desta máquina virtual, mas o 
+ * comportamento foge do escopo deste projeto
  * @param ctx contexto de execução jvm
  * @param name nome classe (sem .class) em relação ao base_dir
  * @return LoadedClass* ponteiro para a classe carregada
  */
 LoadedClass* load_class(JVM_Context* ctx, const char* name);
-
-/**
- * @brief executa o bytecode de um método, e todos os métodos que forem 
- * invocados em sua execução. Obtém o opcode por meio do código do frame 
- * em questão e através dele busca a função handler na DISPATCH_TABLE. Retorna 
- * se o topo da pilha for menor que o argumento frame_ptr 
- * @param ctx Contexto de execução da jvm já inicializado 
- * @param frame_ptr ponteiro para frame que quando for finalizado, a execução 
- * termina (se for 0, executa o programa inteiro)
- * */
-void run_method(JVM_Context *ctx, int frame_ptr);
 
 /**
  * @brief Encontra uma LoadedClass da área de métodos que tenha o método 
@@ -211,15 +227,25 @@ LoadedClass* get_class(JVM_Context* ctx, const char* name);
 
 /**
  * @brief procura uma classe na área de métodos 
- * cujo nome (CONSTANT_Class apontado por this_class)
- * seja igual ao argumento recebido, e a retorna caso encontrada
+ * @details Funcionamento:
+ * procura pelo nome (CONSTANT_Class apontado por this_class).
+ * seja igual ao argumento recebido, e a retorna caso encontrada.
+ * Caso não encontrou e não sej aum array, retorna NULL
  * @param ctx Contexto de execução JVM 
  * @param name nome simples da classe
- */
+ * @return LoadedClass* ponteiro para classe encontrada.  */
 LoadedClass* find_class_by_name(JVM_Context* ctx, const char* name);
 
 /**
- * @brief Empilha frame com método main na thread do contexto 
+ * @brief Empilha frame com método main na thread do contexto
+ * @details Funcionamento:
+ * Usa get_class para obter a classe passada como argumento, e tenta 
+ * carregá-la. Após efetuar o carregamente de toda a hierarquia, checa 
+ * pela existência do método main adequado, e em caso afirmativo, empilha 
+ * o método main e inicializa as classes, de forma que após o retorno da 
+ * função, a pilha de frames da thread única de ctx está de tal forma que 
+ * a inicialziação da hierarquia e a execução do main acontecerçaõ na ordem 
+ * determinada pela especificação da JVM
  * @param ctx contexto de execução Java
  * @param entry_class_name Classe de entrada do interpretador 
  * (deve implementar ou herdar public static void main(String[] args))
@@ -228,8 +254,14 @@ void stack_main_frame(JVM_Context* ctx, const char* entry_class_name);
 
 /**
  * @brief Função para o loop de execução da JVM (fetch decode e execute)
- * chama run_method a partir do método inicial main (índice 0)
- *
+ * @details Funcionamento:
+ * chama stack_main_frame para empilhar o método main, 
+ * passando entry_class_name. Caso a classe seja válida, o laço começa 
+ * com um método de inicialização, ou o método main, como frame no topo 
+ * da pilha de frames. O opcode é obtido com *frame->pc++ e o handler é 
+ * obtido por meio da dispatch table. Ao final da execução, apenas retorna, 
+ * não tem a responsabilidade de liberar memória 
+ * (terminateJVM deve ser chamado separadamente)
  * @param ctx contexto de execução da JVM
  */
 void jvm_run(JVM_Context* ctx, const char *entry_class_name);
@@ -248,18 +280,47 @@ void init_RuntimeMethod(LoadedClass* holder_class, method_info* m_info,
 /**
  * @brief retorna ponteiro para estrutura de método resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
- * classe em execução do frame atual 
+ * classe em execução do frame atual.
+ * @details Funcionamento:
+ * A partir do cp_idx, procura pelo método, navegando pelos 
+ * índices e procurando a declaração deo método nas superclasses 
+ * (caso aplicado). Pode desviar para fatal_error e encerrar a execução 
+ * caso o método não exista, ou uma política de acesso seja violada.
+ * Métodos das classes java não são inicialziados além do nome e descritor,
+ * pois não são efetivamente arregados e são gerados apenas para garantir a 
+ * consistência das funções deste programa
  * @param ctx Contexto JVM 
  * @param cp_index índice válido para um CONSTANT_Methodref 
- * na constant_pool da classe atual */
+ * na constant_pool da classe atual 
+ * @return RuntimeMethod ponteiro estrutura RuntimeMethod inicializada com 
+ * pelo menos o nome e descritor */
 RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx);
 
+/**
+ * @brief Retorna método de interface resolvido, análogo ao resolve_method, mas 
+ * lidando com CONSTANT_InterfaceMethodRef
+ * @param ctx Contexto JVM 
+ * @param cp_index índice válido para um CONSTANT_Methodref 
+ * na constant_pool da classe atual 
+ * @return RuntimeMethod ponteiro estrutura RuntimeMethod inicializada com 
+ * pelo menos o nome e descritor, e certamente não o código 
+ */
 RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx);
 
 /**
  * @brief retorna ponteiro para estrutura de field resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
  * classe em execução do frame atual 
+ * @details Funcionamento:
+ * Navega pelos índices da constant_pool para obter os valores relevantes finais
+ * do campo, como suas flags de acesso, a classe que o contém (pode ser uma 
+ * superclasse da classe que inicialmente foi obtida), inicia descritor e nome 
+ * do campo, atributos e contagem de atributos. O índice real do ínicio do field
+ * no vetor de campos da classe ou instância é calculado com base no tamanho 
+ * (cat1 ou cat2) dos fields da mesma categoria (static ou de instancia) que 
+ * o antecedem. Os índices são gerados de forma que o RuntimeField é válido 
+ * para todas as classes numa mesma hierarquia, pois as primeiras classes 
+ * (classe mãe) tem os fields de instância com os índices mais baixos.
  * @param ctx Contexto JVM 
  * @param cp_index índice válido para um CONSTANT_Fieldref
  * na constant_pool da classe atual 
@@ -271,12 +332,14 @@ RuntimeField* resolve_field(JVM_Context* ctx, u2 cp_idx, bool is_static);
 /**
  * @brief retorna ponteiro para estrutura LoadedClass resolvida 
  * a partir de um contexto JVM e do índice da constant_pool da 
- * classe em execução do frame atual 
+ * classe em execução do frame atual
+ * @details Funcionamento:
+ * Resolve os índices e campos na constant_pool dao ClassFile para obter 
+ * uma LoadedClass* adequada, chamando get_class.
  * @param ctx Contexto JVM 
  * @param cp_index índice válido para um CONSTANT_Fieldref
  * na constant_pool da classe atual */
 LoadedClass* resolve_class(JVM_Context* ctx, u2 cp_idx);
-
 
 /**
  * @brief Resolve uma setring a partir de um CONSTANT_String, 
@@ -303,7 +366,6 @@ u4 load_string(JVM_Context *ctx, LoadedClass* clazz, u4 cp_idx);
  * de class_b
  */
 bool extends(LoadedClass* class_a, LoadedClass* class_b);
-
 
 /**
  * @brief função que recebe um ponteiro de RuntimeMethod 
@@ -362,6 +424,7 @@ u4 new_object(JVM_Context* ctx, LoadedClass* clazz);
 
 /**
  * @brief lança uma exceção nativa
+ * @details Funcionamento:
  * Cria um objeto de exceção e empilha sua referência na pilha 
  * de operandos do frame atual, e depois chama handle_athrow
  * para lidar com a exceção. Usado para exceções que não são 
