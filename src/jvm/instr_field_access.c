@@ -123,9 +123,9 @@ void handle_getfield(JVM_Context *ctx, u1 opc)
   return;
 
 illegal_access:
-  terminateJVM(ctx);
-  fprintf(stderr, "IllegalAccessError");
-  exit(1);
+  fatal_error(ctx, "[FATAL] IllegalAccessError: accessing" 
+      " %s.%s from class %s", obj->clazz->name, field->name, 
+      frame->method.holder_class->name);
 }
 
 void handle_putfield(JVM_Context* ctx, u1 opc)
@@ -166,7 +166,7 @@ void handle_putfield(JVM_Context* ctx, u1 opc)
   return;
 
 illegal_access:
-  terminateJVM(ctx);
-  fprintf(stderr, "IllegalAccessError");
-  exit(1);
+  fatal_error(ctx, "[FATAL] IllegalAccessError: accessing" 
+      " %s.%s from class %s", obj->clazz->name, field->name, 
+      frame->method.holder_class->name);
 }

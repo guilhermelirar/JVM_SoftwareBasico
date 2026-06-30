@@ -195,10 +195,7 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   } while (curr != NULL);
 
   if (m == NULL)
-  {
-    fprintf(stderr, "Error: NoSuchMethodError");
-    goto terminate;
-  }
+    fatal_error(ctx, "[FATAL] NoSuchMethodError");
 
   if (frame->method.holder_class != clazz && 
       (
@@ -208,23 +205,15 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
        )
       )
   {
-    fprintf(stderr, "Error: IllegalAccessError");
-    goto terminate;
+    fatal_error(ctx, "[FATAL] IllegalAccessError");
   }
  
   if (m->access_flags & ACC_ABSTRACT)
-  {
-    fprintf(stderr, "Error: AbstractMethodError");
-    goto terminate;
-  }
+    fatal_error(ctx, "[FATAL] AbstractMethodError");
 
   init_RuntimeMethod(curr, m, &res->info.method);
   res->tag = CP_RESOLVED_METHOD;
   return &res->info.method;
-
-terminate:
-  terminateJVM(ctx);
-  exit(1);
 }
 
 
@@ -286,10 +275,7 @@ RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx)
   } while (curr != NULL);
 
   if (m == NULL)
-  {
-    fprintf(stderr, "Error: NoSuchMethodError");
-    goto terminate;
-  }
+    fatal_error(ctx, "[FATAL] NoSuchMethodError");
 
   if (frame->method.holder_class != clazz && 
       (
@@ -299,15 +285,10 @@ RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx)
        )
       )
   {
-    fprintf(stderr, "Error: IllegalAccessError");
-    goto terminate;
+    fatal_error(ctx, "[FATAL] IllegalAccessError");
   }
  
   init_RuntimeMethod(curr, m, &res->info.method);
   res->tag = CP_RESOLVED_METHOD;
   return &res->info.method;
-
-terminate:
-  terminateJVM(ctx);
-  exit(1);
 }

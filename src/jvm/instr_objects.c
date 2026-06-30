@@ -17,7 +17,7 @@ void extend_object_table(JVM_Context* ctx)
 
   if (new_entries == NULL)
   {
-    fprintf(stderr, "OutOfMemoryError" 
+    fprintf(stderr, "[FATAL] OutOfMemoryError" 
         " (%d objects and could not get more memory)\n", ctx->objects.count);
     terminateJVM(ctx);
     exit(1);
@@ -84,10 +84,7 @@ void handle_new(JVM_Context *ctx, u1 opc)
   if (clazz->cf->access_flags & ACC_ABSTRACT ||
       clazz->cf->access_flags & ACC_INTERFACE)
   {
-    // TODO exceção 
-    fprintf(stderr, "Illegal instantiation");
-    terminateJVM(ctx);
-    exit(1);
+    fatal_error(ctx, "[FATAL] Illegal Instantiation of : %s", clazz->name);
   }
 
   // inicializa classe antes de executar

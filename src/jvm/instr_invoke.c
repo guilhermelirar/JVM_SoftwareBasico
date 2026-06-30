@@ -41,9 +41,8 @@ static void get_actual_instance_method(JVM_Context* ctx,
 
   if (new_mi == NULL || new_mi->access_flags & ACC_ABSTRACT)
   {
-    terminateJVM(ctx);
-    fprintf(stderr, "AbstractMethodError\n");
-    exit(1);
+    fatal_error(ctx, "[FATAL] AbstractMethodError: %s.%s", 
+        object_ref_c->name, resolved->name);
   }
 
   // não fará alteração se um dos valores for null
@@ -84,10 +83,9 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
   return;
 
 illegal_acc:
-  // TODO
-  fprintf(stderr, "IllegalAccessError\n");
-  terminateJVM(ctx);
-  exit(1);
+  fatal_error(ctx, "[FATAL] IllegalAccessError: invoking "
+      " %s.%s from %s", 
+      method.holder_class->name, method.name, this_ref_o->clazz->name);
 }
 
 void handle_invokeinterface(JVM_Context* ctx, u1 opc)

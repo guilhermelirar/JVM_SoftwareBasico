@@ -375,6 +375,18 @@ LoadedClass* load_mock_class(JVM_Context* ctx, const char* name);
  */
 u4 new_object(JVM_Context* ctx, LoadedClass* clazz);
 
+
+/**
+ * @brief lança uma exceção nativa
+ * Cria um objeto de exceção e empilha sua referência na pilha 
+ * de operandos do frame atual, e depois chama handle_athrow
+ * para lidar com a exceção. Usado para exceções que não são 
+ * lançadas pelo usuário, e sim por quebra de regras dentro 
+ * da lógica de cada handler
+ * @param ctx Contexto de execução JVM
+ * @param name nome da instrução, deve ser uma instrução nativa (mock) ou 
+ * de uma classe existente
+ */
 static inline void throw_native(JVM_Context* ctx, const char* name)
 {
   Frame* f = current_frame(ctx);
@@ -382,4 +394,15 @@ static inline void throw_native(JVM_Context* ctx, const char* name)
   handle_athrow(ctx, opc_athrow);
 }
 
+/**
+ * @brief termina a execução após um erro fatal e exibe stack trace
+ * Exibe a mensagem formatada seguida da stack trace, comparando 
+ * o pc de cada frame com os atributos de LineNumberTable para obter 
+ * o número da linha. Encerra a execução da jvm e libera toda a memória 
+ * alocada.
+ * @param ctx contexto de execução jvm
+ * @param format string formatada a ser exibida, deve ser 
+ * seguida dos valores passados ao formato
+ */
+void fatal_error(JVM_Context* ctx, const char* format, ...);
 #endif

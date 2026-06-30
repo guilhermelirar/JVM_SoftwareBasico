@@ -211,9 +211,9 @@ LoadedClass* load_class(JVM_Context* ctx, const char* name)
 {
   if (ctx->classes_count == JVM_MAX_CLASSES)
   {
-    fprintf(stderr, "OutOfMemoryError");
-    terminateJVM(ctx);
-    exit(1);
+    fatal_error(ctx, "[FATAL] Out of Memory: max classes reached (%d)", 
+        JVM_MAX_CLASSES);
+    return NULL; // não atingível
   }
 
   // classes em que preciso do nome mas são nativas

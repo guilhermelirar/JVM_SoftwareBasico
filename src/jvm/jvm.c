@@ -6,6 +6,8 @@
 #include "common/bytecode.h"
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <stdarg.h>
 
 #ifdef DEBUG_MODE
   #include <stdio.h>
@@ -322,3 +324,63 @@ void terminateJVM(JVM_Context *ctx)
   free(ctx->objects.entries);
   free(ctx);
 }
+
+
+static u4 get_current_line(Frame* f)
+{
+  Code_attribute* code_attr = f->method.code_attr;
+  cp_info* cp = f->method.holder_class->cf->constant_pool;
+  u4 pc = f->pc - code_attr->code - 1;
+  for (int i = 0; i < code_attr->attributes_count; i++)
+  {
+    if (strcmp("LineNumberTable", 
+          cp_get_utf8(cp, code_attr->attributes[i].attribute_name_index)) == 0)
+      {
+        LineNumberTable_attribute* line_number_attr = 
+          code_attr->attributes[i].info.line_number_table_attribute;
+
+        // procura linha do pc atual
+        u4 line = line_number_attr->line_number_table[0].line_number;
+        for (int j = 0; j < line_number_attr->line_number_table_length; j++)
+        {
+          if (line_number_attr->line_number_table[j].start_pc > pc)
+          {
+            return line;
+          }
+
+          line = line_number_attr->line_number_table[j].line_number;
+        }
+
+        return line;
+      }
+  }
+
+  return 0;
+}
+
+void fatal_error(JVM_Context* ctx, const char* format, ...)
+{
+  va_list args;
+  va_start(args, format);
+  vfprintf(stderr, format, args);
+
+  Frame* f = current_frame(ctx);
+  while (f != NULL)
+  {
+    const char* class_name = f->method.holder_class->name;
+    const char* method_name = f->method.name;
+    u4 line = get_current_line(f);
+    fprintf(stderr, "\tat %s.%s", class_name, method_name);
+    if (line)
+      fprintf(stderr, "(%s.java:%u)\n", class_name, line);
+    else 
+      fprintf(stderr, "(%s.java)\n", class_name);
+
+    pop_frame(&ctx->t);
+    f = (ctx->t.frame_ptr >= 0) ? current_frame(ctx) : NULL;
+  }
+
+  terminateJVM(ctx);
+  exit(1);
+}
+
