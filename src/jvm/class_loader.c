@@ -194,6 +194,8 @@ bool is_native_java_class(const char* name) {
     "java/lang/Object",
     "java/lang/String",
     "java/io/PrintStream",
+    // exceções
+    "java/lang/Throwable",
     "java/lang/ArithmeticException",
     "java/lang/NullPointerException",
     "java/lang/ArrayIndexOutOfBoundsException",

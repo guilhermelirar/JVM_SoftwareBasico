@@ -6,10 +6,9 @@
 #include <string.h>
 #include <stdarg.h>
 
-static exception_info* get_catch_info(Frame* frame, Object* exception)
+static exception_info* get_catch_info(JVM_Context* ctx, 
+    Frame* frame, Object* exception)
 {
-  const char* exc_name = exception->clazz->name; 
-
   ClassFile* cf = frame->method.holder_class->cf;
   u2 exception_table_len = frame->method.code_attr->exception_table_length;
   exception_info* exc_info = frame->method.code_attr->exception_table;
@@ -31,7 +30,7 @@ static exception_info* get_catch_info(Frame* frame, Object* exception)
     const char* catch_type_name = cp_class_name(cf->constant_pool, 
       exc_info->catch_type);
 
-    if (strcmp(catch_type_name, exc_name) == 0)
+    if (extends(exception->clazz, get_class(ctx, catch_type_name)))
       return exc_info;
   }
 
@@ -51,7 +50,7 @@ void handle_athrow(JVM_Context *ctx, u1 opc)
   Frame* handler_frame = frame;
   while (handler_frame != NULL)
   {
-    exception_info* catch_info = get_catch_info(handler_frame, e);
+    exception_info* catch_info = get_catch_info(ctx, handler_frame, e);
 
     // tratamento encontrado, mudar pc para o handler
     if (catch_info != NULL) 
