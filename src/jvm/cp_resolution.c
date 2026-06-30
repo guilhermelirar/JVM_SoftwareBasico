@@ -195,7 +195,8 @@ RuntimeMethod* resolve_method(JVM_Context* ctx, u2 cp_idx)
   } while (curr != NULL);
 
   if (m == NULL)
-    fatal_error(ctx, "[FATAL] NoSuchMethodError");
+    fatal_error(ctx, "[FATAL] NoSuchMethodError %s.%s:%s", 
+        clazz->name, name, descriptor);
 
   if (frame->method.holder_class != clazz && 
       (
@@ -275,7 +276,8 @@ RuntimeMethod* resolve_interface_method(JVM_Context* ctx, u2 cp_idx)
   } while (curr != NULL);
 
   if (m == NULL)
-    fatal_error(ctx, "[FATAL] NoSuchMethodError");
+    fatal_error(ctx, "[FATAL] NoSuchMethodError %s.%s:%s", 
+        clazz->name, name, descriptor);
 
   if (frame->method.holder_class != clazz && 
       (

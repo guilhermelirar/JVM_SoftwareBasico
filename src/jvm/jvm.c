@@ -363,6 +363,7 @@ void fatal_error(JVM_Context* ctx, const char* format, ...)
   va_list args;
   va_start(args, format);
   vfprintf(stderr, format, args);
+  fputc('\n', stderr);
 
   Frame* f = current_frame(ctx);
   while (f != NULL)
