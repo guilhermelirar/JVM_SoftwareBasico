@@ -1,16 +1,14 @@
 #ifndef INTERPRETER
 #define INTERPRETER
 
-
-#define T_BOOLEAN 4 
-#define T_BOOLEAN	4
-#define T_CHAR	5
-#define T_FLOAT	6
-#define T_DOUBLE	7
-#define T_BYTE	8
-#define T_SHORT	9
-#define T_INT	10
-#define T_LONG	11
+#define T_BOOLEAN 4 /*> Valor do tipo primitivo booleano para array Java */ 
+#define T_CHAR	5   /*> Valor do tipo primitivo caractere para array Java */ 
+#define T_FLOAT	6   /*> Valor do tipo primitivo float para array Java */ 
+#define T_DOUBLE	7 /*> Valor do tipo primitivo double para array Java */ 
+#define T_BYTE	8  /*> Valor do tipo primitivo byte para array Java */ 
+#define T_SHORT	9  /*> Valor do tipo primitivo short para array Java */
+#define T_INT	10   /*> Valor do tipo primitivo int para array Java */
+#define T_LONG	11 /*> Valor do tipo primitivo long para array Java */
 
 #include "jvmtypes.h"
 
@@ -54,14 +52,14 @@ static inline u4 fetch_u4(u1 **pc) {
 
 
 /**
- * @brief Função que implementa NOP
- * Termina a execução imediatamente caso o opcode 
- * não seja opc_nop ou opc_wide (lógica de wide 
- * é tratada internamente pelos handlers dos opcodes
- * que podem seguir wide)
- *
+ * @brief Função que implementa opcode nop ou captura opcodes não implementados
+ * @details Funcionamento:
+ * Não realiza nenhuma ação em caso de opc_nop (0x00) ou opc_wide, pois 
+ * opc_wide é tratado em handlers específicos de instruções afetadas pelo 
+ * wide. Resulta em erro de execução em caso de opcode não suportado.
  * @param ctx contexto de execução da JVM
- * @param opc opcode
+ * @param opc opcode 
+ * @return void não altera pilha de operandos, pode terminar a execução
  */
 void handle_nop(JVM_Context* ctx, u1 opc);  // 0 
 
@@ -69,23 +67,38 @@ void handle_nop(JVM_Context* ctx, u1 opc);  // 0
 /**
  * @brief Função que implementa instruções tconst_<i> (1-15)
  * (aconst_null, iconst_<i>, lconst_<i>, fconst_<i>, dconst_<i>)
+ * @details Funcionamento:
+ * Obtém frame atual e empilha um valor (constante) dado pelo opcode
+ * com o tipo adequado. Assume que o opcode passado é realmente um 
+ * dos opcodes listados
  * @param ctx contexto de execução da JVM
  * @param opc opcode
+ * @return void empilha um valor da pilha (cat 1 ou 2)
  */
 void handle_tconst(JVM_Context* ctx, u1 opc);  // 0 
 
 
 /**
  * @brief Função que implementa bipush (16) e sipush (17) 
+ * @details Funcionamento:
+ * Em caso de bipush, empilha o próximo byte do código atual 
+ * com extensão de sinal. E em caso de sipush, empilha os 
+ * próximos dois bytes, concatenados com extensão de sinal.
+ * A extensão de sinal converte ambos os valores em int32_t
  * @param ctx contexto de execução da JVM
- * @param opc opcode
+ * @param opc opcode (16, 17)
+ * @return void empilha até um valor na pilha de operandos do frame atual
  */
 void handle_push(JVM_Context* ctx, u1 opc); // 16, 17
 
 /**
  * @brief Função que implementa ldc (18), ldc_w (19) e ldc2_w (20) 
  * @param ctx contexto de execução da JVM
- * @param opc opcode
+ * @details Funcionamento: 
+ * Obtém no bytecode um ínice para a constant pool, e acessa a constant 
+ * pool para resolver o valor e empilha o resultado
+ * @param opc opcode (18, 19, 20)
+ * @return void avança o pc em até 2 unidades, e empilha um resultado (cat1-2)
  */
 void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
 
@@ -93,30 +106,58 @@ void handle_ldc(JVM_Context* ctx, u1 opc); // 18, 19, 20
  * @brief Função que implementa opcodes load (21-53)
  * que carregam valores das variáveis locais na pilha 
  * de operandos (iload-saload)
+ * @details Funcionamento:
+ * Verifica se o opcode foi precidido de wide, para obter o número 
+ * de bytes necessários paraa reconstruir cp_idx, um índice para o 
+ * o vetor de variáveis locais do método. Depois obtém o valor salvo 
+ * no índice, de acordo com o tipo e tamanho (cat1 ou cat2) e empilha 
+ * o resultado (push_operand e push_operand2).
  * @param ctx contexto de execução Java
- * @param opc opcode
+ * @param opc opcode (21-53)
+ * @return void altera pilha de operandos empilhando valores
  */
 void handle_load(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcodes store (54-86)
- * @param ctx contexto de execução Java
+ * @details Funcionamento:
+ * Verifica se o opcode foi precedido por wide, para reconstruir 
+ * com tamanho adequado um índice para o vetor de variáveis locais. 
+ * Em seguida, de acordo com o tipo dado pelo opcode, desempilha um 
+ * valor e o guarda no vetor de variáveis locais. (usa pop_operand
+ * ou push_operand2)
+ * @param ctx contextode execução Java
  * @param opc opcode
+ * @return void altera a pilha (desempilhando) e escreve no vetor de 
+ * variáveis locais do método corrente
  */
 void handle_store(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcodes <t>astore (arrays)
+ * @details Funcionamento: 
+ * De acordo com o opcode, desempilha um valor, um índice 
+ * e a referência para um array, e caso o array seja válido, 
+ * armazena o valor na posição dada pelo índice. Pode desviar 
+ * o fluxo para handle_athrow ao lançar uma exceção nativa  
+ * ArrayIndexOutOfBounds ou NullPointer
  * @param ctx contexto de execução Java
  * @param opc opcode
+ * @return void altera a pilha de operandos (pop_operand) e altera a 
+ * tabela de objetos ao alterar conteúdos de Array
  */
 void handle_tastore(JVM_Context* ctx, u1 opc);
 
 
 /**
  * @brief Função que implementa opcode de tableswitch 
+ * @detail Funcionamento:
+ * carrega do bytecode um offset, um low, um high, e um índice, 
+ * e de acordo com esses valores, obtém o offset de salto
  * @param ctx contexto de execução Java
  * @param opc opcode
+ * @return void altera o pc do frame atual caso haja desvio dado 
+ * pela tabela de desvios
  */
 void handle_tableswitch(JVM_Context* ctx, u1 opc);
 
@@ -241,21 +282,41 @@ void handle_putfield(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa invokevirtual (182)
+ * @details Funcionamento:
+ *
  * @param ctx contexto de execução da JVM
- * @param opc opcode
+ * @param opc opcode (182)
  */    
 void handle_invokevirtual(JVM_Context* ctx, u1 opc); // 182
 
 /**
- * @brief Função que implementa instrução invokespecial, 
- * que lida com invocalçao de métodos de instância, 
- * lidando com superclasses, métodos privados e métodos 
- * de inicialização de instância
+ * @brief Função que implementa instrução invokespecial 
+ * @details obtém o índice para constant pool com fetch_u2, 
+ * e usa resolve_method para encontrar o RuntimeMethod adequado.
+ * Ao receber o método, checa se a classe é nativa, e em caso afirmativo,
+ * desempilha um cat1 (referência de objeto) da pilha de operandos, pois se 
+ * trata de <init> de classes não implementadas, mas cuja existência da 
+ * estrutura LoadedClass é necessária para o funcionamento deste programa.
+ * Caso não seja nativa (não java/...), invoca o método ou resolve o método 
+ * com base na classe super da classe atual (caso em que invokespecial é uma 
+ * chamada de super.<método>), ambas usando invoke_method
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (184)
  */
 void handle_invokespecial(JVM_Context* ctx, u1 opc); //183
 
 /**
  * @brief Função que implementa invokestatic (184)
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (184)
+ * @details Funcionamento:
+ * Obtém o índice da constant pool com fetch_u2, e resolve o método 
+ * com resolve_method. A função anterior pode desviar para um erro fatal 
+ * em caso de erro de acesso ou método não encontrado. Caso a classe 
+ * do método não tenha sido inicializada, usa-se initialize_class e retorna 
+ * o pc para o início da instrução invokestatic. Na próxima execução (ou caso 
+ * a classe já esteja inicializada), usa invoke_method para empilhar o frame 
+ * com o método invocado
  * @param ctx contexto de execução da JVM
  * @param opc opcode
  */    
