@@ -396,7 +396,6 @@ void handle_logic(JVM_Context *ctx, u1 opc)
   int32_t iv1, iv2;
   int64_t lv1, lv2;
 
-
   switch (opc) 
   {
     case (opc_ishl):

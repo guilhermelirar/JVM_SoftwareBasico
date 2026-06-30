@@ -180,6 +180,9 @@ void handle_anewarray(JVM_Context *ctx, u1 opc)
   LoadedClass* ref_class = resolve_class(ctx, cp_idx);
 
   int32_t count = pop_operand(frame);
+  if (count < 0) 
+    return throw_native(ctx, "java/lang/NegativeArraySizeException");
+
   u4 ref = 0;
   if (ref_class->name[0] == '[')
     ref =  new_ref_array(ctx, count, 1, ref_class);
@@ -200,6 +203,8 @@ void handle_multianewarray(JVM_Context *ctx, u1 opc)
   for(u1 i = dimensions; i > 0; i--)
   {
     dim_count[i-1] = (int32_t)pop_operand(frame);
+    if (dim_count[i-1] < 0) 
+      return throw_native(ctx, "java/lang/NegativeArraySizeException");
   }
 
   LoadedClass* clazz = resolve_class(ctx, cp_idx);
