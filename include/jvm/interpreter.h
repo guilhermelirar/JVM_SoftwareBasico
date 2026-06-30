@@ -283,7 +283,15 @@ void handle_putfield(JVM_Context* ctx, u1 opc);
 /**
  * @brief Função que implementa invokevirtual (182)
  * @details Funcionamento:
- *
+ * Obtém com fetch_u2 índice na constant pool para o método e o 
+ * resolve com resolve_method. Caso o método seja print ou println de 
+ * java/io/Printstream, a saída será simulada de forma adequada, e a função 
+ * retorna. Caso contrário, uma referência é desempilhada, e em caso da 
+ * referência ser 0, a execução é desviada para throw_native -> handle_athrow.
+ * Após checagem de acesso com base na classe do objeto, uma nova resolução 
+ * de método é efetuada a partir da classe do objeto para encontrar um possível
+ * método sobrescrito. Após a segunda resolução, o RuntimeMethod final é usado 
+ * para instanciar o novo frame com invoke_method
  * @param ctx contexto de execução da JVM
  * @param opc opcode (182)
  */    
@@ -326,6 +334,13 @@ void handle_invokestatic(JVM_Context* ctx, u1 opc); // 184
  * @brief Função que implementa invokeinterface (185)
  * Para executar métodos de instância resultantes da 
  * implementação de interfaces
+ * @details Funcionamento:
+ * Obtem com fetch_u2 o índice da constant pool que aponta para um método 
+ * de interface. Depois da resolução com resolve_method, uma referência é 
+ * desempilhada, e uma segunda resolução é efetuada, a partir da classe 
+ * do objeto da referência, para encontrar a implementação do método. 
+ * Invoca o método em com invoke_method caso a resolução seja bem sucedida,
+ * ou termina o programa com fatal_error, devido a "AbstractMethodError"
  * @param ctx contexto de execução da JVM
  * @param opc opcode (185)
  */    
