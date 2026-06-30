@@ -307,12 +307,6 @@ void handle_multianewarray(JVM_Context* ctx, u1 opc); // 189
 void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
 
 /**
- * @brief Função que implementa instanceof 
- * @param ctx contexto de execução da JVM
- * @param opc opcode (193) */   
-void handle_instanceof(JVM_Context* ctx, u1 opc);
-
-/**
  * @brief Função que implementa athrow.
  * Espera uma referência para objeto de exceção no topo da pilha.
  * Busca por um catch no método corrente, e caso encontre-o, a pilha 
@@ -322,7 +316,20 @@ void handle_instanceof(JVM_Context* ctx, u1 opc);
  * Essa função pode ser chamada fora de jvm_run, para lançamento de exceções 
  * nativas, desde que a referência ao objeto tenha sido empilhada.
  * @param ctx contexto de execução da JVM
- * @param opc opcode (193) */   
+ * @param opc opcode (191) */   
 void handle_athrow(JVM_Context* ctx, u1 opc);
+
+/**
+ * @brief Função que implementa checkcast 
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (192) */   
+void handle_checkcast(JVM_Context* ctx, u1 opc);
+
+/**
+ * @brief Função que implementa instanceof 
+ * @param ctx contexto de execução da JVM
+ * @param opc opcode (193) */   
+void handle_instanceof(JVM_Context* ctx, u1 opc);
+
 #endif
 

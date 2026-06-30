@@ -252,3 +252,19 @@ void handle_instanceof(JVM_Context* ctx, u1 opc)
   u4 res = extends(obj->clazz, clazz) ? 1 : 0;
   push_operand(frame, res);
 }
+
+void handle_checkcast(JVM_Context *ctx, u1 opc)
+{
+  (void)opc;
+  Frame* frame = current_frame(ctx);
+  u2 idx = fetch_u2(&frame->pc);
+  LoadedClass* clazz = resolve_class(ctx, idx);
+
+  // peek, não desempilha
+  u4 objectref = frame->operand_stack[frame->stack_ptr];  
+  if (!objectref) return; // não faz nada, permite conversão
+
+  Object* obj = get_object(ctx, objectref);
+  if (!extends(obj->clazz, clazz))
+    throw_native(ctx, "java/lang/ClassCastException");
+}
