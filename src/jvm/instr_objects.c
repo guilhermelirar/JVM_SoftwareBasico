@@ -7,10 +7,40 @@
 #include <stdlib.h>
 #include <string.h>
 
+void extend_object_table(JVM_Context* ctx)
+{
+  u4 new_capacity = ctx->objects.capacity * 2;
+  if (new_capacity < 100) new_capacity = 100;
+
+  Object* new_entries = (Object*)realloc(ctx->objects.entries, 
+                                         new_capacity * sizeof(Object));
+
+  if (new_entries == NULL)
+  {
+    fprintf(stderr, "OutOfMemoryError" 
+        " (%d objects and could not get more memory)\n", ctx->objects.count);
+    terminateJVM(ctx);
+    exit(1);
+  }
+
+  ctx->objects.entries = new_entries;
+
+  // zerando memória dos objetos novos
+  u4 objetos_novos = new_capacity - ctx->objects.capacity;
+  memset(&ctx->objects.entries[ctx->objects.capacity], 
+      0, objetos_novos * sizeof(Object));
+
+  ctx->objects.capacity = new_capacity;
+}
+
 u4 new_object(JVM_Context* ctx, LoadedClass* clazz)
 {
+  // requisita mais memória ao sistema operacional
   if (ctx->objects.count == ctx->objects.capacity)
-    return 0; // NULL
+  {
+    extend_object_table(ctx);
+  }
+
   u4 idx = ctx->objects.count++;
   ctx->objects.entries[idx].type = OBJ_INSTANCE;
   ctx->objects.entries[idx].clazz = clazz; 

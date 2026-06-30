@@ -87,7 +87,8 @@ LoadedClass* find_superclass_with_method(JVM_Context* ctx,
   if (super_class == NULL) return NULL;
 
   // se achar na super classe, a retorna
-  method_info* method = find_method(super_class->cf, method_name, descriptor);
+  method_info* method = find_method(super_class->cf, 
+      method_name, descriptor);
   if (method != NULL) return super_class; 
 
   // procura na hierarquia
@@ -102,7 +103,8 @@ Frame* new_frame(RuntimeMethod* method)
 
 
   frame->locals = (u4*)calloc(method->code_attr->max_locals, sizeof(u4));
-  frame->operand_stack = (u4*)calloc(method->code_attr->max_stack, sizeof(u4));
+  frame->operand_stack = (u4*)calloc(method->code_attr->max_stack,
+      sizeof(u4));
   frame->stack_ptr = -1;
   
   frame->pc = method->code_attr->code;
@@ -117,9 +119,9 @@ JVM_Context* jvm_init()
   JVM_Context* ctx = (JVM_Context*)calloc(1, sizeof(JVM_Context));
   if (ctx == NULL) return NULL;
 
-  ctx->objects.capacity = JVM_HEAP_CAPACITY;
+  ctx->objects.capacity = 100;
   ctx->objects.count = 1; // 0 = null
-
+  ctx->objects.entries = calloc(100, sizeof(Object));
   ctx->classes_count = 0;
   ctx->strings.count = 1; // 0 = null
   ctx->strings.capacity = JVM_STRING_TABLE_SIZE;
@@ -298,7 +300,7 @@ void terminateJVM(JVM_Context *ctx)
     free_classfile(ctx->method_area[ctx->classes_count].cf);
     free((void*)ctx->method_area[ctx->classes_count].name);
     free(ctx->method_area[ctx->classes_count].static_fields);
-    free(ctx->method_area[ctx->classes_count].cp);  // constant pool resolvida
+    free(ctx->method_area[ctx->classes_count].cp); // resolved cp
   }
 
   // limpa tabela de objetos
@@ -317,5 +319,6 @@ void terminateJVM(JVM_Context *ctx)
     }
   }
 
+  free(ctx->objects.entries);
   free(ctx);
 }

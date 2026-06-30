@@ -119,7 +119,7 @@ typedef struct {
  * @brief Estrutura onde instâncias são armazenadas nesta JVM
  */
 typedef struct {
-  Object entries[JVM_HEAP_CAPACITY]; /**< Array de objetos */
+  Object *entries; /**< Array de objetos */
   u4 count;  /**< Número de itens armazenados */
   u4 capacity; /**< Capacidade máxima de referências suportada */
 } ObjectTable;
