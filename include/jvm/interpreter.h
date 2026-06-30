@@ -163,6 +163,11 @@ void handle_tableswitch(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa opcode de lookupswitch 
+ * @details Funcionamento:
+ * obtem o offset padrão, o número de pares, a chava, e calcula o offset 
+ * de acordo com a chave, procurando pelo bytecode até a posição dada pela 
+ * chave, e desvia para o valor (offset) caso encontra a chave, ou para o 
+ * offset no caso de não encontrar
  * @param ctx contexto de execução Java
  * @param opc opcode
  */
@@ -180,6 +185,10 @@ void handle_stack(JVM_Context* ctx, u1 opc);
 /**
  * @brief Função que implementa opcodes de operações aritméticas
  * como add, sub, mul, div, rem, neg (95-119)
+ * @details Funcionamento
+ * Por meio de um switch_case, efetua operações com dois valores da 
+ * pilha de operandos e guarda o resultado na pilha de operandos do 
+ * frame atual
  * @param ctx contexto de execução Java
  * @param opc opcode
  */
@@ -188,14 +197,21 @@ void handle_arithmetic(JVM_Context* ctx, u1 opc);
 /**
  * @brief Função que implementa opcodes de operações bitwise
  * (ishl-lxor)
+ * @details Funcionamento:
+ * Por meio de um switch case efetua uma operação bitwise com valores na 
+ * pilha de operandos e empilha o resultado na mesma pilha de operandos
  * @param ctx contexto de execução Java
- * @param opc opcode
+ * @param opc opcode (ishl-lxor)
  */
 void handle_logic(JVM_Context* ctx, u1 opc);
 
 /**
- * @brief Função que implementa opcodes de conversão de tipo
+ * @brief Função que implementa opcodes de conversão de tipo (i2l-d2f)
  * @param ctx contexto de execução JVM
+ * @details Funcionamento:
+ * internamente um switch_case que de acordo com o opcode, obtem o operando 
+ * com cast adequado, pela pilha de operandos, e converte o operando para 
+ * um novo tipo, empilhando-o na pilha de operandos de volta
  * @param opc opcode
  */
 void handle_conversion(JVM_Context* ctx, u1 opc);
@@ -203,6 +219,10 @@ void handle_conversion(JVM_Context* ctx, u1 opc);
 /**
  * @brief Função que implementa opcode de comparação
  * de long (0x94)
+ * @details Funcionamento:
+ * obtem dois valores com pop_operand2 e cast para long, e compara os valores
+ * para decidir se empilha 1 (v1 > v2), 0 (v1 == v2), -1 (v1 < v2) na pilha 
+ * de operandos do frame
  * @param ctx contexto de execução JVM
  * @param opc opcode
  */
@@ -211,6 +231,10 @@ void handle_lcmp(JVM_Context* ctx, u1 opc);
 /**
  * @brief Função que implementa opcodes de comparação de valores 
  * em ponto flutuantee e double (0x95-0x97 fcmp, dcmp) 
+ * @details Funcionamento:
+ * Compara dois valores em ponto flutuante obtidos com pop_operand ou 
+ * pop_operand2, com cast adequado, podendo empilhar 1 (v1>v2),
+ * 0 (v1 == v2) ou -1 (caso de v1 < v2) na pilha de operandos
  * @param ctx contexto de execução JVM
  * @param opc opcode
  */
@@ -221,6 +245,10 @@ void handle_fdcmp(JVM_Context* ctx, u1 opc);
 /**
  * @brief Função que implementa opcodes de operações de saltos 
  * condicionais if<conc> 0x99-0x9E
+ * @details Funcionamento:
+ * obtem um offset de salto (int32_t) com (cast)fetch_u2, e a partir de um 
+ * valor (int32_t) desempilhado com pop_operand, salta caso a condição 
+ * determinada pelo opcode seja antendida.
  * @param ctx contexto de execução JVM
  * @param opc opcode
  */
@@ -230,23 +258,37 @@ void handle_ifcond(JVM_Context* ctx, u1 opc);
  * @brief Função que implementa opcodes de comparação de valores 
  * da pilha de operandos e salto condicional ao resultado 
  * (if_cmpeq - if_acmpne)
+ * @details Funcionamento:
+* obtem um offset com fetch_u2, e dois valores a partir da pilha. 
+ * Compara os dois valores para decidir se o offset será somado ao pc 
+ * da instrução para obter um novo pc.
  * @param ctx contexto de execução JVM
  * @param opc opcode
  */
 void handle_ifcmp(JVM_Context* ctx, u1 opc);
 
-
-
 /**
  * @brief Função que implementa opcode goto, jsr e ret (167-169)
+ * @details Funcionamento:
+ * Aplica desvio de acordo com o opcode. Em caso de goto, obtem um 
+ * offset com fetch_u2, atualiza o pc (da instrução) somando ao offset, 
+ * e retorna. Caso jsr, realiza o mesmo procedimento, mas antes de mudar o pc, 
+ * salva o pc atual (próx instrução) na pilha de operandos. Caso opc_ret, faz 
+ * o procedimento inverso do anterior, obtendo o pc de retorno por meio do 
+ * vetor de variáveis locais (em caso de wide, 2 bytes, com fetch_u2), e 
+ * atualiza o pc. goto_w e jsr_w também são implementados de forma análoga, 
+ * porém com offset de 32 bits e não 16 bits
  * @param ctx contexto de execução da JVM
- * @param opc opcode
+ * @param opc opcode (167-169)
  */
 void handle_goto_jsr_ret(JVM_Context* ctx, u1 opc);
 
 /**
  * @brief Função que implementa execução dos opcodes de retorno (172-177)
- *
+ * @details Funcionamento:
+ * de acordo com o opcode, pode desempilhar ou não da pilha de operandos para 
+ * obter um valor de retorno. E passa o valor de retorno (se aplicado) ao 
+ * frame chamador, após desempilhar o frame atual, liberando toda sua memória
  * @param ctx contexto de execução da JVM
  * @param opc opcode
  */
@@ -348,6 +390,13 @@ void handle_invokeinterface(JVM_Context* ctx, u1 opc); // 184
 
 /**
  * @brief Função que implementa new (instanciação de objetos)
+ * @details Funcionamento: 
+ * obtem o índice para uma classe na constant pool e resolve a classe 
+ * com resolve_class. Se a clase for abstrata, levanta um erro fatal, 
+ * caso a classe não seja inicializada, marca para inicialização, retorna 
+ * o pc para o início da instrução e retorna da função. Quando a classe é
+ * instanciada, chama new_object e empilha o valor de retorno (referencia u4)
+ * na pilha de operandos do método corrente
  * @param ctx contexto de execução da JVM
  * @param opc opcode
  */    
@@ -356,6 +405,12 @@ void handle_new(JVM_Context* ctx, u1 opc); // 187
 /**
  * @brief Função que implementa newarray 
  * (instanciação de arrays de tipos primitivos)
+ * @details Funcionamento:
+ * obtém o número de elementos do array da pilha de operandos, 
+ * e o tipo do elemento por meio do bytecode. Em caso de count negativo, 
+ * desvia o programa para throw_native (NegativeArraySizeException). 
+ * Caso contrário, cria um novo Object com a configuração OBJ_ARRAY e tamanho 
+ * inicializado e valores zerados
  * @param ctx contexto de execução da JVM
  * @param opc opcode (188) */    
 void handle_newarray(JVM_Context* ctx, u1 opc); // 188
@@ -363,6 +418,10 @@ void handle_newarray(JVM_Context* ctx, u1 opc); // 188
 /**
  * @brief Função que implementa newarray 
  * (instanciação de arrays de referência)
+ * @details Funcionamento:
+ * análogo ao newarray, mas resolve uma classe por meio de um cp_idx
+ * obtido com fetch_u2. Obtem a contagem de elementos e inicializa um array
+ * de referências
  * @param ctx contexto de execução da JVM
  * @param opc opcode (189) */    
 void handle_anewarray(JVM_Context* ctx, u1 opc); // 188
@@ -371,6 +430,11 @@ void handle_anewarray(JVM_Context* ctx, u1 opc); // 188
  * @brief Função que implementa multianewarray 
  * (instanciação de arrays multidimensionais com 
  * cada dimensão já alocada)
+ * @details Funcionamento:
+ * A partir de um número de dimensões dados pelo bytecode, bem como 
+ * o cp_idx com fetch_u2, obtem uma referencia de classe e cria um array 
+ * com base nessa refereência, com um número de dimensões, cada uma com 
+ * tamanhos inicializados. No final empilha a referencia com push_operand
  * @param ctx contexto de execução da JVM
  * @param opc opcode (189) */    
 void handle_multianewarray(JVM_Context* ctx, u1 opc); // 189
@@ -378,12 +442,18 @@ void handle_multianewarray(JVM_Context* ctx, u1 opc); // 189
 /**
  * @brief Função que implementa arraylength  
  * (tamanho da array retornado na pilha como inteiro)
+ * @details Funcionamento:
+ * desempilha uma referência do array e procura o objeto. Se a referência 
+ * for nula ou objeto inváido, desvia para throw_native (NullPointer). 
+ * Se for válido, empilha o atributo length do campo Array do conteúdo do 
+ * Object
  * @param ctx contexto de execução da JVM
  * @param opc opcode (190, 0xBE) */    
 void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
 
 /**
  * @brief Função que implementa athrow.
+ * @details Funcionamento:
  * Espera uma referência para objeto de exceção no topo da pilha.
  * Busca por um catch no método corrente, e caso encontre-o, a pilha 
  * de operandos é zerada para ter apenas a referência à exceção, e o 
@@ -396,7 +466,13 @@ void handle_arraylength(JVM_Context* ctx, u1 opc); // 190
 void handle_athrow(JVM_Context* ctx, u1 opc);
 
 /**
- * @brief Função que implementa checkcast 
+ * @brief Função que implementa checkcast
+ * @details Funcionamento:
+ * obtem uma classe a partir da resolução de um índice para constant pool, 
+ * e verifica se a referencia do topo da pilha, sem desempilhar, é de uma 
+ * classe que herda ou é igual a classe resolvida, ou se a referência é nula. 
+ * Caso a referência não seja null, e a classe da referência não herda da 
+ * classe resolvida, um ClassCastException é lançado
  * @param ctx contexto de execução da JVM
  * @param opc opcode (192) */   
 void handle_checkcast(JVM_Context* ctx, u1 opc);
