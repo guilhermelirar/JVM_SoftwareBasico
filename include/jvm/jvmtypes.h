@@ -21,10 +21,10 @@ typedef struct LoadedClass LoadedClass;
  * bytecode, o que facilita a execução do frame 
  */
 typedef struct {
-  LoadedClass* holder_class;
-  const char* name;
+  LoadedClass* holder_class; /*< Ponteiro para classe carregada que contém */
+  const char* name; /*< Nome do método */
   const char* descriptor;
-  u4 args_size;
+  u4 args_size; /*< Número de slots para os argumentos do método */
 
   // Ponteiros para estruturas da ClassFile
   method_info* info;
@@ -54,6 +54,12 @@ typedef enum {
     CP_RESOLVED_METHOD
 } RuntimeCPTag;
 
+/**
+ * @brief Estrutura que representa uma entrada resolvida da constant pool 
+ * Para melhorar o funcionamento desta JVM, referências á classe, interface, 
+ * método e campos são resolvidas (valores finais a partir dos índices), 
+ * com índices indiretos á constant pool sendo substituídos por valores finais
+ * */
 typedef struct {
   RuntimeCPTag tag;
   union {
@@ -67,11 +73,11 @@ typedef struct {
  * @brief Estrutura que representa um Frame da JVM
  */
 typedef struct {
-  u1* pc;                   /**< PC da instrução atual */
-  u4 *locals;              /**< Vetor de variáveis locais */
+  u1* pc;                 /**< PC da instrução atual, ponteiro para bytecode */
+  u4 *locals;             /**< Vetor de variáveis locais */
   
-  u4 *operand_stack;       /**< pilha de operandos */
-  int stack_ptr;           /**< índice para topo da pilha */
+  u4 *operand_stack;      /**< pilha de operandos */
+  int stack_ptr;          /**< índice para topo da pilha */
 
   RuntimeMethod method;           /**< Método atual */
 } Frame;
