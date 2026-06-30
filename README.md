@@ -89,5 +89,14 @@ A máquina virtual java java-sb pode ser executada como:
 Para o java-sb, "Class" é o nome do arquivo **sem a extensão ".class"** 
 (o programa resolve o caminho internamnte)
 
+## 📖 Documentação do Projeto (Wiki)
+
+A documentação completa do projeto, incluindo as especificações de cada função, 
+estruturas de dados e os diagramas de comunicação (Call Graphs) podem ser gerados via Doxygen.
+
+Para navegar na Wiki localmente:
+1. Entre na pasta `html/`
+2. Dê um duplo clique no arquivo `index.html`.
+
 ---
 
