@@ -112,8 +112,6 @@ Frame* new_frame(RuntimeMethod* method)
   frame->pc = method->code_attr->code;
   frame->method = *method;
   return frame;
-
-  exit(1);
 }
 
 JVM_Context* jvm_init()
