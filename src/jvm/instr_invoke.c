@@ -39,7 +39,6 @@ static void get_actual_instance_method(JVM_Context* ctx,
     curr = curr->super;
   } while (curr != NULL);
 
-  // TODO throw
   if (new_mi == NULL || new_mi->access_flags & ACC_ABSTRACT)
   {
     terminateJVM(ctx);
@@ -69,12 +68,7 @@ void handle_invokevirtual(JVM_Context *ctx, u1 opc) {
 
   u4 this_ref = frame->operand_stack[frame->stack_ptr - method.args_size + 1];
 
-  if (!this_ref) // TODO throw tmp
-  {
-    fprintf(stderr, "NullPointerException\n");
-    terminateJVM(ctx);
-    exit(1);
-  }
+  if (!this_ref) return throw_native(ctx, "java/lang/NullPointerException");
 
   Object* this_ref_o = &ctx->objects.entries[this_ref];
   LoadedClass* this_ref_c = this_ref_o->clazz;
@@ -107,12 +101,7 @@ void handle_invokeinterface(JVM_Context* ctx, u1 opc)
   RuntimeMethod interface_method = *resolve_interface_method(ctx, cp_idx); 
   u4 this_ref = frame->operand_stack[frame->stack_ptr - count + 1];
 
-  if (!this_ref) // TODO throw tmp
-  {
-    fprintf(stderr, "NullPointerException\n");
-    terminateJVM(ctx);
-    exit(1);
-  }
+  if (!this_ref) return throw_native(ctx, "java/lang/NullPointerException");
 
   Object* this_ref_o = &ctx->objects.entries[this_ref];
   LoadedClass* this_ref_c = this_ref_o->clazz;

@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <strings.h>
+#include "common/bytecode.h"
 #include "common/classfile.h"
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
@@ -95,7 +96,7 @@ void handle_getfield(JVM_Context *ctx, u1 opc)
   bool is_cat2 = field->descriptor[0] == 'J' || field->descriptor[0] == 'D';
 
   u4 obj_ref = pop_operand(frame);
-  if (!obj_ref) goto null_ptr;
+  if (!obj_ref) return throw_native(ctx, "java/lang/NullPointerException");
   Object* obj = &ctx->objects.entries[obj_ref];
 
   // se protegido, e resolução aconteceu, classe de obj 
@@ -121,14 +122,9 @@ void handle_getfield(JVM_Context *ctx, u1 opc)
   push_operand(frame, obj->content.fields[field->index]);
   return;
 
-// TODO throw
 illegal_access:
   terminateJVM(ctx);
   fprintf(stderr, "IllegalAccessError");
-  exit(1);
-null_ptr: 
-  terminateJVM(ctx);
-  fprintf(stderr, "NullPointerException");
   exit(1);
 }
 
@@ -144,7 +140,8 @@ void handle_putfield(JVM_Context* ctx, u1 opc)
   u8 val = is_cat2 ? pop_operand2(frame) : pop_operand(frame);
 
   u4 obj_ref = pop_operand(frame);
-  if (!obj_ref) goto null_ptr;
+  if (!obj_ref) return throw_native(ctx, "java/lang/NullPointerException");
+
   Object* obj = &ctx->objects.entries[obj_ref];
 
   // se protegido, e resolução aconteceu, classe de obj 
@@ -168,13 +165,8 @@ void handle_putfield(JVM_Context* ctx, u1 opc)
   obj->content.fields[field->index] = (u4)val;
   return;
 
-// TODO throw
 illegal_access:
   terminateJVM(ctx);
   fprintf(stderr, "IllegalAccessError");
-  exit(1);
-null_ptr: 
-  terminateJVM(ctx);
-  fprintf(stderr, "NullPointerException");
   exit(1);
 }

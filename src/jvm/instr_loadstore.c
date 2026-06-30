@@ -3,7 +3,6 @@
 #include "jvm/jvm.h"
 #include "common/bytecode.h"
 #include <stdint.h>
-#include <stdio.h>
 
 // 54-86
 void handle_store(JVM_Context *ctx, u1 opc)
@@ -96,13 +95,25 @@ void handle_load(JVM_Context* ctx, u1 opc) {
     idx = pop_operand(frame);
     u4 arrayref = pop_operand(frame);
 
+    if (!arrayref)
+    {
+      push_operand(frame, 
+          new_object(ctx, get_class(ctx, "java/lang/NullPointerException")));
+      return handle_athrow(ctx, opc_athrow);
+    }
+
     Object* array_obj = &ctx->objects.entries[arrayref];
-    // TODO null check
-
+    
     Array* array = &array_obj->content.arr;
-    // TODO index on range check
+    if (!IN_RANGE(idx, 0, array->length - 1))
+    {
+      push_operand(frame, 
+          new_object(ctx, 
+            get_class(ctx, 
+              "java/lang/ArrayIndexOutOfBoundsException")));
+      return handle_athrow(ctx, opc_athrow);
+    }
 
-    // TODO checagem de tipo
     if (opc == opc_baload) // byte
     {
       push_operand(frame, (int32_t)((int8_t)array->data[idx]));
@@ -182,13 +193,17 @@ void handle_tastore(JVM_Context *ctx, u1 opc)
     return;
   }
 
-idx_oob: // TODO throw
-  terminateJVM(ctx);
-  fprintf(stderr, "ArrayIndexOutOfBounds");
-  exit(1); 
-nullptr_exc: // TODO throw
-  terminateJVM(ctx);
-  fprintf(stderr, "NullPointerException");
-  exit(1);
+idx_oob:
+    push_operand(frame, 
+        new_object(ctx, 
+          get_class(ctx, 
+            "java/lang/ArrayIndexOutOfBoundsException")));
+    return handle_athrow(ctx, opc_athrow);
+nullptr_exc:
+    push_operand(frame, 
+        new_object(ctx, 
+          get_class(ctx, 
+            "java/lang/NullPointerException")));
+    return handle_athrow(ctx, opc_athrow);
 }
 

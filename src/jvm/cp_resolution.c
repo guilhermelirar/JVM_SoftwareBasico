@@ -1,6 +1,5 @@
 #include "jvm/jvm.h"
 #include "jvm/jvmtypes.h"
-#include "common/classfile_reader.h"
 #include <string.h>
 #include "jvm/utils.h"
 

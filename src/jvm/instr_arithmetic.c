@@ -6,8 +6,6 @@
 #include "jvm/utils.h"
 #include <math.h>
 #include <stdint.h>
-#include <stdio.h>
-
 
 static void handle_add(Frame *f, u1 opc)
 {
@@ -137,7 +135,7 @@ static void handle_div(JVM_Context* ctx, u1 opc)
     case opc_idiv:
     {
       int32_t v2 = (int32_t)pop_operand(f);
-      if (!v2) goto zerodiv;
+      if (!v2) return throw_native(ctx, "java/lang/ArithmeticException");
       int32_t v1 = (int32_t)pop_operand(f);
       push_operand(f, (u4)(v1 / v2));
       return;
@@ -146,7 +144,7 @@ static void handle_div(JVM_Context* ctx, u1 opc)
     case opc_fdiv:
     {
       float v2 = u4_to_float(pop_operand(f));
-      if (!v2) goto zerodiv;
+      if (!v2) return throw_native(ctx, "java/lang/ArithmeticException");
       float v1 = u4_to_float(pop_operand(f));
       push_operand(f, float_to_u4(v1 / v2));
       return;
@@ -155,7 +153,7 @@ static void handle_div(JVM_Context* ctx, u1 opc)
     case opc_ldiv:
     {
       int64_t v2 = (int64_t)pop_operand2(f);
-      if (!v2) goto zerodiv;
+      if (!v2)  return throw_native(ctx, "java/lang/ArithmeticException");
       int64_t v1 = (int64_t)pop_operand2(f);
       push_operand2(f, (u8)(v1 / v2));
       return;
@@ -164,7 +162,7 @@ static void handle_div(JVM_Context* ctx, u1 opc)
     case opc_ddiv:
     {
       double d2 = u8_to_double(pop_operand2(f));
-      if (!d2) goto zerodiv;
+      if (!d2) return throw_native(ctx, "java/lang/ArithmeticException");
       double d1 = u8_to_double(pop_operand2(f)); 
       push_operand2(f, double_to_u8(d1 / d2));
     }
@@ -172,15 +170,6 @@ static void handle_div(JVM_Context* ctx, u1 opc)
     default:
     return;
   }
-
-  u4 zerodiv_e;
-zerodiv:
-  zerodiv_e = new_object(ctx, 
-      get_class(ctx, "java/lang/ArithmeticException"));
-
-  push_operand(f, zerodiv_e);
-  handle_athrow(ctx, opc_athrow);
-  return;
 }
 
 static void handle_rem(Frame *f, u1 opc)

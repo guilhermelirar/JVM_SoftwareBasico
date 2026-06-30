@@ -111,12 +111,8 @@ void handle_newarray(JVM_Context *ctx, u1 opc)
  
   // obtém número de elementos e inicializa número de slots
   int32_t count = (int32_t)pop_operand(frame);
-  if (count < 0)
-  {
-    fprintf(stderr, "NegativeArraySizeException"); // TODO
-    terminateJVM(ctx);
-    exit(1);
-  }
+  if (count < 0) 
+    return throw_native(ctx, "java/lang/NegativeArraySizeException");
 
   // inicializando objeto
   u4 arrayref = new_array(ctx, NULL, type, count, 1);
@@ -131,12 +127,7 @@ void handle_arraylength(JVM_Context *ctx, u1 opc)
   u4 arrayref = pop_operand(frame);
 
   if (arrayref == 0 || ctx->objects.entries[arrayref].type != OBJ_ARRAY)
-  {
-    // TODO throw
-    fprintf(stderr, "NullPointerException");
-    terminateJVM(ctx);
-    exit(1);
-  }
+    return throw_native(ctx, "java/lang/NullPointerException");
 
   push_operand(frame, ctx->objects.entries[arrayref].content.arr.length);
 }
