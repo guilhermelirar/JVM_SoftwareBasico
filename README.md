@@ -89,6 +89,29 @@ A máquina virtual java java-sb pode ser executada como:
 Para o java-sb, "Class" é o nome do arquivo **sem a extensão ".class"** 
 (o programa resolve o caminho internamnte)
 
+## O que foi implementado
+
+Maioria dos opcodes em algum nível, tratamento básico de exceções, 
+desvios condicionais, herança, polimorfismo e reescrita, instanciação de 
+objetos, interfaces, operações aritméticas, lógicas e de conversão. Arrays 
+unidimensionais e multidimensionais.
+
+Opcodes não implementados:
+
+- opc_invokedynamic
+- opc_monitorenter
+- opc_monitorexit
+- opc_breakpoint
+- opc_impdep1
+- opc_impdep2
+
+Recursos limitados ou não implementados:
+
+- ObjectTable é usado em vez de Heap
+- Suporte não existente a classes padrão do Java (não carrega classes da 
+  biblioteca padrão)
+- String não é representado internamente como objeto 
+
 ## 📖 Documentação do Projeto (Wiki)
 
 A documentação completa do projeto, incluindo as especificações de cada função, 
