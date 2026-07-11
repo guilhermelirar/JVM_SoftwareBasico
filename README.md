@@ -60,7 +60,8 @@ echo Fim do processo! Executaveis gerados em:
 echo  - bin\jcdump.exe
 echo  - bin\java-sb.exe
 echo =========================================
-pause```
+pause
+```
 
 #### Linux (requer Make)
 
